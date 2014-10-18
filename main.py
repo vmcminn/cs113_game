@@ -13,12 +13,10 @@ if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
 class GameLoop:
 	def __init__(self):
 		pygame.init()
-
 		pygame.display.set_mode((1280, 600))  
 		# Sets the window size - can add the NOFRAME arg if we don't want a window frame
 		# but then we have to figure out how to move the window since it won't have a menu
 		# bar to grab
-		
 		pygame.display.set_caption('Team Bears!')
 
 		surface 	= pygame.display.get_surface()
@@ -31,14 +29,16 @@ class GameLoop:
 			pygame.draw.rect(surface, GREEN, border_rect, 1)  
 			# creates a thin green rectangle border of surface
 			
-			for event in pygame.event.get():	# loop through all pygame events
-				if event.type == QUIT:  		# QUIT event occurs when click X on window bar
-					pygame.quit()
-					sys.exit()
-			
+			self.handle_events()
+
 			pygame.display.update()  			# necessary to update the display
 			pygame.time.delay(50)  				# pause for 50 milliseconds
 
+	def handle_events(self):
+		for event in pygame.event.get():	# loop through all pygame events
+			if event.type == QUIT:  		# QUIT event occurs when click X on window bar
+				pygame.quit()
+				sys.exit()
 
 #-------------------------------------------------------------------------------
 if __name__ == '__main__':

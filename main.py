@@ -19,33 +19,45 @@ class GameLoop:
 			# but then we have to figure out how to move the window since it won't have a menu
 			# bar to grab
 			pygame.display.set_caption('Team Bears!')
+			pygame.key.set_repeat(500, 100)  # allows multiple KEYDOWN events
 
 		_setup()
 		self.surface 		= pygame.display.get_surface()
 		self.border_rect 	= Rect((0, 0), (1280, 600))
-	
+		self.small_rect		= Rect((100,100), (50,50))
+
 
 	#-------------------------------------------------------------------------------
 	def __call__(self):
 		while True:		
 			self.surface.fill(DGREY)  
 			# ^ fills background dark grey
-			
-			pygame.draw.rect(self.surface, GREEN, self.border_rect, 1)  
+			pygame.draw.rect(self.surface, GREEN, self.border_rect, 1)
 			# ^ creates a thin green rectangle border of surface
+			pygame.draw.rect(self.surface, LBLUE, self.small_rect)
 			
-			self.handle_events()
+			self.handle_quit()
+			self.handle_keys()
 
-			pygame.display.update()  			# necessary to update the display
-			pygame.time.delay(50)  				# pause for 50 milliseconds
-	
+			pygame.display.update()				# necessary to update the display
+			pygame.time.delay(50)				# pause for 50 milliseconds
+
 
 	#-------------------------------------------------------------------------------
-	def handle_events(self):
+	def handle_quit(self):
 		for event in pygame.event.get():	# loop through all pygame events
 			if event.type == QUIT:  		# QUIT event occurs when click X on window bar
 				pygame.quit()
 				sys.exit()
+
+
+	def handle_keys(self):
+		keys_pressed = pygame.key.get_pressed()
+		# ^ gets the state of all keyboard buttons - True means it is pressed down
+		if keys_pressed[K_LEFT]:	self.small_rect = self.small_rect.move((-3, 0))
+		if keys_pressed[K_RIGHT]:	self.small_rect = self.small_rect.move((+3, 0))
+		if keys_pressed[K_UP]:		self.small_rect = self.small_rect.move(( 0,-3))
+		if keys_pressed[K_DOWN]:	self.small_rect = self.small_rect.move(( 0,+3))
 
 
 #-------------------------------------------------------------------------------

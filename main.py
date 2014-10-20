@@ -24,7 +24,9 @@ class GameLoop:
 		_setup()
 		self.surface 		= pygame.display.get_surface()
 		self.border_rect 	= Rect((0, 0), (1280, 600))
-		self.small_rect		= Rect((100,100), (50,50))
+		self.small_rect		= Rect((0, 0), (50, 50))
+		self.gamepad 		= pygame.joystick.Joystick(0)
+		self.gamepad.init()
 
 
 	#-------------------------------------------------------------------------------
@@ -38,6 +40,7 @@ class GameLoop:
 			
 			self.handle_quit()
 			self.handle_keys()
+			self.handle_gamepad()
 
 			pygame.display.update()				# necessary to update the display
 			pygame.time.delay(50)				# pause for 50 milliseconds
@@ -58,6 +61,21 @@ class GameLoop:
 		if keys_pressed[K_RIGHT]:	self.small_rect = self.small_rect.move((+3, 0))
 		if keys_pressed[K_UP]:		self.small_rect = self.small_rect.move(( 0,-3))
 		if keys_pressed[K_DOWN]:	self.small_rect = self.small_rect.move(( 0,+3))
+
+	def handle_gamepad(self):
+		axis_0 = round(self.gamepad.get_axis(0))
+		axis_1 = round(self.gamepad.get_axis(1))
+		button_a = self.gamepad.get_button(1)
+		
+		if axis_0 == -1:	self.small_rect = self.small_rect.move((-3, 0))
+		if axis_0 == +1:	self.small_rect = self.small_rect.move((+3, 0))
+		
+		if axis_1 == -1:	self.small_rect = self.small_rect.move(( 0,-3))
+		if axis_1 == +1:	self.small_rect = self.small_rect.move(( 0,+3))
+
+		if button_a:	self.small_rect = Rect((0, 0), (50, 50))
+
+		# print('axis_0:{}  axis_1:{}  button_a:{}'.format(axis_0, axis_1, button_a))
 
 
 #-------------------------------------------------------------------------------

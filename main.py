@@ -29,9 +29,13 @@ class GameLoop:
         self.play_area          = Rect((65,0), (1150, 475))
         self.play_area_border   = Rect((40,0), (1200, 500))
         self.player             = Rect((200, 300), (50, 50))
-        
-        self.gamepad = pygame.joystick.Joystick(0)
-        self.gamepad.init()
+
+        try:
+            self.gamepad = pygame.joystick.Joystick(0)
+            self.gamepad.init()
+            self.gamepad_found = True
+        except Exception:
+            self.gamepad_found = False
 
 
     #-------------------------------------------------------------------------------
@@ -51,7 +55,8 @@ class GameLoop:
 
             self.handle_quit()
             self.handle_keys()
-            self.handle_gamepad()
+            if self.gamepad_found:
+                self.handle_gamepad()
 
             pygame.display.update()             # necessary to update the display
             pygame.time.delay(50)               # pause for 50 milliseconds

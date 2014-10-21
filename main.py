@@ -22,10 +22,15 @@ class GameLoop:
 			pygame.key.set_repeat(500, 100)  # allows multiple KEYDOWN events
 
 		_setup()
-		self.surface 		= pygame.display.get_surface()
-		self.border_rect 	= Rect((0, 0), (1280, 600))
-		self.small_rect		= Rect((0, 0), (50, 50))
-		self.gamepad 		= pygame.joystick.Joystick(0)
+		
+		self.surface = pygame.display.get_surface()
+		
+		self.window_border		= Rect((0, 0), (1280, 600))
+		self.play_area			= Rect((65,0), (1150, 475))
+		self.play_area_border	= Rect((40,0), (1200, 500))
+		self.player				= Rect((200, 300), (50, 50))
+		
+		self.gamepad = pygame.joystick.Joystick(0)
 		self.gamepad.init()
 
 
@@ -34,10 +39,16 @@ class GameLoop:
 		while True:		
 			self.surface.fill(DGREY)  
 			# ^ fills background dark grey
-			pygame.draw.rect(self.surface, GREEN, self.border_rect, 1)
+
+			pygame.draw.rect(self.surface, DKRED, self.play_area_border)
+			# ^ red border of playable movement space
+			pygame.draw.rect(self.surface, SKYBLUE, self.play_area)
+			# ^ playable movement space
+			pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
 			# ^ creates a thin green rectangle border of surface
-			pygame.draw.rect(self.surface, LBLUE, self.small_rect)
-			
+			pygame.draw.rect(self.surface, LBLUE, self.player)
+			# ^ placeholder for a playable character; is movable
+
 			self.handle_quit()
 			self.handle_keys()
 			self.handle_gamepad()
@@ -57,23 +68,23 @@ class GameLoop:
 	def handle_keys(self):
 		keys_pressed = pygame.key.get_pressed()
 		# ^ gets the state of all keyboard buttons - True means it is pressed down
-		if keys_pressed[K_LEFT]:	self.small_rect = self.small_rect.move((-3, 0))
-		if keys_pressed[K_RIGHT]:	self.small_rect = self.small_rect.move((+3, 0))
-		if keys_pressed[K_UP]:		self.small_rect = self.small_rect.move(( 0,-3))
-		if keys_pressed[K_DOWN]:	self.small_rect = self.small_rect.move(( 0,+3))
+		if keys_pressed[K_LEFT]:	self.player = self.player.move((-3, 0))
+		if keys_pressed[K_RIGHT]:	self.player = self.player.move((+3, 0))
+		if keys_pressed[K_UP]:		self.player = self.player.move(( 0,-3))
+		if keys_pressed[K_DOWN]:	self.player = self.player.move(( 0,+3))
 
 	def handle_gamepad(self):
 		axis_0 = round(self.gamepad.get_axis(0))
 		axis_1 = round(self.gamepad.get_axis(1))
 		button_a = self.gamepad.get_button(1)
 		
-		if axis_0 == -1:	self.small_rect = self.small_rect.move((-3, 0))
-		if axis_0 == +1:	self.small_rect = self.small_rect.move((+3, 0))
+		if axis_0 == -1:	self.player = self.player.move((-3, 0))
+		if axis_0 == +1:	self.player = self.player.move((+3, 0))
 		
-		if axis_1 == -1:	self.small_rect = self.small_rect.move(( 0,-3))
-		if axis_1 == +1:	self.small_rect = self.small_rect.move(( 0,+3))
+		if axis_1 == -1:	self.player = self.player.move(( 0,-3))
+		if axis_1 == +1:	self.player = self.player.move(( 0,+3))
 
-		if button_a:	self.small_rect = Rect((0, 0), (50, 50))
+		if button_a:	self.player = Rect((0, 0), (50, 50))
 
 		# print('axis_0:{}  axis_1:{}  button_a:{}'.format(axis_0, axis_1, button_a))
 

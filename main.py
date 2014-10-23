@@ -111,6 +111,93 @@ class GameLoop:
         if button_a:
             self.player = Rect((0, 0), (50, 50))  # reset
 
+    # -------------------------------------------------------------------------
+    def handle_timer_based_events(self):
+        def _health_regen():
+            pass
+
+        def _energy_regen():
+            pass
+
+        def _spawn_npc():
+            pass
+        pass
+
+    def handle_player_input(self):
+        def _get_keys_pressed():
+            pass
+
+        def _get_keys_depressed():
+            pass
+
+        def _move_character():
+            pass
+
+        def _use_skills():
+            pass
+        pass
+
+    def handle_npcs(self):
+        def _move_npcs():
+            pass
+
+        def _use_skills_npcs():
+            pass
+        pass
+
+    def detect_collisions(self):
+        def _player_terrain():
+            pass
+
+        def _player_particle():
+            pass
+
+        def _player_player():
+            pass
+
+        def _player_npc():
+            pass
+
+        def _npc_particle():
+            pass
+
+        def _particle_particle():
+            pass
+        pass
+
+    def take_damage(self):
+        def _player():
+            pass
+
+        def _npcs():
+            pass
+
+        def _temp_terrains():
+            pass
+        pass
+
+    def update_screen(self):
+        def _draw_ui():
+            pass
+
+        def _draw_map():
+            pass
+
+        def _draw_players():
+            pass
+
+        def _draw_npcs():
+            pass
+
+        def _draw_particles():
+            pass
+        pass
+
+    def check_if_game_over(self):
+        pass
+
+    def check_if_window_closed(self):
+        pass
 
 # -------------------------------------------------------------------------
 if __name__ == '__main__':

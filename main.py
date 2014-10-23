@@ -1,5 +1,5 @@
 import os
-import sys  # some standard libraries we will need
+import sys
 import pygame
 
 # add everything from colors.py into local namespace
@@ -11,7 +11,6 @@ from pygame.locals import *
 # set window starting position for my desktop which has multiple monitors, this
 # is a convenience thing for me.  You guys can add your own setting here if
 # it's useful for you
-
 if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
     os.environ['SDL_VIDEO_WINDOW_POS'] = '{},{}'.format(1920, 150)
 # -------------------------------------------------------------------------
@@ -23,7 +22,7 @@ class GameLoop:
         def _setup():
             pygame.init()
 
-            # Set the window size - can add the NOFRAME arg if we don't want a
+            # set the window size - can add the NOFRAME arg if we don't want a
             # window frame but then we have to figure out how to move the
             # window since it won't have a menu bar to grab
             pygame.display.set_mode((1280, 600))
@@ -38,7 +37,7 @@ class GameLoop:
         self.window_border = Rect((0, 0), (1280, 600))
         self.play_area = Rect((65, 0), (1150, 475))
         self.play_area_border = Rect((40, 0), (1200, 500))
-        self.player = Rect((200, 300), (50, 50))
+        self.player = Rect((200, 300), (30, 40))
 
         try:
             self.gamepad = pygame.joystick.Joystick(0)

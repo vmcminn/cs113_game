@@ -12,7 +12,7 @@ from pygame.locals import *
 # is a convenience thing for me.  You guys can add your own setting here if
 # it's useful for you
 if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
-    os.environ['SDL_VIDEO_WINDOW_POS'] = '{},{}'.format(1920, 150)
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '{},{}'.format(1920, 90)
 # -------------------------------------------------------------------------
 
 
@@ -85,13 +85,21 @@ class GameLoop:
         keys_pressed = pygame.key.get_pressed()
 
         if keys_pressed[K_LEFT]:
-            self.player = self.player.move((-3, 0))
+            self.player = self.player.move((-5, 0))
         if keys_pressed[K_RIGHT]:
-            self.player = self.player.move((+3, 0))
+            self.player = self.player.move((+5, 0))
         if keys_pressed[K_UP]:
-            self.player = self.player.move((0, -3))
+            self.player = self.player.move((0, -5))
         if keys_pressed[K_DOWN]:
-            self.player = self.player.move((0, +3))
+            self.player = self.player.move((0, +5))
+
+        if keys_pressed[K_SPACE]:
+            while True:
+                try:
+                    exec(input('\nEnter something to exec: '))
+                    break
+                except Exception as err:
+                    print('>> {}: {} <<'.format(type(err).__name__, err))
 
     def handle_gamepad(self):
         axis_0 = round(self.gamepad.get_axis(0))

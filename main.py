@@ -49,6 +49,11 @@ class GameLoop:
     # ------------------------------------------------------------------------
     def __call__(self):
         while True:
+
+            self.handle_keys()
+            if self.gamepad_found:
+                self.handle_gamepad()
+
             # fill background dark grey
             self.surface.fill(DGREY)
 
@@ -65,9 +70,6 @@ class GameLoop:
             pygame.draw.rect(self.surface, LBLUE, self.player)
 
             self.handle_quit()
-            self.handle_keys()
-            if self.gamepad_found:
-                self.handle_gamepad()
 
             pygame.display.update()  # necessary to update the display
             pygame.time.delay(50)  # pause for 50 milliseconds
@@ -85,13 +87,13 @@ class GameLoop:
         keys_pressed = pygame.key.get_pressed()
 
         if keys_pressed[K_LEFT]:
-            self.player = self.player.move((-5, 0))
+            self.player.move_ip((-5, 0))
         if keys_pressed[K_RIGHT]:
-            self.player = self.player.move((+5, 0))
+            self.player.move_ip((+5, 0))
         if keys_pressed[K_UP]:
-            self.player = self.player.move((0, -5))
+            self.player.move_ip((0, -5))
         if keys_pressed[K_DOWN]:
-            self.player = self.player.move((0, +5))
+            self.player.move_ip((0, +5))
 
         if keys_pressed[K_SPACE]:
             while True:
@@ -101,20 +103,24 @@ class GameLoop:
                 except Exception as err:
                     print('>> {}: {} <<'.format(type(err).__name__, err))
 
+        if keys_pressed[K_q]:
+            pygame.quit()
+            sys.exit()
+
     def handle_gamepad(self):
         axis_0 = round(self.gamepad.get_axis(0))
         axis_1 = round(self.gamepad.get_axis(1))
         button_a = self.gamepad.get_button(1)
 
         if axis_0 == -1:
-            self.player = self.player.move((-3, 0))  # left
+            self.player.move_ip((-5, 0))  # left
         if axis_0 == +1:
-            self.player = self.player.move((+3, 0))  # right
+            self.player.move_ip((+5, 0))  # right
 
         if axis_1 == -1:
-            self.player = self.player.move((0, -3))  # up
+            self.player.move_ip((0, -5))  # up
         if axis_1 == +1:
-            self.player = self.player.move((0, +3))  # down
+            self.player.move_ip((0, +5))  # down
 
         if button_a:
             self.player = Rect((0, 0), (50, 50))  # reset

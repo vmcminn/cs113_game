@@ -49,6 +49,14 @@ class GameLoop:
     # ------------------------------------------------------------------------
     def __call__(self):
         while True:
+            self.handle_timer_based_events()
+            self.handle_player_input()
+            self.handle_npcs()
+            self.detect_collisions()
+            self.take_damage()
+            self.update_screen()
+            self.check_if_game_over()
+            self.check_if_window_closed()
 
             self.handle_keys()
             if self.gamepad_found:
@@ -87,15 +95,15 @@ class GameLoop:
         keys_pressed = pygame.key.get_pressed()
 
         if keys_pressed[K_LEFT]:
-            self.player.move_ip((-5, 0))
+            self.player.move_ip((-5, 0))  # left
         if keys_pressed[K_RIGHT]:
-            self.player.move_ip((+5, 0))
+            self.player.move_ip((+5, 0))  # right
         if keys_pressed[K_UP]:
-            self.player.move_ip((0, -5))
+            self.player.move_ip((0, -5))  # up
         if keys_pressed[K_DOWN]:
-            self.player.move_ip((0, +5))
+            self.player.move_ip((0, +5))  # down
 
-        if keys_pressed[K_SPACE]:
+        if keys_pressed[K_SPACE]:  # debug
             while True:
                 try:
                     exec(input('\nEnter something to exec: '))
@@ -103,7 +111,7 @@ class GameLoop:
                 except Exception as err:
                     print('>> {}: {} <<'.format(type(err).__name__, err))
 
-        if keys_pressed[K_q]:
+        if keys_pressed[K_q]:  # quit
             pygame.quit()
             sys.exit()
 

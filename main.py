@@ -98,8 +98,10 @@ class GameLoop:
                         print('>> {}: {} <<'.format(type(err).__name__, err))
 
             if keys_pressed[K_q]:  # quit
-                pygame.quit()
-                sys.exit()
+                # Add the QUIT event to the pygame event queue to be handled
+                # later, at the same time the QUIT event from clicking the
+                # window X is handled
+                pygame.event.post(pygame.event.Event(QUIT))
 
         def _handle_gamepad_input():
             axis_0 = round(self.gamepad.get_axis(0))

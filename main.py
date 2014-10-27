@@ -20,7 +20,6 @@ class GameLoop:
 
     def __init__(self):
         def _setup_screen():
-
             # set the window size - can add the NOFRAME arg if we don't want a
             # window frame but then we have to figure out how to move the
             # window since it won't have a menu bar to grab
@@ -76,8 +75,7 @@ class GameLoop:
     # -------------------------------------------------------------------------
     def handle_player_input(self):
         def _handle_keyboard_input():
-            # get state of all keyboard buttons - True means key is pressed
-            # down
+            # get state of all keyboard buttons - True if key pressed down
             keys_pressed = pygame.key.get_pressed()
 
             if keys_pressed[K_LEFT]:

@@ -19,8 +19,7 @@ if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
 class GameLoop:
 
     def __init__(self):
-        def _setup():
-            pygame.init()
+        def _setup_screen():
 
             # set the window size - can add the NOFRAME arg if we don't want a
             # window frame but then we have to figure out how to move the
@@ -28,23 +27,27 @@ class GameLoop:
             pygame.display.set_mode((1280, 600))
 
             pygame.display.set_caption('Team Bears!')
+
+        def _setup_input():
             pygame.key.set_repeat(500, 100)  # allow multiple KEYDOWN events
+            try:
+                self.gamepad = pygame.joystick.Joystick(0)
+                self.gamepad.init()
+                self.gamepad_found = True
+            except Exception:
+                self.gamepad_found = False
 
-        _setup()
+        def _draw_initial():
+            self.surface = pygame.display.get_surface()
+            self.window_border = Rect((0, 0), (1280, 600))
+            self.play_area = Rect((65, 0), (1150, 475))
+            self.play_area_border = Rect((40, 0), (1200, 500))
+            self.player = Rect((200, 300), (30, 40))
 
-        self.surface = pygame.display.get_surface()
-
-        self.window_border = Rect((0, 0), (1280, 600))
-        self.play_area = Rect((65, 0), (1150, 475))
-        self.play_area_border = Rect((40, 0), (1200, 500))
-        self.player = Rect((200, 300), (30, 40))
-
-        try:
-            self.gamepad = pygame.joystick.Joystick(0)
-            self.gamepad.init()
-            self.gamepad_found = True
-        except Exception:
-            self.gamepad_found = False
+        pygame.init()
+        _setup_screen()
+        _setup_input()
+        _draw_initial()
 
     # ------------------------------------------------------------------------
     def __call__(self):
@@ -54,84 +57,9 @@ class GameLoop:
             self.handle_npcs()
             self.detect_collisions()
             self.take_damage()
-            self.update_screen()
+            self.draw_screen()
             self.check_if_game_over()
             self.check_if_window_closed()
-
-            self.handle_keys()
-            if self.gamepad_found:
-                self.handle_gamepad()
-
-            # fill background dark grey
-            self.surface.fill(DGREY)
-
-            # red border of playable movement space
-            pygame.draw.rect(self.surface, DKRED, self.play_area_border)
-
-            # playable movement space
-            pygame.draw.rect(self.surface, SKYBLUE, self.play_area)
-
-            # creates a thin green rectangle border of surface
-            pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
-
-            # placeholder for a playable character; is movable
-            pygame.draw.rect(self.surface, LBLUE, self.player)
-
-            self.handle_quit()
-
-            pygame.display.update()  # necessary to update the display
-            pygame.time.delay(50)  # pause for 50 milliseconds
-
-    # -------------------------------------------------------------------------
-    def handle_quit(self):
-        for event in pygame.event.get():  # loop through all pygame events
-            # QUIT event occurs when click X on window bar
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-
-    def handle_keys(self):
-        # get state of all keyboard buttons - True means key is pressed down
-        keys_pressed = pygame.key.get_pressed()
-
-        if keys_pressed[K_LEFT]:
-            self.player.move_ip((-5, 0))  # left
-        if keys_pressed[K_RIGHT]:
-            self.player.move_ip((+5, 0))  # right
-        if keys_pressed[K_UP]:
-            self.player.move_ip((0, -5))  # up
-        if keys_pressed[K_DOWN]:
-            self.player.move_ip((0, +5))  # down
-
-        if keys_pressed[K_SPACE]:  # debug
-            while True:
-                try:
-                    exec(input('\nEnter something to exec: '))
-                    break
-                except Exception as err:
-                    print('>> {}: {} <<'.format(type(err).__name__, err))
-
-        if keys_pressed[K_q]:  # quit
-            pygame.quit()
-            sys.exit()
-
-    def handle_gamepad(self):
-        axis_0 = round(self.gamepad.get_axis(0))
-        axis_1 = round(self.gamepad.get_axis(1))
-        button_a = self.gamepad.get_button(1)
-
-        if axis_0 == -1:
-            self.player.move_ip((-5, 0))  # left
-        if axis_0 == +1:
-            self.player.move_ip((+5, 0))  # right
-
-        if axis_1 == -1:
-            self.player.move_ip((0, -5))  # up
-        if axis_1 == +1:
-            self.player.move_ip((0, +5))  # down
-
-        if button_a:
-            self.player = Rect((0, 0), (50, 50))  # reset
 
     # -------------------------------------------------------------------------
     def handle_timer_based_events(self):
@@ -145,7 +73,52 @@ class GameLoop:
             pass
         pass
 
+    # -------------------------------------------------------------------------
     def handle_player_input(self):
+        def _handle_keyboard_input():
+            # get state of all keyboard buttons - True means key is pressed
+            # down
+            keys_pressed = pygame.key.get_pressed()
+
+            if keys_pressed[K_LEFT]:
+                self.player.move_ip((-5, 0))  # left
+            if keys_pressed[K_RIGHT]:
+                self.player.move_ip((+5, 0))  # right
+            if keys_pressed[K_UP]:
+                self.player.move_ip((0, -5))  # up
+            if keys_pressed[K_DOWN]:
+                self.player.move_ip((0, +5))  # down
+
+            if keys_pressed[K_SPACE]:  # debug
+                while True:
+                    try:
+                        exec(input('\nEnter something to exec: '))
+                        break
+                    except Exception as err:
+                        print('>> {}: {} <<'.format(type(err).__name__, err))
+
+            if keys_pressed[K_q]:  # quit
+                pygame.quit()
+                sys.exit()
+
+        def _handle_gamepad_input():
+            axis_0 = round(self.gamepad.get_axis(0))
+            axis_1 = round(self.gamepad.get_axis(1))
+            button_a = self.gamepad.get_button(1)
+
+            if axis_0 == -1:
+                self.player.move_ip((-5, 0))  # left
+            if axis_0 == +1:
+                self.player.move_ip((+5, 0))  # right
+
+            if axis_1 == -1:
+                self.player.move_ip((0, -5))  # up
+            if axis_1 == +1:
+                self.player.move_ip((0, +5))  # down
+
+            if button_a:
+                self.player = Rect((0, 0), (50, 50))  # reset
+
         def _get_keys_pressed():
             pass
 
@@ -157,8 +130,11 @@ class GameLoop:
 
         def _use_skills():
             pass
-        pass
 
+        _handle_keyboard_input()
+        _handle_gamepad_input()
+
+    # -------------------------------------------------------------------------
     def handle_npcs(self):
         def _move_npcs():
             pass
@@ -167,6 +143,7 @@ class GameLoop:
             pass
         pass
 
+    # -------------------------------------------------------------------------
     def detect_collisions(self):
         def _player_terrain():
             pass
@@ -187,6 +164,7 @@ class GameLoop:
             pass
         pass
 
+    # -------------------------------------------------------------------------
     def take_damage(self):
         def _player():
             pass
@@ -198,14 +176,24 @@ class GameLoop:
             pass
         pass
 
-    def update_screen(self):
+    # -------------------------------------------------------------------------
+    def draw_screen(self):
         def _draw_ui():
-            pass
+            # fill background dark grey
+            self.surface.fill(DGREY)
+
+            # red border of playable movement space
+            pygame.draw.rect(self.surface, DKRED, self.play_area_border)
 
         def _draw_map():
-            pass
+            # playable movement space
+            pygame.draw.rect(self.surface, SKYBLUE, self.play_area)
+            # creates a thin green rectangle border of surface
+            pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
 
         def _draw_players():
+            # placeholder for a playable character; is movable
+            pygame.draw.rect(self.surface, LBLUE, self.player)
             pass
 
         def _draw_npcs():
@@ -213,13 +201,24 @@ class GameLoop:
 
         def _draw_particles():
             pass
-        pass
 
+        _draw_ui()
+        _draw_map()
+        _draw_players()
+        pygame.display.update()  # necessary to update the display
+        pygame.time.delay(50)  # pause for 50 milliseconds
+
+    # -------------------------------------------------------------------------
     def check_if_game_over(self):
         pass
 
+    # -------------------------------------------------------------------------
     def check_if_window_closed(self):
-        pass
+        for event in pygame.event.get():  # loop through all pygame events
+            # QUIT event occurs when click X on window bar
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
 
 # -------------------------------------------------------------------------
 if __name__ == '__main__':

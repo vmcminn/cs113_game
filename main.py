@@ -102,22 +102,23 @@ class GameLoop:
                 pygame.event.post(pygame.event.Event(QUIT))
 
         def _handle_gamepad_input():
-            axis_0 = round(self.gamepad.get_axis(0))
-            axis_1 = round(self.gamepad.get_axis(1))
-            button_a = self.gamepad.get_button(1)
+            if self.gamepad_found:
+                axis_0 = round(self.gamepad.get_axis(0))
+                axis_1 = round(self.gamepad.get_axis(1))
+                button_a = self.gamepad.get_button(1)
 
-            if axis_0 == -1:
-                self.player.move_ip((-5, 0))  # left
-            if axis_0 == +1:
-                self.player.move_ip((+5, 0))  # right
+                if axis_0 == -1:
+                    self.player.move_ip((-5, 0))  # left
+                if axis_0 == +1:
+                    self.player.move_ip((+5, 0))  # right
 
-            if axis_1 == -1:
-                self.player.move_ip((0, -5))  # up
-            if axis_1 == +1:
-                self.player.move_ip((0, +5))  # down
+                if axis_1 == -1:
+                    self.player.move_ip((0, -5))  # up
+                if axis_1 == +1:
+                    self.player.move_ip((0, +5))  # down
 
-            if button_a:
-                self.player = Rect((0, 0), (50, 50))  # reset
+                if button_a:
+                    self.player = Rect((0, 0), (30, 40))  # reset
 
         def _get_keys_pressed():
             pass

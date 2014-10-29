@@ -88,6 +88,10 @@ class GameLoop:
                 self.player.move_ip((0, +5))  # down
 
             if keys_pressed[K_SPACE]:  # debug
+                font = pygame.font.SysFont(None, 128)
+                rendered_font = font.render('-PAUSE-', True, RED)
+                self.surface.blit(rendered_font, self.play_area.center)
+                pygame.display.update()
                 while True:
                     try:
                         exec(input('\nEnter something to exec: '))

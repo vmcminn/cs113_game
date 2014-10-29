@@ -71,6 +71,9 @@ class GameLoop:
     # -------------------------------------------------------------------------
     def handle_player_input(self):
         def _move_character():
+            # create a copy of player, move the copy, and test if the copy
+            # is fully contained within the playable area rectangle.  If
+            # it is, then move the player to same position as the copy
             temp_player = self.player.copy()
             if self.input.left:
                 temp_player.move_ip((-5, 0))  # left

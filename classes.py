@@ -1,49 +1,16 @@
-class Particle:
+import pygame
 
-    def __init__(self):
-        self.location
-        self.direction
+class Player(pygame.Rect):
 
-    def particle_collision(self):
-        pass
+    def __init__(self, *args, **kargs):
+        try:
+            pygame.Rect.__init__(self, args)
+        except TypeError:
+            pygame.Rect.__init__(self, kargs['left'], kargs['top'], kargs['width'], kargs['height'])
+            kargs.pop('left')
+            kargs.pop('top')
+            kargs.pop('width')
+            kargs.pop('height')
 
-    def move(self):
-        pass
-
-
-class Entity:
-
-    def __init__(self):
-        self.health
-        self.energy
-        self.location
-        self.direction
-
-    def move(self):
-        pass
-
-    def terrain_collision(self):
-        pass
-
-
-class Terrain:
-
-    def __init__(self):
-        self.location
-        self.dimensions
-
-
-class SubTerrain(Terrain):
-
-    def __init__(self):
-        Terrain.__init__(self)
-        self.health
-
-
-class Skill:
-
-    def __init__(self):
-        self.skill_id
-        self.damage
-        self.energy_cost
-        self.cooldown
+        for k, v in kargs.items():
+            exec('self.{} = {}'.format(k, repr(v)))

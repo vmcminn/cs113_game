@@ -4,6 +4,7 @@ import pygame
 
 # add everything from colors.py into local namespace
 from colors import *
+from classes import *
 
 # add some commonly used pygame objects into local namespace
 from pygame.locals import *
@@ -41,7 +42,7 @@ class GameLoop:
             self.window_border = Rect((0, 0), (1280, 600))
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
-            self.player = Rect((200, 300), (30, 40))
+            self.player = Player(left=200, top=300, width=30, height=40)
 
         pygame.init()
         _setup_screen()
@@ -122,7 +123,7 @@ class GameLoop:
                     self.player.move_ip((0, +5))  # down
 
                 if button_a:
-                    self.player = Rect((0, 0), (30, 40))  # reset
+                    self.player.topleft = (200, 300)  # reset
 
         def _get_keys_pressed():
             pass

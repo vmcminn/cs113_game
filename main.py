@@ -108,22 +108,31 @@ class GameLoop:
 
         def _handle_gamepad_input():
             if self.gamepad_found:
-                axis_0 = round(self.gamepad.get_axis(0))
-                axis_1 = round(self.gamepad.get_axis(1))
+                left_right_axis = round(self.gamepad.get_axis(0))
+                up_down_axis = round(self.gamepad.get_axis(1))
                 button_a = self.gamepad.get_button(1)
 
-                if axis_0 == -1:
-                    self.player.move_ip((-5, 0))  # left
-                if axis_0 == +1:
-                    self.player.move_ip((+5, 0))  # right
+                # create a copy of player, move the copy, and test if the copy
+                # is fully contained within the playable area rectangle.  If
+                # it is, then move the player to same position as the copy
+                temp_player = self.player.copy()
+                if left_right_axis == -1:
+                    temp_player.move_ip((-5, 0))  # left
 
-                if axis_1 == -1:
-                    self.player.move_ip((0, -5))  # up
-                if axis_1 == +1:
-                    self.player.move_ip((0, +5))  # down
+                if left_right_axis == +1:
+                    temp_player.move_ip((+5, 0))  # right
+
+                if up_down_axis == -1:
+                    temp_player.move_ip((0, -5))  # up
+
+                if up_down_axis == +1:
+                    temp_player.move_ip((0, +5))  # down
 
                 if button_a:
-                    self.player.topleft = (200, 300)  # reset
+                    temp_player.topleft = (200, 300)  # reset
+
+                if self.play_area.contains(temp_player):
+                    self.player.topleft = temp_player.topleft
 
         def _get_keys_pressed():
             pass

@@ -30,12 +30,7 @@ class GameLoop:
 
         def _setup_input():
             pygame.key.set_repeat(500, 100)  # allow multiple KEYDOWN events
-            try:
-                self.gamepad = pygame.joystick.Joystick(0)
-                self.gamepad.init()
-                self.gamepad_found = True
-            except Exception:
-                self.gamepad_found = False
+            self.input = Input()
 
         def _draw_initial():
             self.surface = pygame.display.get_surface()
@@ -75,20 +70,25 @@ class GameLoop:
 
     # -------------------------------------------------------------------------
     def handle_player_input(self):
-        def _handle_keyboard_input():
-            # get state of all keyboard buttons - True if key pressed down
-            keys_pressed = pygame.key.get_pressed()
+        def _move_character():
+            temp_player = self.player.copy()
+            if self.input.left:
+                temp_player.move_ip((-5, 0))  # left
 
-            if keys_pressed[K_LEFT]:
-                self.player.move_ip((-5, 0))  # left
-            if keys_pressed[K_RIGHT]:
-                self.player.move_ip((+5, 0))  # right
-            if keys_pressed[K_UP]:
-                self.player.move_ip((0, -5))  # up
-            if keys_pressed[K_DOWN]:
-                self.player.move_ip((0, +5))  # down
+            if self.input.right:
+                temp_player.move_ip((+5, 0))  # right
 
-            if keys_pressed[K_SPACE]:  # debug
+            if self.input.up:
+                temp_player.move_ip((0, -5))  # right
+
+            if self.input.down:
+                temp_player.move_ip((0, +5))  # right
+
+            if self.play_area.contains(temp_player):
+                self.player.topleft = temp_player.topleft
+
+        def _special_input():
+            if self.input.debug:
                 font = pygame.font.SysFont(None, 128)
                 rendered_font = font.render('-PAUSE-', True, RED)
                 self.surface.blit(rendered_font, self.play_area.center)
@@ -100,54 +100,18 @@ class GameLoop:
                     except Exception as err:
                         print('>> {}: {} <<'.format(type(err).__name__, err))
 
-            if keys_pressed[K_q]:  # quit
+            if self.input.quit:
                 # Add the QUIT event to the pygame event queue to be handled
                 # later, at the same time the QUIT event from clicking the
                 # window X is handled
                 pygame.event.post(pygame.event.Event(QUIT))
 
-        def _handle_gamepad_input():
-            if self.gamepad_found:
-                left_right_axis = round(self.gamepad.get_axis(0))
-                up_down_axis = round(self.gamepad.get_axis(1))
-                button_a = self.gamepad.get_button(1)
-
-                # create a copy of player, move the copy, and test if the copy
-                # is fully contained within the playable area rectangle.  If
-                # it is, then move the player to same position as the copy
-                temp_player = self.player.copy()
-                if left_right_axis == -1:
-                    temp_player.move_ip((-5, 0))  # left
-
-                if left_right_axis == +1:
-                    temp_player.move_ip((+5, 0))  # right
-
-                if up_down_axis == -1:
-                    temp_player.move_ip((0, -5))  # up
-
-                if up_down_axis == +1:
-                    temp_player.move_ip((0, +5))  # down
-
-                if button_a:
-                    temp_player.topleft = (200, 300)  # reset
-
-                if self.play_area.contains(temp_player):
-                    self.player.topleft = temp_player.topleft
-
-        def _get_keys_pressed():
-            pass
-
-        def _get_keys_depressed():
-            pass
-
-        def _move_character():
-            pass
-
         def _use_skills():
             pass
 
-        _handle_keyboard_input()
-        _handle_gamepad_input()
+        self.input.refresh()
+        _move_character()
+        _special_input()
 
     # -------------------------------------------------------------------------
     def handle_npcs(self):

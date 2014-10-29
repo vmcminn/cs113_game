@@ -79,10 +79,10 @@ class GameLoop:
                 temp_player.move_ip((+5, 0))  # right
 
             if self.input.up:
-                temp_player.move_ip((0, -5))  # right
+                temp_player.move_ip((0, -5))  # up
 
             if self.input.down:
-                temp_player.move_ip((0, +5))  # right
+                temp_player.move_ip((0, +5))  # down
 
             if self.play_area.contains(temp_player):
                 self.player.topleft = temp_player.topleft

@@ -4,24 +4,8 @@ from pygame.locals import *
 
 class Player(pygame.Rect):
 
-    def __init__(self, *args, **kargs):
-        try:
-            pygame.Rect.__init__(self, args)
-        except TypeError:
-            pygame.Rect.__init__(
-                self,
-                kargs['left'],
-                kargs['top'],
-                kargs['width'],
-                kargs['height'])
-            kargs.pop('left')
-            kargs.pop('top')
-            kargs.pop('width')
-            kargs.pop('height')
-
-        for k, v in kargs.items():
-            exec('self.{} = {}'.format(k, repr(v)))
-
+    def __init__(self, left, top, width, height):
+        pygame.Rect.__init__(self, left, top, width, height)
         self.initial_topleft = self.topleft
 
 

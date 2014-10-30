@@ -88,7 +88,7 @@ class GameLoop:
                 temp_player.move_ip((0, +5))  # down
 
             if self.input.a:
-                temp_player.topleft = self.player.initial_topleft  # down
+                temp_player.topleft = self.player.initial_topleft  # 'a' button
 
             if self.play_area.contains(temp_player):
                 self.player.topleft = temp_player.topleft
@@ -166,7 +166,6 @@ class GameLoop:
         def _draw_ui():
             # fill background dark grey
             self.surface.fill(DGREY)
-
             # red border of playable movement space
             pygame.draw.rect(self.surface, DKRED, self.play_area_border)
 
@@ -179,7 +178,6 @@ class GameLoop:
         def _draw_players():
             # placeholder for a playable character; is movable
             pygame.draw.rect(self.surface, LBLUE, self.player)
-            pass
 
         def _draw_npcs():
             pass

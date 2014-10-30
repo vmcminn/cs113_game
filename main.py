@@ -39,16 +39,19 @@ class GameLoop:
             self.play_area_border = Rect((40, 0), (1200, 500))
             self.player = Player(left=200, top=300, width=30, height=40)
 
-        def _setup_font():
-            self.font = pygame.font.SysFont(None, 50)
-            self.fontx = ((self.window.w - self.font.size('   ')[0]) // 20) * 1
-            self.fonty = ((self.window.h - self.font.size('   ')[1]) // 20) * 19
+        def _setup_fonts():
+            self.font50 = pygame.font.SysFont('gigi', 55)
+            self.font50x = ((self.window.w - self.font50.size('   ')[0]) // 20) * 1
+            self.font50y = ((self.window.h - self.font50.size('   ')[1]) // 20) * 19
+            self.font200 = pygame.font.SysFont(None, 200)
+            self.font200x = ((self.window.w - self.font200.size('-PAUSE-')[0]) // 2) * 1
+            self.font200y = ((self.window.h - self.font200.size('-PAUSE-')[1]) // 2) * 1
 
         pygame.init()
         _setup_display()
         _setup_input()
         _setup_Rects()
-        _setup_font()
+        _setup_fonts()
 
     # ------------------------------------------------------------------------
     def __call__(self):
@@ -101,16 +104,13 @@ class GameLoop:
 
         def _special_input():
             if self.input.debug:
-                font = pygame.font.SysFont(None, 128)
-                rendered_font = font.render('-PAUSE-', True, RED)
-                self.surface.blit(rendered_font, self.play_area.center)
+                rendered_font = self.font200.render('-PAUSE-', True, RED)
+                self.surface.blit(rendered_font, (self.font200x, self.font200y))
                 pygame.display.update()
-                while True:
-                    try:
-                        exec(input('\nEnter something to exec: '))
-                        break
-                    except Exception as err:
-                        print('>> {}: {} <<'.format(type(err).__name__, err))
+                try:
+                    exec(input('\nEnter something to exec: '))
+                except Exception as err:
+                    print('>> {}: {} <<'.format(type(err).__name__, err))
 
             if self.input.quit:
                 # Add the QUIT event to the pygame event queue to be handled
@@ -175,8 +175,8 @@ class GameLoop:
             # red border of playable movement space
             pygame.draw.rect(self.surface, DKRED, self.play_area_border)
             # font for health indicator, for testing purposes only
-            rendered_font = self.font.render('100', True, RED)
-            self.surface.blit(rendered_font, (self.fontx, self.fonty))
+            rendered_font = self.font50.render('100', True, RED)
+            self.surface.blit(rendered_font, (self.font50x, self.font50y))
 
         def _draw_map():
             # playable movement space

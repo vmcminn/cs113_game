@@ -20,29 +20,35 @@ if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
 class GameLoop:
 
     def __init__(self):
-        def _setup_screen():
+        def _setup_display():
             # set the window size - can add the NOFRAME arg if we don't want a
             # window frame but then we have to figure out how to move the
             # window since it won't have a menu bar to grab
             pygame.display.set_mode((1280, 600))
-
             pygame.display.set_caption('Team Bears!')
+            self.surface = pygame.display.get_surface()
 
         def _setup_input():
             pygame.key.set_repeat(500, 100)  # allow multiple KEYDOWN events
             self.input = Input()
 
-        def _draw_initial():
-            self.surface = pygame.display.get_surface()
+        def _setup_Rects():
+            self.window = self.surface.get_rect()
             self.window_border = Rect((0, 0), (1280, 600))
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
             self.player = Player(left=200, top=300, width=30, height=40)
 
+        def _setup_font():
+            self.font = pygame.font.SysFont(None, 50)
+            self.fontx = ((self.window.w - self.font.size('   ')[0]) // 20) * 1
+            self.fonty = ((self.window.h - self.font.size('   ')[1]) // 20) * 19
+
         pygame.init()
-        _setup_screen()
+        _setup_display()
         _setup_input()
-        _draw_initial()
+        _setup_Rects()
+        _setup_font()
 
     # ------------------------------------------------------------------------
     def __call__(self):
@@ -168,6 +174,9 @@ class GameLoop:
             self.surface.fill(DGREY)
             # red border of playable movement space
             pygame.draw.rect(self.surface, DKRED, self.play_area_border)
+            # font for health indicator, for testing purposes only
+            rendered_font = self.font.render('100', True, RED)
+            self.surface.blit(rendered_font, (self.fontx, self.fonty))
 
         def _draw_map():
             # playable movement space

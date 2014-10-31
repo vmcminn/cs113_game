@@ -40,11 +40,12 @@ class GameLoop:
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
             self.player = Player(left=200, top=300, width=30, height=40, speed=5)
+            self.projectile = Player(left=self.play_area.right, top=self.play_area.centery, width=10, height=10, speed = 8)
 
         def _setup_fonts():
             self.font50 = pygame.font.SysFont('gigi', 55)
-            self.font50x = ((self.window.w - self.font50.size('   ')[0]) // 20) * 1
-            self.font50y = ((self.window.h - self.font50.size('   ')[1]) // 20) * 19
+            self.font50x = ((self.window.w - self.font50.size('100')[0]) // 20) * 1
+            self.font50y = ((self.window.h - self.font50.size('100')[1]) // 20) * 19
             self.font200 = pygame.font.SysFont(None, 200)
             self.font200x = ((self.window.w - self.font200.size('-PAUSE-')[0]) // 2) * 1
             self.font200y = ((self.window.h - self.font200.size('-PAUSE-')[1]) // 2) * 1
@@ -131,11 +132,11 @@ class GameLoop:
     # -------------------------------------------------------------------------
     def handle_npcs(self):
         def _move_npcs():
-            pass
+            self.projectile.move_ip(LEFT)
 
         def _use_skills_npcs():
             pass
-        pass
+        _move_npcs()
 
     # -------------------------------------------------------------------------
     def detect_collisions(self):
@@ -156,6 +157,8 @@ class GameLoop:
 
         def _particle_particle():
             pass
+        if self.projectile.colliderect(self.player):
+            self.player.health -= 5
         pass
 
     # -------------------------------------------------------------------------
@@ -178,7 +181,7 @@ class GameLoop:
             # red border of playable movement space
             pygame.draw.rect(self.surface, DKRED, self.play_area_border)
             # font for health indicator, for testing purposes only
-            rendered_font = self.font50.render('100', True, RED)
+            rendered_font = self.font50.render(str(self.player.health), True, RED)
             self.surface.blit(rendered_font, (self.font50x, self.font50y))
 
         def _draw_map():
@@ -192,7 +195,7 @@ class GameLoop:
             pygame.draw.rect(self.surface, LBLUE, self.player)
 
         def _draw_npcs():
-            pass
+            pygame.draw.rect(self.surface, RED, self.projectile)
 
         def _draw_particles():
             pass
@@ -200,6 +203,7 @@ class GameLoop:
         _draw_ui()
         _draw_map()
         _draw_players()
+        _draw_npcs()
         pygame.display.update()  # necessary to update the display
         pygame.time.delay(50)  # pause for 50 milliseconds
 

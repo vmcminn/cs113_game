@@ -11,6 +11,7 @@ class Player(pygame.Rect):
         pygame.Rect.__init__(self, left, top, width, height)
         self.initial_topleft = self.topleft
         self.speed = speed
+        self.health = 100
 
     def copy(self):
         return Player(self.left, self.top, self.width, self.height, self.speed)

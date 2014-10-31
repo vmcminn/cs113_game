@@ -55,7 +55,7 @@ class Input:
         elif name == 'down':
             return self.kb_input[K_DOWN] or self.up_down_axis == +1
 
-        elif name == 'a':
+        elif name == 'reset':
             return self.kb_input[K_r] or self.a_button
 
         elif name in ('space', 'debug'):

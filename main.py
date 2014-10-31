@@ -96,8 +96,9 @@ class GameLoop:
             if self.input.down:
                 temp_player.move_ip((0, +5))  # down
 
-            if self.input.a:
-                temp_player.topleft = self.player.initial_topleft  # 'a' button
+            if self.input.reset:
+                # 'a' button or 'r' key
+                temp_player.topleft = self.player.initial_topleft
 
             if self.play_area.contains(temp_player):
                 self.player.topleft = temp_player.topleft

@@ -15,6 +15,7 @@ from pygame.locals import *
 # it's useful for you
 if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
     os.environ['SDL_VIDEO_WINDOW_POS'] = '{},{}'.format(1920, 90)
+#@PYGAMERUNSPECIAL
 # -------------------------------------------------------------------------
 
 

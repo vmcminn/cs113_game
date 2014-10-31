@@ -27,13 +27,6 @@ class Input:
             self.y_button = self.gamepad.get_button(3)
             self.start_button = self.gamepad.get_button(9)
             self.back_button = self.gamepad.get_button(8)
-        else:
-            self.left_right_axis = 0
-            self.up_down_axis = 0
-            self.a_button = False
-            self.y_button = False
-            self.start_button = False
-            self.back_button = False
 
     def _get_keyboard_input(self):
         self.kb_input = pygame.key.get_pressed()
@@ -63,3 +56,6 @@ class Input:
 
         elif name in ('q', 'quit'):
             return self.kb_input[K_q] or self.back_button
+        
+        else:
+            return None

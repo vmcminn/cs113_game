@@ -19,21 +19,21 @@ class Input:
         except Exception:
             self.gamepad_found = False
 
-    def _get_gamepad_input(self):
-        if self.gamepad_found:
-            self.left_right_axis = round(self.gamepad.get_axis(0))
-            self.up_down_axis = round(self.gamepad.get_axis(1))
-            self.a_button = self.gamepad.get_button(1)
-            self.y_button = self.gamepad.get_button(3)
-            self.start_button = self.gamepad.get_button(9)
-            self.back_button = self.gamepad.get_button(8)
-
-    def _get_keyboard_input(self):
-        self.kb_input = pygame.key.get_pressed()
-
     def refresh(self):
-        self._get_gamepad_input()
-        self._get_keyboard_input()
+        def _get_gamepad_input():
+            if self.gamepad_found:
+                self.left_right_axis = round(self.gamepad.get_axis(0))
+                self.up_down_axis = round(self.gamepad.get_axis(1))
+                self.a_button = self.gamepad.get_button(1)
+                self.y_button = self.gamepad.get_button(3)
+                self.start_button = self.gamepad.get_button(9)
+                self.back_button = self.gamepad.get_button(8)
+
+        def _get_keyboard_input():
+            self.kb_input = pygame.key.get_pressed()
+        
+        _get_gamepad_input()
+        _get_keyboard_input()
 
     def __getattr__(self, name):
         if name == 'left':
@@ -56,6 +56,6 @@ class Input:
 
         elif name in ('q', 'quit'):
             return self.kb_input[K_q] or self.back_button
-        
+
         else:
             return None

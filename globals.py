@@ -1,0 +1,8 @@
+LEFT = 'LEFT'
+RIGHT = 'RIGHT'
+UP = 'UP'
+DOWN = 'DOWN'
+
+DEBUG = 'DEBUG'
+EXIT = 'EXIT'
+RESET = 'RESET'

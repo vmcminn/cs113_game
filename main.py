@@ -5,6 +5,7 @@ import pygame
 # add everything from colors.py into local namespace
 from colors import *
 from classes import *
+from globals import *
 
 # add some commonly used pygame objects into local namespace
 from pygame.locals import *
@@ -37,7 +38,7 @@ class GameLoop:
             self.window_border = Rect((0, 0), (1280, 600))
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
-            self.player = Player(left=200, top=300, width=30, height=40)
+            self.player = Player(left=200, top=300, width=30, height=40, speed=5)
 
         def _setup_fonts():
             self.font50 = pygame.font.SysFont('gigi', 55)
@@ -84,19 +85,19 @@ class GameLoop:
             # is fully contained within the playable area rectangle.  If
             # it is, then move the player to same position as the copy
             temp_player = self.player.copy()
-            if self.input.left:
-                temp_player.move_ip((-5, 0))  # left
+            if self.input.LEFT:
+                temp_player.move_ip(LEFT)  # left
 
-            if self.input.right:
-                temp_player.move_ip((+5, 0))  # right
+            if self.input.RIGHT:
+                temp_player.move_ip(RIGHT)  # right
 
-            if self.input.up:
-                temp_player.move_ip((0, -5))  # up
+            if self.input.UP:
+                temp_player.move_ip(UP)  # up
 
-            if self.input.down:
-                temp_player.move_ip((0, +5))  # down
+            if self.input.DOWN:
+                temp_player.move_ip(DOWN)  # down
 
-            if self.input.reset:
+            if self.input.RESET:
                 # 'a' button or 'r' key
                 temp_player.topleft = self.player.initial_topleft
 
@@ -104,7 +105,7 @@ class GameLoop:
                 self.player.topleft = temp_player.topleft
 
         def _special_input():
-            if self.input.debug:
+            if self.input.DEBUG:
                 rendered_font = self.font200.render('-PAUSE-', True, RED)
                 self.surface.blit(rendered_font, (self.font200x, self.font200y))
                 pygame.display.update()
@@ -113,7 +114,7 @@ class GameLoop:
                 except Exception as err:
                     print('>> {}: {} <<'.format(type(err).__name__, err))
 
-            if self.input.quit:
+            if self.input.EXIT:
                 # Add the QUIT event to the pygame event queue to be handled
                 # later, at the same time the QUIT event from clicking the
                 # window X is handled

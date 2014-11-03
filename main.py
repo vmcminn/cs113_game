@@ -20,7 +20,6 @@ if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
 
 
 class GameLoop:
-
     def __init__(self):
         def _setup_display():
             # set the window size - can add the NOFRAME arg if we don't want a
@@ -40,7 +39,7 @@ class GameLoop:
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
             self.player = Player(left=200, top=300, width=30, height=40, speed=5)
-            self.projectile = Player(left=self.play_area.right, top=self.play_area.centery, width=10, height=10, speed = 8)
+            self.projectile = Player(left=self.play_area.right, top=self.play_area.centery, width=10, height=10, speed=8)
 
         def _setup_fonts():
             self.font50 = pygame.font.SysFont('gigi', 55)

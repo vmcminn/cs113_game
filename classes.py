@@ -6,7 +6,6 @@ from pygame.locals import *
 
 
 class Player(pygame.Rect):
-
     def __init__(self, left, top, width, height, speed):
         pygame.Rect.__init__(self, left, top, width, height)
         self.initial_topleft = self.topleft
@@ -24,7 +23,6 @@ class Player(pygame.Rect):
 
 
 class Input:
-
     def __init__(self):
         try:
             self.gamepad = pygame.joystick.Joystick(0)

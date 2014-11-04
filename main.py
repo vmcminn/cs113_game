@@ -6,6 +6,7 @@ import pygame
 from colors import *
 from classes import *
 from globals import *
+from gametime import *
 
 # add some commonly used pygame objects into local namespace
 from pygame.locals import *
@@ -32,6 +33,8 @@ class GameLoop:
         def _setup_time():
             self.clock = pygame.time.Clock()
             self.fps = 30
+            pygame.time.set_timer(USEREVENT + 1, 250)
+            self.game_time = GameTime()
 
         def _setup_input():
             pygame.key.set_repeat(500, 100)  # allow multiple KEYDOWN events
@@ -46,6 +49,7 @@ class GameLoop:
             self.projectile = Player(left=self.play_area.right, top=self.play_area.centery, width=10, height=10, speed=8)
 
         def _setup_fonts():
+            self.timer_font = pygame.font.SysFont('gigi', 36)
             self.font50 = pygame.font.SysFont('gigi', 55)
             self.font50x = ((self.window.w - self.font50.size('100')[0]) // 20) * 1
             self.font50y = ((self.window.h - self.font50.size('100')[1]) // 20) * 19
@@ -70,7 +74,7 @@ class GameLoop:
             self.take_damage()
             self.draw_screen()
             self.check_if_game_over()
-            self.check_if_window_closed()
+            self.handle_event_queue()
             self.clock.tick(self.fps)
 
     # -------------------------------------------------------------------------
@@ -189,6 +193,10 @@ class GameLoop:
             rendered_font = self.font50.render(str(self.player.health), True, RED)
             self.surface.blit(rendered_font, (self.font50x, self.font50y))
 
+        def _draw_timer():
+            time_display = self.timer_font.render(str(self.game_time), True, BLUE)
+            self.surface.blit(time_display, (640, 500))
+
         def _draw_map():
             # playable movement space
             pygame.draw.rect(self.surface, SKYBLUE, self.play_area)
@@ -206,6 +214,7 @@ class GameLoop:
             pass
 
         _draw_ui()
+        _draw_timer()
         _draw_map()
         _draw_players()
         _draw_npcs()
@@ -216,8 +225,13 @@ class GameLoop:
         pass
 
     # -------------------------------------------------------------------------
-    def check_if_window_closed(self):
-        for event in pygame.event.get():  # loop through all pygame events
+    def handle_event_queue(self):
+        # loop through all pygame events
+        for event in pygame.event.get():
+            # update game timer
+            if event.type == USEREVENT + 1:
+                self.game_time.inc()
+
             # QUIT event occurs when click X on window bar
             if event.type == QUIT:
                 pygame.quit()

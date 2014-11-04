@@ -15,7 +15,7 @@ from pygame.locals import *
 # it's useful for you
 if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
     os.environ['SDL_VIDEO_WINDOW_POS'] = '{},{}'.format(1920, 90)
-#@PYGAMERUNSPECIAL
+# @PYGAMERUNSPECIAL
 # -------------------------------------------------------------------------
 
 
@@ -26,8 +26,12 @@ class GameLoop:
             # window frame but then we have to figure out how to move the
             # window since it won't have a menu bar to grab
             pygame.display.set_mode((1280, 600))
-            pygame.display.set_caption('Team Bears!')
+            pygame.display.set_caption('Famished Tournament')
             self.surface = pygame.display.get_surface()
+        
+        def _setup_time():
+            self.clock = pygame.time.Clock()
+            self.fps = 30
 
         def _setup_input():
             pygame.key.set_repeat(500, 100)  # allow multiple KEYDOWN events
@@ -51,6 +55,7 @@ class GameLoop:
 
         pygame.init()
         _setup_display()
+        _setup_time()
         _setup_input()
         _setup_Rects()
         _setup_fonts()
@@ -66,6 +71,7 @@ class GameLoop:
             self.draw_screen()
             self.check_if_game_over()
             self.check_if_window_closed()
+            self.clock.tick(self.fps)
 
     # -------------------------------------------------------------------------
     def handle_timer_based_events(self):
@@ -204,7 +210,6 @@ class GameLoop:
         _draw_players()
         _draw_npcs()
         pygame.display.update()  # necessary to update the display
-        pygame.time.delay(50)  # pause for 50 milliseconds
 
     # -------------------------------------------------------------------------
     def check_if_game_over(self):

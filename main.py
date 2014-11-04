@@ -1,22 +1,26 @@
+# python standard library modules
 import os
 import sys
-import pygame
 
-# add everything from colors.py into local namespace
+# pygame
+import pygame
+from pygame.locals import *
+
+# our modules
 from colors import *
 from classes import *
 from globals import *
 from gametime import *
-
-# add some commonly used pygame objects into local namespace
-from pygame.locals import *
 
 # set window starting position for my desktop which has multiple monitors, this
 # is a convenience thing for me.  You guys can add your own setting here if
 # it's useful for you
 if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
     os.environ['SDL_VIDEO_WINDOW_POS'] = '{},{}'.format(1920, 90)
-# @PYGAMERUNSPECIAL
+if os.environ['COMPUTERNAME'] == 'MAX-LT':
+    os.environ['SDL_VIDEO_WINDOW_POS'] = '{},{}'.format(50, 30)
+
+# @PYGAMERUNSPECIAL  setting for my IDE
 # -------------------------------------------------------------------------
 
 
@@ -37,7 +41,7 @@ class GameLoop:
             self.game_time = GameTime()
 
         def _setup_input():
-            pygame.key.set_repeat(500, 100)  # allow multiple KEYDOWN events
+            pygame.key.set_repeat(100, 10)  # allow multiple KEYDOWN events
             self.input = Input()
 
         def _setup_Rects():

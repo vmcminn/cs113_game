@@ -7,7 +7,7 @@ from pygame.locals import *
 
 class Player(pygame.Rect):
     def __init__(self, left, top, width, height, speed):
-        pygame.Rect.__init__(self, left, top, width, height)
+        super().__init__(left, top, width, height)
         self.initial_topleft = self.topleft
         self.speed = speed
         self.health = 100

@@ -71,3 +71,16 @@ class Input:
 
         else:
             return None
+
+
+class ArenaMap:
+    def __init__(self, *rects):
+        self.terrain = tuple(pygame.Rect(rect) for rect in rects)
+
+map1 = ArenaMap(
+    (65, 270, 300, 60),
+    (915, 270, 300, 60),
+    (610, 150, 60, 230),
+    (205, 100, 150, 20),
+    (925, 100, 150, 20),
+)

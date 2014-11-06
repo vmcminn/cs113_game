@@ -51,10 +51,11 @@ class GameLoop:
             self.play_area_border = Rect((40, 0), (1200, 500))
             self.player = Player(left=200, top=300, width=30, height=40, speed=5)
             self.projectile = Player(left=self.play_area.right, top=self.play_area.centery, width=10, height=10, speed=8)
+            self.map = map1
 
         def _setup_fonts():
-            self.timer_font = pygame.font.SysFont('gigi', 36)
-            self.font50 = pygame.font.SysFont('gigi', 55)
+            self.timer_font = pygame.font.Font('gigi.ttf', 36)
+            self.font50 = pygame.font.Font('gigi.ttf', 55)
             self.font50x = ((self.window.w - self.font50.size('100')[0]) // 20) * 1
             self.font50y = ((self.window.h - self.font50.size('100')[1]) // 20) * 19
             self.font200 = pygame.font.SysFont(None, 200)
@@ -206,6 +207,10 @@ class GameLoop:
             pygame.draw.rect(self.surface, SKYBLUE, self.play_area)
             # creates a thin green rectangle border of surface
             pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
+
+            for terr in self.map.terrain:
+                pygame.draw.rect(self.surface, RED, terr)
+
 
         def _draw_players():
             # placeholder for a playable character; is movable

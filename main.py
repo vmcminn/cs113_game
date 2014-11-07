@@ -49,8 +49,7 @@ class GameLoop:
             self.window_border = Rect((0, 0), (1280, 600))
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
-            self.player = Player(left=200, top=150, width=30, height=40, speed=5)
-            self.projectile = Player(left=self.play_area.right, top=self.play_area.centery, width=10, height=10, speed=8)
+            self.player = Player(left=200, top=150, width=30, height=40)
             self.map = map1
 
         def _setup_fonts():
@@ -73,8 +72,6 @@ class GameLoop:
     def __call__(self):
         while True:
             self.handle_player_input()
-            self.handle_npcs()
-            self.detect_collisions()
             self.draw_screen()
             self.handle_event_queue()
             self.clock.tick(self.fps)
@@ -139,18 +136,6 @@ class GameLoop:
         _special_input()
 
     # -------------------------------------------------------------------------
-    def handle_npcs(self):
-        def _move_npcs():
-            self.projectile.move_ip(LEFT)
-
-        _move_npcs()
-
-    # -------------------------------------------------------------------------
-    def detect_collisions(self):
-        if self.projectile.colliderect(self.player):
-            self.player.health -= 5
-
-    # -------------------------------------------------------------------------
     def draw_screen(self):
         def _draw_ui():
             # fill background dark grey
@@ -178,14 +163,10 @@ class GameLoop:
             # placeholder for a playable character; is movable
             pygame.draw.rect(self.surface, LBLUE, self.player)
 
-        def _draw_npcs():
-            pygame.draw.rect(self.surface, RED, self.projectile)
-
         _draw_ui()
         _draw_timer()
         _draw_map()
         _draw_players()
-        _draw_npcs()
         pygame.display.update()  # necessary to update the display
 
     # -------------------------------------------------------------------------

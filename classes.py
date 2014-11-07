@@ -6,15 +6,15 @@ from pygame.locals import *
 
 
 class Player(pygame.Rect):
-    def __init__(self, left, top, width, height, speed):
+    def __init__(self, left, top, width, height):
         super().__init__(left, top, width, height)
         self.initial_topleft = self.topleft
-        self.speed = speed
+        self.speed = 5
         self.health = 100
         self.facing_direction = RIGHT
 
     def copy(self):
-        return Player(self.left, self.top, self.width, self.height, self.speed)
+        return Player(self.left, self.top, self.width, self.height)
 
     def move_ip(self, direction):
         di = {LEFT: (-self.speed, 0), RIGHT: (+self.speed, 0),

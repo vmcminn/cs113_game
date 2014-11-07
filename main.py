@@ -72,27 +72,12 @@ class GameLoop:
     # ------------------------------------------------------------------------
     def __call__(self):
         while True:
-            self.handle_timer_based_events()
             self.handle_player_input()
             self.handle_npcs()
             self.detect_collisions()
-            self.take_damage()
             self.draw_screen()
-            self.check_if_game_over()
             self.handle_event_queue()
             self.clock.tick(self.fps)
-
-    # -------------------------------------------------------------------------
-    def handle_timer_based_events(self):
-        def _health_regen():
-            pass
-
-        def _energy_regen():
-            pass
-
-        def _spawn_npc():
-            pass
-        pass
 
     # -------------------------------------------------------------------------
     def handle_player_input(self):
@@ -136,9 +121,6 @@ class GameLoop:
                 # window X is handled
                 pygame.event.post(pygame.event.Event(QUIT))
 
-        def _use_skills():
-            pass
-
         self.input.refresh()
         _move_character()
         _special_input()
@@ -148,44 +130,12 @@ class GameLoop:
         def _move_npcs():
             self.projectile.move_ip(LEFT)
 
-        def _use_skills_npcs():
-            pass
         _move_npcs()
 
     # -------------------------------------------------------------------------
     def detect_collisions(self):
-        def _player_terrain():
-            pass
-
-        def _player_particle():
-            pass
-
-        def _player_player():
-            pass
-
-        def _player_npc():
-            pass
-
-        def _npc_particle():
-            pass
-
-        def _particle_particle():
-            pass
         if self.projectile.colliderect(self.player):
             self.player.health -= 5
-        pass
-
-    # -------------------------------------------------------------------------
-    def take_damage(self):
-        def _player():
-            pass
-
-        def _npcs():
-            pass
-
-        def _temp_terrains():
-            pass
-        pass
 
     # -------------------------------------------------------------------------
     def draw_screen(self):
@@ -208,8 +158,8 @@ class GameLoop:
             # creates a thin green rectangle border of surface
             pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
 
-            for terr in self.map.terrain:
-                pygame.draw.rect(self.surface, RED, terr)
+            for terr in self.map:
+                pygame.draw.rect(self.surface, DKRED, terr)
 
 
         def _draw_players():
@@ -219,19 +169,12 @@ class GameLoop:
         def _draw_npcs():
             pygame.draw.rect(self.surface, RED, self.projectile)
 
-        def _draw_particles():
-            pass
-
         _draw_ui()
         _draw_timer()
         _draw_map()
         _draw_players()
         _draw_npcs()
         pygame.display.update()  # necessary to update the display
-
-    # -------------------------------------------------------------------------
-    def check_if_game_over(self):
-        pass
 
     # -------------------------------------------------------------------------
     def handle_event_queue(self):

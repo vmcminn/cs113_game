@@ -49,7 +49,7 @@ class GameLoop:
             self.window_border = Rect((0, 0), (1280, 600))
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
-            self.player = Player(left=200, top=300, width=30, height=40, speed=5)
+            self.player = Player(left=200, top=150, width=30, height=40, speed=5)
             self.projectile = Player(left=self.play_area.right, top=self.play_area.centery, width=10, height=10, speed=8)
             self.map = map1
 
@@ -82,10 +82,11 @@ class GameLoop:
     # -------------------------------------------------------------------------
     def handle_player_input(self):
         def _move_character():
-            # create a copy of player, move the copy, and test if the copy
-            # is fully contained within the playable area rectangle.  If
-            # it is, then move the player to same position as the copy
+
+            # 1 - create a copy of player
             temp_player = self.player.copy()
+
+            # 2 - move the copy
             if self.input.LEFT:
                 temp_player.move_ip(LEFT)  # left
 
@@ -102,6 +103,9 @@ class GameLoop:
                 # 'a' button or 'r' key
                 temp_player.topleft = self.player.initial_topleft
 
+            # 3 - test if copy is fully contained within the playable area Rect
+            #   if yes: move player to same position as copy
+            #   if no: do nothing
             if self.play_area.contains(temp_player):
                 self.player.topleft = temp_player.topleft
 
@@ -159,8 +163,7 @@ class GameLoop:
             pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
 
             for terr in self.map:
-                pygame.draw.rect(self.surface, DKRED, terr)
-
+                pygame.draw.rect(self.surface, DKGREEN, terr)
 
         def _draw_players():
             # placeholder for a playable character; is movable

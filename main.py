@@ -87,27 +87,32 @@ class GameLoop:
             temp_player = self.player.copy()
 
             # 2 - move the copy
-            if self.input.LEFT:
-                temp_player.move_ip(LEFT)  # left
+            if self.input.LEFT:  # left arrow key / left on gamepad
+                temp_player.move_ip(LEFT)
 
-            if self.input.RIGHT:
-                temp_player.move_ip(RIGHT)  # right
+            if self.input.RIGHT:  # right arrow key / right on gamepad
+                temp_player.move_ip(RIGHT)
 
-            if self.input.UP:
-                temp_player.move_ip(UP)  # up
+            if self.input.UP:  # up arrow key / up on gamepad
+                temp_player.move_ip(UP)
 
-            if self.input.DOWN:
-                temp_player.move_ip(DOWN)  # down
+            if self.input.DOWN:  # down arrow key / down on gamepad
+                temp_player.move_ip(DOWN)
 
-            if self.input.RESET:
-                # 'a' button or 'r' key
+            if self.input.RESET:  # 'r' key / 'a' button
                 temp_player.topleft = self.player.initial_topleft
 
             # 3 - test if copy is fully contained within the playable area Rect
-            #   if yes: move player to same position as copy
-            #   if no: do nothing
-            if self.play_area.contains(temp_player):
+            not_out_of_bounds = self.play_area.contains(temp_player)
+
+            # 4 - test if copy is not overlapping any terrain Rect's
+            not_inside_terrain = temp_player.collidelist(self.map.terrain) == -1
+
+            # 5a - if 3 and 4 are true: move player to same position as copy
+            if not_out_of_bounds == not_inside_terrain is True:
                 self.player.topleft = temp_player.topleft
+
+            # 5b - else: do nothing
 
         def _special_input():
             if self.input.DEBUG:

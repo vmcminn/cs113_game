@@ -76,6 +76,7 @@ class Input:
 class ArenaMap:
     def __init__(self, *rects):
         self.terrain = [pygame.Rect(rect) for rect in rects]
+
     def __iter__(self):
         for t in self.terrain:
             yield t

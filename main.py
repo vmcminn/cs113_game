@@ -88,9 +88,13 @@ class GameLoop:
 
             # 2 - move the copy
             if self.input.LEFT:  # left arrow key / left on gamepad
+                #TODO: do this better later using @property on topleft of Player class
+                self.player.facing_direction = LEFT
                 temp_player.move_ip(LEFT)
 
             if self.input.RIGHT:  # right arrow key / right on gamepad
+                #TODO: do this better later using @property on topleft of Player class
+                self.player.facing_direction = RIGHT
                 temp_player.move_ip(RIGHT)
 
             if self.input.UP:  # up arrow key / up on gamepad

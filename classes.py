@@ -8,10 +8,11 @@ from pygame.locals import *
 class Player(pygame.Rect):
     def __init__(self, left, top, width, height):
         super().__init__(left, top, width, height)
-        self.initial_topleft = self.topleft
+        self.topleft_initial = self.topleft
         self.speed = 5
-        self.health = 100
         self.facing_direction = RIGHT
+        self.hit_points = 100
+        self.hit_points_max = 100
 
     def copy(self):
         return Player(self.left, self.top, self.width, self.height)
@@ -65,10 +66,10 @@ class Input:
             return self.kb_input[K_r] or self.a_button
 
         elif name == DEBUG:
-            return self.kb_input[K_SPACE] or self.start_button
+            return self.kb_input[K_F12] or self.start_button
 
         elif name == EXIT:
-            return self.kb_input[K_q] or self.back_button
+            return self.kb_input[K_q] or self.kb_input[K_ESCAPE] or self.back_button
 
         else:
             return None

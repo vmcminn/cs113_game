@@ -85,12 +85,10 @@ class GameLoop:
 
             # 2 - move the copy
             if self.input.LEFT:  # left arrow key / left on gamepad
-                #TODO: do this better later using @property on topleft of Player class
                 self.player.facing_direction = LEFT
                 temp_player.move_ip(LEFT)
 
             if self.input.RIGHT:  # right arrow key / right on gamepad
-                #TODO: do this better later using @property on topleft of Player class
                 self.player.facing_direction = RIGHT
                 temp_player.move_ip(RIGHT)
 
@@ -101,7 +99,7 @@ class GameLoop:
                 temp_player.move_ip(DOWN)
 
             if self.input.RESET:  # 'r' key / 'a' button
-                temp_player.topleft = self.player.initial_topleft
+                temp_player.topleft = self.player.topleft_initial
 
             # 3 - test if copy is fully contained within the playable area Rect
             not_out_of_bounds = self.play_area.contains(temp_player)
@@ -143,7 +141,7 @@ class GameLoop:
             # red border of playable movement space
             pygame.draw.rect(self.surface, DKRED, self.play_area_border)
             # font for health indicator, for testing purposes only
-            rendered_font = self.font50.render(str(self.player.health), True, RED)
+            rendered_font = self.font50.render(str(self.player.hit_points), True, RED)
             self.surface.blit(rendered_font, (self.font50x, self.font50y))
 
         def _draw_timer():

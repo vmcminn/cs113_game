@@ -33,7 +33,7 @@ class GameLoop:
             pygame.display.set_mode((1280, 600))
             pygame.display.set_caption('Famished Tournament')
             self.surface = pygame.display.get_surface()
-        
+
         def _setup_time():
             self.clock = pygame.time.Clock()
             self.fps = 30
@@ -50,7 +50,7 @@ class GameLoop:
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
             self.player = Player(left=200, top=150, width=30, height=40)
-            self.map = map1
+            self.arena = arena1
 
         def _setup_fonts():
             self.timer_font = pygame.font.Font('gigi.ttf', 36)
@@ -105,7 +105,7 @@ class GameLoop:
             not_out_of_bounds = self.play_area.contains(temp_player)
 
             # 4 - test if copy is not overlapping any terrain Rect's
-            not_inside_terrain = temp_player.collidelist(self.map.terrain) == -1
+            not_inside_terrain = temp_player.collidelist(self.arena.rects[1:]) == -1
 
             # 5a - if 3 and 4 are true: move player to same position as copy
             if not_out_of_bounds == not_inside_terrain is True:
@@ -154,8 +154,8 @@ class GameLoop:
             # creates a thin green rectangle border of surface
             pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
 
-            for terr in self.map:
-                pygame.draw.rect(self.surface, DKGREEN, terr)
+            for rect, rect_color in self.arena:
+                pygame.draw.rect(self.surface, rect_color, rect)
 
         def _draw_players():
             # placeholder for a playable character; is movable

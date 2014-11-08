@@ -1,5 +1,6 @@
 import pygame
 
+from colors import *
 from globals import *
 
 from pygame.locals import *
@@ -75,18 +76,21 @@ class Input:
             return None
 
 
-class ArenaMap:
-    def __init__(self, *rects):
-        self.terrain = [pygame.Rect(rect) for rect in rects]
+class Arena:
+    def __init__(self, *color_rects):
+        self.rects = [pygame.Rect(rect) for rect, color in color_rects]
+        self.colors = [color for rect, color in color_rects]
+        self.play_area_rect = self.rects[0]
 
     def __iter__(self):
-        for t in self.terrain:
-            yield t
+        for rect, rect_color in zip(self.rects, self.colors):
+            yield rect, rect_color
 
-map1 = ArenaMap(
-    (65, 270, 300, 60),
-    (915, 270, 300, 60),
-    (610, 150, 60, 230),
-    (205, 100, 150, 20),
-    (925, 100, 150, 20),
+arena1 = Arena(
+    ((65, 0, 1150, 475), SKYBLUE),
+    ((65, 270, 300, 60), DKGREEN),
+    ((915, 270, 300, 60), DKGREEN),
+    ((610, 150, 60, 230), DKGREEN),
+    ((205, 100, 150, 20), DKGREEN),
+    ((925, 100, 150, 20), DKGREEN),
 )

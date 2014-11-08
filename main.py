@@ -80,6 +80,9 @@ class GameLoop:
     def handle_player_input(self):
 
         def _special_input():
+            if self.input.RESET:
+                self.player.topleft = self.player.topleft_initial
+
             if self.input.DEBUG:
                 rendered_font = self.font200.render('-PAUSE-', True, RED)
                 self.surface.blit(rendered_font, (self.font200x, self.font200y))

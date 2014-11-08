@@ -65,28 +65,21 @@ class Player(pygame.Rect):
         _apply_decel_gravity()
         _apply_limits()
 
-    def _handle_movement(self, arena_map):
+    def _handle_movement(self, arena):
+        self.move_ip((self.dx, self.dy))
+        for terrain in arena.rects:
 
-        def _move_is_legal(dxdy):
-            # 1 - create a copy of player
-            copy = self.copy()
-            # 2 - move the copy
-            copy.move_ip(dxdy)
-            # 3 - test if copy is fully contained within the playable area Rect
-            not_out_of_bounds = arena_map.play_area_rect.contains(copy)
-            # 4 - test if copy is not overlapping any terrain Rect's
-            not_inside_terrain = copy.collidelist(arena_map.rects[1:]) == -1
-            return not_out_of_bounds == not_inside_terrain is True
+            if (terrain.top < self.bottom < terrain.bottom) or (terrain.bottom > self.top > terrain.top):
+                if (self.left < terrain.right) and (self.right > terrain.right):
+                    self.left = terrain.right
+                elif (self.left < terrain.left) and (self.right > terrain.left):
+                    self.right = terrain.left
 
-        if _move_is_legal((self.dx, 0)):
-            self.move_ip((self.dx, 0))
-        else:
-            self.dx = 0
-
-        if _move_is_legal((0, self.dy)):
-            self.move_ip((0, self.dy))
-        else:
-            self.dy = 0
+            if (terrain.right > self.left > terrain.left) or (terrain.left < self.right < terrain.right):
+                if (self.bottom > terrain.bottom) and (self.top < terrain.bottom):
+                    self.top = terrain.bottom
+                elif (self.bottom > terrain.top) and (self.top < terrain.top):
+                    self.bottom = terrain.top
 
 
 class Input:
@@ -127,11 +120,14 @@ class Input:
         elif name == DOWN:
             return self.kb_input[K_DOWN] or self.up_down_axis == +1
 
+        elif name == JUMP:
+            return self.kb_input[K_SPACE] or self.a_button
+
         elif name == RESET:
-            return self.kb_input[K_r] or self.a_button
+            return self.kb_input[K_r] or self.y_button
 
         elif name == DEBUG:
-            return self.kb_input[K_F12] or self.start_button
+            return self.kb_input[K_F12] or (self.start_button and self.back_button)
 
         elif name == EXIT:
             return self.kb_input[K_q] or self.kb_input[K_ESCAPE] or self.back_button
@@ -145,9 +141,13 @@ class Arena:
         self.rects = [pygame.Rect(rect) for rect, color in color_rects]
         self.colors = [color for rect, color in color_rects]
         self.play_area_rect = self.rects[0]
+        self.play_area_color = self.colors[0]
+        self.rects = self.rects[1:]
+        self.colors = self.colors[1:]
 
+    # currently only iterate through to draw the rects
     def __iter__(self):
-        for rect, rect_color in zip(self.rects, self.colors):
+        for rect, rect_color in zip([self.play_area_rect] + self.rects, [self.play_area_color] + self.colors):
             yield rect, rect_color
 
 arena1 = Arena(

@@ -10,7 +10,16 @@ class Player(pygame.Rect):
     def __init__(self, left, top, width, height):
         super().__init__(left, top, width, height)
         self.topleft_initial = self.topleft
-        self.speed = 5
+
+        self.dx, self.dy = 0, 4
+        self.dx_max, self.dy_max = 15, 15
+
+        self.dx_increase = 2  # when pushing down button
+        self.dx_decrease = 0.5  # always.  this is basically friction
+
+        self.dy_increase = 35  # when jump
+        self.dy_decrease = 4  # always.  this is basically gravity
+
         self.facing_direction = RIGHT
         self.hit_points = 100
         self.hit_points_max = 100
@@ -18,11 +27,66 @@ class Player(pygame.Rect):
     def copy(self):
         return Player(self.left, self.top, self.width, self.height)
 
-    def move_ip(self, direction):
-        di = {LEFT: (-self.speed, 0), RIGHT: (+self.speed, 0),
-              UP: (0, -self.speed), DOWN: (0, +self.speed), }
-        if direction in di.keys():
-            pygame.Rect.move_ip(self, di[direction])
+    def move_ip(self, dxdy):
+        pygame.Rect.move_ip(self, dxdy)
+
+    def __call__(self, input, arena_map):
+        self._handle_acceleration(input)
+        self._handle_movement(arena_map)
+
+    def _handle_acceleration(self, input):
+
+        def _apply_accel_left_right_input(input):
+            if input.LEFT:
+                self.dx -= self.dx_increase
+            elif input.RIGHT:
+                self.dx += self.dx_increase
+
+        def _apply_decel_friction():
+            if self.dx > 0:
+                self.dx -= self.dx_decrease
+            elif self.dx < 0:
+                self.dx += self.dx_decrease
+
+        def _apply_accel_jump_input(input):
+            if input.JUMP:
+                self.dy -= self.dy_increase
+
+        def _apply_decel_gravity():
+            self.dy += self.dy_decrease
+
+        def _apply_limits():
+            self.dx = eval('{:+}'.format(self.dx)[0] + str(min(abs(self.dx), self.dx_max)))
+            self.dy = eval('{:+}'.format(self.dy)[0] + str(min(abs(self.dy), self.dy_max)))
+
+        _apply_accel_left_right_input(input)
+        _apply_decel_friction()
+        _apply_accel_jump_input(input)
+        _apply_decel_gravity()
+        _apply_limits()
+
+    def _handle_movement(self, arena_map):
+
+        def _move_is_legal(dxdy):
+            # 1 - create a copy of player
+            copy = self.copy()
+            # 2 - move the copy
+            copy.move_ip(dxdy)
+            # 3 - test if copy is fully contained within the playable area Rect
+            not_out_of_bounds = arena_map.play_area_rect.contains(copy)
+            # 4 - test if copy is not overlapping any terrain Rect's
+            not_inside_terrain = copy.collidelist(arena_map.rects[1:]) == -1
+            return not_out_of_bounds == not_inside_terrain is True
+
+        if _move_is_legal((self.dx, 0)):
+            self.move_ip((self.dx, 0))
+        else:
+            self.dx = 0
+
+        if _move_is_legal((0, self.dy)):
+            self.move_ip((0, self.dy))
+        else:
+            self.dy = 0
 
 
 class Input:

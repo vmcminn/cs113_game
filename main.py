@@ -46,7 +46,7 @@ class GameLoop:
 
         def _setup_Rects():
             self.window = self.surface.get_rect()
-            self.window_border = Rect((0, 0), (1280, 600))
+            self.window_border = Rect((0, 0), (1278, 600))
             self.play_area = Rect((65, 0), (1150, 475))
             self.play_area_border = Rect((40, 0), (1200, 500))
             self.player = Player(left=200, top=150, width=30, height=40)
@@ -78,40 +78,6 @@ class GameLoop:
 
     # -------------------------------------------------------------------------
     def handle_player_input(self):
-        def _move_character():
-
-            # 1 - create a copy of player
-            temp_player = self.player.copy()
-
-            # 2 - move the copy
-            if self.input.LEFT:  # left arrow key / left on gamepad
-                self.player.facing_direction = LEFT
-                temp_player.move_ip(LEFT)
-
-            if self.input.RIGHT:  # right arrow key / right on gamepad
-                self.player.facing_direction = RIGHT
-                temp_player.move_ip(RIGHT)
-
-            if self.input.UP:  # up arrow key / up on gamepad
-                temp_player.move_ip(UP)
-
-            if self.input.DOWN:  # down arrow key / down on gamepad
-                temp_player.move_ip(DOWN)
-
-            if self.input.RESET:  # 'r' key / 'a' button
-                temp_player.topleft = self.player.topleft_initial
-
-            # 3 - test if copy is fully contained within the playable area Rect
-            not_out_of_bounds = self.play_area.contains(temp_player)
-
-            # 4 - test if copy is not overlapping any terrain Rect's
-            not_inside_terrain = temp_player.collidelist(self.arena.rects[1:]) == -1
-
-            # 5a - if 3 and 4 are true: move player to same position as copy
-            if not_out_of_bounds == not_inside_terrain is True:
-                self.player.topleft = temp_player.topleft
-
-            # 5b - else: do nothing
 
         def _special_input():
             if self.input.DEBUG:
@@ -130,7 +96,7 @@ class GameLoop:
                 pygame.event.post(pygame.event.Event(QUIT))
 
         self.input.refresh()
-        _move_character()
+        self.player(self.input, self.arena)
         _special_input()
 
     # -------------------------------------------------------------------------
@@ -138,6 +104,8 @@ class GameLoop:
         def _draw_ui():
             # fill background dark grey
             self.surface.fill(DGREY)
+            # thin green border of surface
+            pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
             # red border of playable movement space
             pygame.draw.rect(self.surface, DKRED, self.play_area_border)
             # font for health indicator, for testing purposes only
@@ -149,11 +117,6 @@ class GameLoop:
             self.surface.blit(time_display, (640, 500))
 
         def _draw_map():
-            # playable movement space
-            pygame.draw.rect(self.surface, SKYBLUE, self.play_area)
-            # creates a thin green rectangle border of surface
-            pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
-
             for rect, rect_color in self.arena:
                 pygame.draw.rect(self.surface, rect_color, rect)
 

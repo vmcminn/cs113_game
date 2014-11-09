@@ -4,9 +4,30 @@ from colors import *
 from globals import *
 
 from pygame.locals import *
+# -------------------------------------------------------------------------
 
 
-class Player(pygame.Rect):
+class Rect2(pygame.Rect):
+    def __init__(self, *args, **kargs):
+        if args != tuple():
+            if all_isinstance(args, tuple) and len(args) is 2:
+                super().__init__(args[0], args[1])
+
+            if all_isinstance(args, tuple) and len(args) is 1:
+                super().__init__(args[0][0], args[0][1], args[0][2], args[0][3])
+
+            elif all_isinstance(args, int):
+                super().__init__(args[0], args[1], args[2], args[3])
+        else:
+            if all_in('top,left,width,height'.split(','), kargs.keys()):
+                super().__init__(kargs['left'], kargs['top'], kargs['width'], kargs['height'])
+
+            elif all_in(('topleft', 'size'), kargs):
+                super().__init__(kargs['topleft'], kargs['size'])
+# -------------------------------------------------------------------------
+
+
+class Player(Rect2):
     def __init__(self, left, top, width, height):
         super().__init__(left, top, width, height)
         self.topleft_initial = self.topleft
@@ -28,7 +49,7 @@ class Player(pygame.Rect):
         return Player(self.left, self.top, self.width, self.height)
 
     def move_ip(self, dxdy):
-        pygame.Rect.move_ip(self, dxdy)
+        super().move_ip(dxdy)
 
     def __call__(self, input, arena_map):
         self._handle_acceleration(input)
@@ -80,6 +101,7 @@ class Player(pygame.Rect):
                     self.top = terrain.bottom
                 elif (self.bottom > terrain.top) and (self.top < terrain.top):
                     self.bottom = terrain.top
+# -------------------------------------------------------------------------
 
 
 class Input:
@@ -88,7 +110,7 @@ class Input:
             self.gamepad = pygame.joystick.Joystick(0)
             self.gamepad.init()
             self.gamepad_found = True
-        except Exception:
+        except pygame.error:
             self.gamepad_found = False
 
     def refresh(self):
@@ -134,11 +156,13 @@ class Input:
 
         else:
             return None
+# -------------------------------------------------------------------------
 
 
 class Arena:
     def __init__(self, *color_rects):
-        self.rects = [pygame.Rect(rect) for rect, color in color_rects]
+        self.rects = [Rect2(rect) for rect, color in color_rects]
+
         self.colors = [color for rect, color in color_rects]
         self.play_area_rect = self.rects[0]
         self.play_area_color = self.colors[0]
@@ -151,7 +175,10 @@ class Arena:
             yield rect, rect_color
 
 arena1 = Arena(
-    ((65, 0, 1150, 475), SKYBLUE),
+    ((65, 0, 1150, 475), SKYBLUE),  # play_area (must be first)
+    ((0, 475, 1280, 50), None),
+    ((15, 0, 50, 600), None),
+    ((1215, 0, 50, 600), None),
     ((65, 270, 300, 60), DKGREEN),
     ((915, 270, 300, 60), DKGREEN),
     ((610, 150, 60, 230), DKGREEN),

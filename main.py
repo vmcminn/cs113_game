@@ -46,9 +46,9 @@ class GameLoop:
 
         def _setup_Rects():
             self.window = self.surface.get_rect()
-            self.window_border = Rect((0, 0), (1278, 600))
-            self.play_area = Rect((65, 0), (1150, 475))
-            self.play_area_border = Rect((40, 0), (1200, 500))
+            self.window_border = Rect2(left=0, top=0, width=1278, height=600)
+            self.play_area = Rect2(left=65, top=0, width=1150, height=475)
+            self.play_area_border = Rect2(left=40, top=0, width=1200, height=500)
             self.player = Player(left=200, top=150, width=30, height=40)
             self.arena = arena1
 
@@ -121,7 +121,8 @@ class GameLoop:
 
         def _draw_map():
             for rect, rect_color in self.arena:
-                pygame.draw.rect(self.surface, rect_color, rect)
+                if rect_color is not None:
+                    pygame.draw.rect(self.surface, rect_color, rect)
 
         def _draw_players():
             # placeholder for a playable character; is movable

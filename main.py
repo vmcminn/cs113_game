@@ -60,6 +60,15 @@ class GameLoop:
             self.pause_font = pygame.font.Font('gigi.ttf', 200)
             self.pause_font_xy = font_position_center((self.window.w, self.window.h), self.pause_font, '-PAUSE-')
 
+            self.debug_font = pygame.font.SysFont('consolas', 20)
+
+            self.debug_font_xy1 = 1000, 505
+            self.debug_font_xy2 = 1000, 520
+            self.debug_font_xy3 = 1000, 540
+            self.debug_font_xy4 = 1000, 560
+
+
+
         pygame.init()
         _setup_display()
         _setup_time()
@@ -121,6 +130,24 @@ class GameLoop:
             time_display = self.timer_font.render(str(self.game_time), True, BLUE)
             self.surface.blit(time_display, self.timer_font_xy)
 
+        def _draw_debug():
+            x = '| x:{:>8.2f}|'.format(self.player.x)
+            y = '| y:{:>8.2f}|'.format(self.player.y)
+            dx = '|dx:{:>8.2f}|'.format(self.player.dx)
+            dy = '|dy:{:>8.2f}|'.format(self.player.dy)
+
+            debug_font = self.debug_font.render(x, True, GREEN)
+            self.surface.blit(debug_font, self.debug_font_xy1)
+
+            debug_font = self.debug_font.render(y, True, GREEN)
+            self.surface.blit(debug_font, self.debug_font_xy2)
+
+            debug_font = self.debug_font.render(dx, True, GREEN)
+            self.surface.blit(debug_font, self.debug_font_xy3)
+
+            debug_font = self.debug_font.render(dy, True, GREEN)
+            self.surface.blit(debug_font, self.debug_font_xy4)
+
         def _draw_map():
             for rect, rect_color in self.arena:
                 if rect_color is not None:
@@ -132,6 +159,7 @@ class GameLoop:
 
         _draw_ui()
         _draw_timer()
+        _draw_debug()
         _draw_map()
         _draw_players()
         pygame.display.update()  # necessary to update the display

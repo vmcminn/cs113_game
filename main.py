@@ -54,12 +54,11 @@ class GameLoop:
 
         def _setup_fonts():
             self.timer_font = pygame.font.Font('gigi.ttf', 36)
-            self.font50 = pygame.font.Font('gigi.ttf', 55)
-            self.font50x = ((self.window.w - self.font50.size('100')[0]) // 20) * 1
-            self.font50y = ((self.window.h - self.font50.size('100')[1]) // 20) * 19
-            self.font200 = pygame.font.SysFont(None, 200)
-            self.font200x = ((self.window.w - self.font200.size('-PAUSE-')[0]) // 2) * 1
-            self.font200y = ((self.window.h - self.font200.size('-PAUSE-')[1]) // 2) * 1
+            self.timer_font_xy = 640, 500
+            self.health_font = pygame.font.Font('gigi.ttf', 55)
+            self.health_font_xy = 60, 510
+            self.pause_font = pygame.font.Font('gigi.ttf', 200)
+            self.pause_font_xy = font_position_center((self.window.w, self.window.h), self.pause_font, '-PAUSE-')
 
         pygame.init()
         _setup_display()
@@ -84,8 +83,8 @@ class GameLoop:
                 self.player.topleft = self.player.topleft_initial
 
             if self.input.DEBUG:
-                rendered_font = self.font200.render('-PAUSE-', True, RED)
-                self.surface.blit(rendered_font, (self.font200x, self.font200y))
+                rendered_font = self.pause_font.render('-PAUSE-', True, RED)
+                self.surface.blit(rendered_font, self.pause_font_xy)
                 pygame.display.update()
                 try:
                     exec(input('\nEnter something to exec: '))
@@ -107,17 +106,20 @@ class GameLoop:
         def _draw_ui():
             # fill background dark grey
             self.surface.fill(DGREY)
+
             # thin green border of surface
             pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
+
             # red border of playable movement space
             pygame.draw.rect(self.surface, DKRED, self.play_area_border)
+
             # font for health indicator, for testing purposes only
-            rendered_font = self.font50.render(str(self.player.hit_points), True, RED)
-            self.surface.blit(rendered_font, (self.font50x, self.font50y))
+            health_display = self.health_font.render(str(self.player.hit_points), True, RED)
+            self.surface.blit(health_display, self.health_font_xy)
 
         def _draw_timer():
             time_display = self.timer_font.render(str(self.game_time), True, BLUE)
-            self.surface.blit(time_display, (640, 500))
+            self.surface.blit(time_display, self.timer_font_xy)
 
         def _draw_map():
             for rect, rect_color in self.arena:

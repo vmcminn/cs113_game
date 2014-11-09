@@ -29,19 +29,28 @@ class Rect2(pygame.Rect):
 
 class Player(Rect2):
     def __init__(self, left, top, width, height):
+
+        # position
         super().__init__(left, top, width, height)
         self.topleft_initial = self.topleft
 
-        self.dx, self.dy = 0, 4
-        self.dx_max, self.dy_max = 15, 15
+        # speed
+        self.dx, self.dy = 10, 4  # initial rates
+        self.dx_max, self.dy_max = 15, 15  # max speed, max fall rate
+        
+        # acceleration - player input
+        self.dx_movement = 2  # +/- applied when player moves left (-) or right (+)
+        self.dy_jump = 35  # applied when player jumps
 
-        self.dx_increase = 2  # when pushing down button
-        self.dx_decrease = 0.5  # always.  this is basically friction
+        # acceleration - physics
+        self.dx_friction = 0.5  # applied every frame
+        self.dy_gravity = 4  # applied every frame
 
-        self.dy_increase = 35  # when jump
-        self.dy_decrease = 4  # always.  this is basically gravity
+        # misc.
+        self.facing_direction = RIGHT  # for wall jumping
+        self.touching_ground = False  # for jumping
 
-        self.facing_direction = RIGHT
+        # character stats
         self.hit_points = 100
         self.hit_points_max = 100
 
@@ -59,34 +68,36 @@ class Player(Rect2):
 
         def _apply_accel_left_right_input(input):
             if input.LEFT:
-                self.dx -= self.dx_increase
+                self.dx -= self.dx_movement
             elif input.RIGHT:
-                self.dx += self.dx_increase
+                self.dx += self.dx_movement
 
-        def _apply_decel_friction():
+        def _apply_friction():
             if self.dx > 0:
-                self.dx -= self.dx_decrease
+                self.dx -= self.dx_friction
             elif self.dx < 0:
-                self.dx += self.dx_decrease
+                self.dx += self.dx_friction
 
         def _apply_accel_jump_input(input):
-            if input.JUMP:
-                self.dy -= self.dy_increase
+            if input.JUMP and self.touching_ground:
+                self.dy -= self.dy_jump
 
-        def _apply_decel_gravity():
-            self.dy += self.dy_decrease
+        def _apply_gravity():
+            self.dy += self.dy_gravity
 
         def _apply_limits():
             self.dx = eval('{:+}'.format(self.dx)[0] + str(min(abs(self.dx), self.dx_max)))
-            self.dy = eval('{:+}'.format(self.dy)[0] + str(min(abs(self.dy), self.dy_max)))
+            self.dy = min(self.dy, self.dy_max)
 
         _apply_accel_left_right_input(input)
-        _apply_decel_friction()
+        _apply_friction()
         _apply_accel_jump_input(input)
-        _apply_decel_gravity()
+        _apply_gravity()
         _apply_limits()
 
     def _handle_movement(self, arena):
+        self.touching_ground = False  # reset this every frame
+
         self.move_ip((self.dx, self.dy))
         for terrain in arena.rects:
 
@@ -101,6 +112,8 @@ class Player(Rect2):
                     self.top = terrain.bottom
                 elif (self.bottom > terrain.top) and (self.top < terrain.top):
                     self.bottom = terrain.top
+                    self.touching_ground = True
+                    self.dy = 0
 # -------------------------------------------------------------------------
 
 
@@ -169,8 +182,8 @@ class Arena:
         self.rects = self.rects[1:]
         self.colors = self.colors[1:]
 
-    # currently only iterate through to draw the rects
     def __iter__(self):
+        # currently only time iteration is used is when the rects are drawn
         for rect, rect_color in zip([self.play_area_rect] + self.rects, [self.play_area_color] + self.colors):
             yield rect, rect_color
 

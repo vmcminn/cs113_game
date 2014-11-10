@@ -65,17 +65,22 @@ class GameLoop:
             self.debug_font_xy3 = 1000, 540
             self.debug_font_xy4 = 1000, 560
 
+        def _setup_particles():
+            self.active_particles = []
+
         pygame.init()
         _setup_display()
         _setup_time()
         _setup_input()
         _setup_Rects()
         _setup_fonts()
+        _setup_particles()
 
     # ------------------------------------------------------------------------
     def __call__(self):
         while True:
             self.handle_player_input()
+            self.handle_particles()
             self.draw_screen()
             self.handle_event_queue()
             self.clock.tick(self.fps)
@@ -105,6 +110,23 @@ class GameLoop:
         self.input.refresh()
         self.player(self.input, self.arena)
         _special_input()
+
+    def handle_particles(self):
+
+        def _update_active_particles():
+            if self.player.new_particle:
+                self.active_particles.append(self.player.new_particle)
+                pygame.time.set_timer(USEREVENT + 2, self.player.new_particle.total_time)
+
+        def _update_particles():
+            for p in self.active_particles:
+                if p.expired:
+                    self.active_particles.remove(p)
+                else:
+                    p.update(self.game_time.msec, self.player)
+
+        _update_active_particles()
+        _update_particles()
 
     # -------------------------------------------------------------------------
     def draw_screen(self):
@@ -153,11 +175,16 @@ class GameLoop:
             # placeholder for a playable character; is movable
             pygame.draw.rect(self.surface, LBLUE, self.player)
 
+        def _draw_particles():
+            for p in self.active_particles:
+                pygame.draw.rect(self.surface, p.color, p)
+
         _draw_ui()
         _draw_timer()
         _draw_debug()
         _draw_map()
         _draw_players()
+        _draw_particles()
         pygame.display.update()  # necessary to update the display
 
     # -------------------------------------------------------------------------
@@ -167,6 +194,10 @@ class GameLoop:
             # update game timer
             if event.type == USEREVENT + 1:
                 self.game_time.inc()
+
+            if event.type == USEREVENT + 2:
+                self.player.attack_cooldown_expired = True
+                pygame.time.set_timer(USEREVENT + 2, 0)
 
             # QUIT event occurs when click X on window bar
             if event.type == QUIT:

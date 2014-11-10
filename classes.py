@@ -1,9 +1,11 @@
+import math
+
 import pygame
+from pygame.locals import *
 
 from colors import *
 from globals import *
 
-from pygame.locals import *
 # -------------------------------------------------------------------------
 
 
@@ -37,7 +39,7 @@ class Player(Rect2):
         # speed
         self.dx, self.dy = 10, 4  # initial rates
         self.dx_max, self.dy_max = 15, 15  # max speed, max fall rate
-        
+
         # acceleration - player input
         self.dx_movement = 2  # +/- applied when player moves
         self.dy_jump = 35  # applied when player jumps
@@ -48,12 +50,17 @@ class Player(Rect2):
         self.dy_gravity = 4  # applied every frame
 
         # misc.
-        self.hit_wall_from = None
         self.touching_ground = False  # for jumping
+        self.hit_wall_from = None  # for wall jumping
 
         # character stats
         self.hit_points = 100
         self.hit_points_max = 100
+
+        # NEW
+        self.facing_direction = RIGHT
+        self.attack_cooldown_expired = True
+        self.new_particle = None
 
     def copy(self):
         return Player(self.left, self.top, self.width, self.height)
@@ -62,10 +69,18 @@ class Player(Rect2):
         super().move_ip(dxdy)
 
     def __call__(self, input, arena_map):
+        self._handle_facing_direction(input)
         self._handle_acceleration(input)
         self._handle_movement(arena_map)
+        self._handle_attack(input)
+
+    def _handle_facing_direction(self, input):
+        self.facing_direction = RIGHT if input.RIGHT \
+            else LEFT if input.LEFT \
+            else self.facing_direction
 
     def _handle_acceleration(self, input):
+
         def _apply_accel_left_right_input(input):
             self.dx += self.dx_movement if input.RIGHT \
                 else -self.dx_movement if input.LEFT \
@@ -120,6 +135,14 @@ class Player(Rect2):
                 elif (self.bottom > terrain.top) and (self.top < terrain.top):
                     self.bottom = terrain.top
                     self.dy, self.touching_ground = 0, True
+
+    def _handle_attack(self, input):
+        self.new_particle = None
+        if input.ATTACK:
+            if self.attack_cooldown_expired:
+                self.attack_cooldown_expired = False
+                m = MeleeParticle(self, attack_particle)
+                self.new_particle = m
 # -------------------------------------------------------------------------
 
 
@@ -137,8 +160,13 @@ class Input:
             if self.gamepad_found:
                 self.left_right_axis = round(self.gamepad.get_axis(0))
                 self.up_down_axis = round(self.gamepad.get_axis(1))
-                self.a_button = self.gamepad.get_button(1)
+                #     Y
+                #   X   B
+                #     A
                 self.y_button = self.gamepad.get_button(3)
+                self.x_button = self.gamepad.get_button(0)
+                self.b_button = self.gamepad.get_button(2)
+                self.a_button = self.gamepad.get_button(1)
                 self.start_button = self.gamepad.get_button(9)
                 self.back_button = self.gamepad.get_button(8)
 
@@ -164,6 +192,9 @@ class Input:
         elif name == JUMP:
             return self.kb_input[K_SPACE] or self.a_button
 
+        elif name == ATTACK:
+            return self.kb_input[K_a] or self.x_button
+
         elif name == RESET:
             return self.kb_input[K_r] or self.y_button
 
@@ -181,7 +212,6 @@ class Input:
 class Arena:
     def __init__(self, *color_rects):
         self.rects = [Rect2(rect) for rect, color in color_rects]
-
         self.colors = [color for rect, color in color_rects]
         self.play_area_rect = self.rects[0]
         self.play_area_color = self.colors[0]
@@ -204,3 +234,65 @@ arena1 = Arena(
     ((205, 100, 150, 20), DKGREEN),
     ((925, 100, 150, 20), DKGREEN),
 )
+
+
+class Particle:
+    def __init__(self, width, height, radius, cooldown, duration, color):
+        self.width = width
+        self.height = height
+        self.radius = radius
+        self.cooldown = cooldown
+        self.duration = duration
+        self.color = color
+
+
+class MeleeParticle(Rect2):  # @TODO clean this up - have it work better with Particle class
+    def __init__(self, player, particle):
+        super().__init__(player.left, player.top, particle.width, particle.height)
+        # particle attributes
+        self.radius = particle.radius
+        self.cooldown = particle.cooldown
+        self.duration = particle.duration
+        self.total_time = particle.cooldown + particle.duration
+        self.color = particle.color
+        self.arc = math.pi / 2
+        # meleeparticle attributes
+        self.expired = False
+        self.spawn_time = 0
+
+    def update(self, time, player):
+        if self.spawn_time == 0:
+            self.spawn_time = time
+
+        elapsed_time = time - self.spawn_time
+        self.expired = (elapsed_time >= self.duration)
+        r = (elapsed_time / self.duration)
+
+        if player.facing_direction == RIGHT:
+            self.centerx = player.centerx + self.radius * math.cos(
+                (1 - r) * self.arc)
+        else:
+            self.centerx = player.centerx - self.radius * math.cos(
+                (1 - r) * self.arc)
+        self.centery = player.centery - self.radius * math.sin(
+            (1 - r) * self.arc)
+
+
+attack_particle = Particle(width=30, height=30, radius=35, cooldown=1000, duration=500, color=YELLOW)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

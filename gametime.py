@@ -8,6 +8,10 @@ class GameTime:
     def inc(self):
         self.qsec += 1
 
+    @property
+    def msec(self):
+        return self.qsec * 250
+
     def as_seconds(self):
         return self.qsec / 4
 

@@ -59,15 +59,11 @@ class GameLoop:
             self.health_font_xy = 60, 510
             self.pause_font = pygame.font.Font('gigi.ttf', 200)
             self.pause_font_xy = font_position_center((self.window.w, self.window.h), self.pause_font, '-PAUSE-')
-
-            self.debug_font = pygame.font.SysFont('consolas', 20)
-
+            self.debug_font = pygame.font.SysFont('consolas', 20)  # monospace
             self.debug_font_xy1 = 1000, 505
             self.debug_font_xy2 = 1000, 520
             self.debug_font_xy3 = 1000, 540
             self.debug_font_xy4 = 1000, 560
-
-
 
         pygame.init()
         _setup_display()

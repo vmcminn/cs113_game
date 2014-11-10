@@ -65,18 +65,15 @@ class Player(Rect2):
         self._handle_movement(arena_map)
 
     def _handle_acceleration(self, input):
-
         def _apply_accel_left_right_input(input):
-            if input.LEFT:
-                self.dx -= self.dx_movement
-            elif input.RIGHT:
-                self.dx += self.dx_movement
+            self.dx += self.dx_movement if input.RIGHT \
+                else -self.dx_movement if input.LEFT \
+                else 0
 
         def _apply_friction():
-            if self.dx > 0:
-                self.dx -= self.dx_friction
-            elif self.dx < 0:
-                self.dx += self.dx_friction
+            self.dx += self.dx_friction if self.dx < 0 \
+                else -self.dx_friction if self.dx > 0 \
+                else 0
 
         def _apply_accel_jump_input(input):
             if input.JUMP and self.touching_ground:
@@ -97,8 +94,7 @@ class Player(Rect2):
 
     def _handle_movement(self, arena):
         self.touching_ground = False  # reset this every frame
-
-        self.move_ip((self.dx, self.dy))
+        self.move_ip((self.dx, self.dy))  # move then check for collisions
         for terrain in arena.rects:
 
             if (terrain.top < self.bottom < terrain.bottom) or (terrain.bottom > self.top > terrain.top):
@@ -112,8 +108,7 @@ class Player(Rect2):
                     self.top = terrain.bottom
                 elif (self.bottom > terrain.top) and (self.top < terrain.top):
                     self.bottom = terrain.top
-                    self.touching_ground = True
-                    self.dy = 0
+                    self.dy, self.touching_ground = 0, True
 # -------------------------------------------------------------------------
 
 

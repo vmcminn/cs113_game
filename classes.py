@@ -39,15 +39,16 @@ class Player(Rect2):
         self.dx_max, self.dy_max = 15, 15  # max speed, max fall rate
         
         # acceleration - player input
-        self.dx_movement = 2  # +/- applied when player moves left (-) or right (+)
+        self.dx_movement = 2  # +/- applied when player moves
         self.dy_jump = 35  # applied when player jumps
+        self.dx_wall_jump = 15  # +/- applied when player wall jumps
 
         # acceleration - physics
         self.dx_friction = 0.5  # applied every frame
         self.dy_gravity = 4  # applied every frame
 
         # misc.
-        self.facing_direction = RIGHT  # for wall jumping
+        self.hit_wall_from = None
         self.touching_ground = False  # for jumping
 
         # character stats
@@ -76,8 +77,12 @@ class Player(Rect2):
                 else 0
 
         def _apply_accel_jump_input(input):
-            if input.JUMP and self.touching_ground:
-                self.dy -= self.dy_jump
+            if input.JUMP:
+                self.dy -= self.dy_jump if self.touching_ground or self.hit_wall_from \
+                    else 0
+                self.dx += self.dx_wall_jump if self.hit_wall_from == LEFT \
+                    else -self.dx_wall_jump if self.hit_wall_from == RIGHT \
+                    else 0
 
         def _apply_gravity():
             self.dy += self.dy_gravity
@@ -93,15 +98,21 @@ class Player(Rect2):
         _apply_limits()
 
     def _handle_movement(self, arena):
-        self.touching_ground = False  # reset this every frame
+        self.hit_wall_from = None  # reset every frame
+        self.touching_ground = False  # reset every frame
         self.move_ip((self.dx, self.dy))  # move then check for collisions
         for terrain in arena.rects:
 
             if (terrain.top < self.bottom < terrain.bottom) or (terrain.bottom > self.top > terrain.top):
                 if (self.left < terrain.right) and (self.right > terrain.right):
                     self.left = terrain.right
+                    self.hit_wall_from = LEFT
+                    self.dx = self.dy = 0
+
                 elif (self.left < terrain.left) and (self.right > terrain.left):
                     self.right = terrain.left
+                    self.hit_wall_from = RIGHT
+                    self.dx = self.dy = 0
 
             if (terrain.right > self.left > terrain.left) or (terrain.left < self.right < terrain.right):
                 if (self.bottom > terrain.bottom) and (self.top < terrain.bottom):
@@ -184,9 +195,9 @@ class Arena:
 
 arena1 = Arena(
     ((65, 0, 1150, 475), SKYBLUE),  # play_area (must be first)
-    ((0, 475, 1280, 50), None),
-    ((15, 0, 50, 600), None),
-    ((1215, 0, 50, 600), None),
+    ((0, 475, 1280, 50), None),  # floor
+    ((15, 0, 50, 600), None),  # left wall
+    ((1215, 0, 50, 600), None),  # right wall
     ((65, 270, 300, 60), DKGREEN),
     ((915, 270, 300, 60), DKGREEN),
     ((610, 150, 60, 230), DKGREEN),

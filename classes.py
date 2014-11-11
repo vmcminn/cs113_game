@@ -53,10 +53,10 @@ class Player(Rect2):
         self.hit_wall_from = None  # for wall jumping
 
         # character stats
-        self.hit_points = 100
-        self.hit_points_max = 100
+        self.hit_points = self.hit_points_max = 100
+        self.energy = self.energy_max = 10
 
-        # NEW
+        # attacking
         self.facing_direction = RIGHT
         self.attack_cooldown_expired = True
         self.new_particle = None
@@ -140,8 +140,7 @@ class Player(Rect2):
         if input.ATTACK:
             if self.attack_cooldown_expired:
                 self.attack_cooldown_expired = False
-                m = MeleeParticle(attack_particle)
-                self.new_particle = m
+                self.new_particle = MeleeParticle(attack_particle)
 # -------------------------------------------------------------------------
 
 
@@ -155,56 +154,37 @@ class Input:
             self.gamepad_found = False
 
     def refresh(self):
-        def _get_gamepad_input():
-            if self.gamepad_found:
-                self.left_right_axis = round(self.gamepad.get_axis(0))
-                self.up_down_axis = round(self.gamepad.get_axis(1))
-                #     Y
-                #   X   B
-                #     A
-                self.y_button = self.gamepad.get_button(3)
-                self.x_button = self.gamepad.get_button(0)
-                self.b_button = self.gamepad.get_button(2)
-                self.a_button = self.gamepad.get_button(1)
-                self.start_button = self.gamepad.get_button(9)
-                self.back_button = self.gamepad.get_button(8)
+        self._get_gamepad_input()
+        self._get_keyboard_input()
+        self._update_attributes()
 
-        def _get_keyboard_input():
-            self.kb_input = pygame.key.get_pressed()
+    def _get_gamepad_input(self):
+        if self.gamepad_found:
+            self.left_right_axis = round(self.gamepad.get_axis(0))
+            self.up_down_axis = round(self.gamepad.get_axis(1))
+            #     Y
+            #   X   B
+            #     A
+            self.y_button = self.gamepad.get_button(3)
+            self.x_button = self.gamepad.get_button(0)
+            self.b_button = self.gamepad.get_button(2)
+            self.a_button = self.gamepad.get_button(1)
+            self.start_button = self.gamepad.get_button(9)
+            self.back_button = self.gamepad.get_button(8)
 
-        _get_gamepad_input()
-        _get_keyboard_input()
+    def _get_keyboard_input(self):
+        self.kb_input = pygame.key.get_pressed()
 
-    def __getattr__(self, name):
-        if name == LEFT:
-            return self.kb_input[K_LEFT] or self.left_right_axis == -1
-
-        elif name == RIGHT:
-            return self.kb_input[K_RIGHT] or self.left_right_axis == +1
-
-        elif name == UP:
-            return self.kb_input[K_UP] or self.up_down_axis == -1
-
-        elif name == DOWN:
-            return self.kb_input[K_DOWN] or self.up_down_axis == +1
-
-        elif name == JUMP:
-            return self.kb_input[K_SPACE] or self.a_button
-
-        elif name == ATTACK:
-            return self.kb_input[K_a] or self.x_button
-
-        elif name == RESET:
-            return self.kb_input[K_r] or self.y_button
-
-        elif name == DEBUG:
-            return self.kb_input[K_F12] or (self.start_button and self.back_button)
-
-        elif name == EXIT:
-            return self.kb_input[K_q] or self.kb_input[K_ESCAPE] or self.back_button
-
-        else:
-            return None
+    def _update_attributes(self):
+        self.LEFT = self.kb_input[K_LEFT] or self.left_right_axis == -1
+        self.RIGHT = self.kb_input[K_RIGHT] or self.left_right_axis == +1
+        self.UP = self.kb_input[K_UP] or self.up_down_axis == -1
+        self.DOWN = self.kb_input[K_DOWN] or self.up_down_axis == +1
+        self.JUMP = self.kb_input[K_SPACE] or self.a_button
+        self.ATTACK = self.kb_input[K_a] or self.x_button
+        self.RESET = self.kb_input[K_r] or self.y_button
+        self.DEBUG = self.kb_input[K_F12] or (self.start_button and self.back_button)
+        self.EXIT = self.kb_input[K_q] or self.kb_input[K_ESCAPE] or self.back_button
 # -------------------------------------------------------------------------
 
 

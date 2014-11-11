@@ -7,7 +7,6 @@ import pygame
 from pygame.locals import *
 
 # our modules
-from colors import *
 from classes import *
 from globals import *
 from gametime import *

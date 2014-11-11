@@ -3,7 +3,6 @@ import math
 import pygame
 from pygame.locals import *
 
-from colors import *
 from globals import *
 
 # -------------------------------------------------------------------------

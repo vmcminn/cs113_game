@@ -141,7 +141,7 @@ class Player(Rect2):
         if input.ATTACK:
             if self.attack_cooldown_expired:
                 self.attack_cooldown_expired = False
-                m = MeleeParticle(self, attack_particle)
+                m = MeleeParticle(attack_particle)
                 self.new_particle = m
 # -------------------------------------------------------------------------
 
@@ -236,27 +236,19 @@ arena1 = Arena(
 )
 
 
-class Particle:
+class Particle(Rect2):
     def __init__(self, width, height, radius, cooldown, duration, color):
-        self.width = width
-        self.height = height
+        super().__init__(left=0, top=0, width=width, height=height)
         self.radius = radius
         self.cooldown = cooldown
         self.duration = duration
         self.color = color
 
 
-class MeleeParticle(Rect2):  # @TODO clean this up - have it work better with Particle class
-    def __init__(self, player, particle):
-        super().__init__(player.left, player.top, particle.width, particle.height)
-        # particle attributes
-        self.radius = particle.radius
-        self.cooldown = particle.cooldown
-        self.duration = particle.duration
+class MeleeParticle(Particle):
+    def __init__(self, particle):
+        super().__init__(particle.width, particle.height, particle.radius, particle.cooldown, particle.duration, particle.color)
         self.total_time = particle.cooldown + particle.duration
-        self.color = particle.color
-        self.arc = math.pi / 2
-        # meleeparticle attributes
         self.expired = False
         self.spawn_time = 0
 
@@ -267,15 +259,14 @@ class MeleeParticle(Rect2):  # @TODO clean this up - have it work better with Pa
         elapsed_time = time - self.spawn_time
         self.expired = (elapsed_time >= self.duration)
         r = (elapsed_time / self.duration)
+        arc = math.pi / 2
 
         if player.facing_direction == RIGHT:
-            self.centerx = player.centerx + self.radius * math.cos(
-                (1 - r) * self.arc)
+            self.centerx = player.centerx + self.radius * math.cos((1 - r) * arc)
         else:
-            self.centerx = player.centerx - self.radius * math.cos(
-                (1 - r) * self.arc)
-        self.centery = player.centery - self.radius * math.sin(
-            (1 - r) * self.arc)
+            self.centerx = player.centerx - self.radius * math.cos((1 - r) * arc)
+
+        self.centery = player.centery - self.radius * math.sin((1 - r) * arc)
 
 
 attack_particle = Particle(width=30, height=30, radius=35, cooldown=1000, duration=500, color=YELLOW)

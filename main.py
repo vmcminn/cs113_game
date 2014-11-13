@@ -48,6 +48,7 @@ class GameLoop:
             self.play_area = Rect2(left=65, top=0, width=1150, height=475)
             self.play_area_border = Rect2(left=40, top=0, width=1200, height=500)
             self.player = Player(left=200, top=150, width=30, height=40)
+            self.player_eyeball = Rect2(left=200, top=150, width=5, height=5)
             self.arena = arena1
 
         def _setup_fonts():
@@ -172,6 +173,13 @@ class GameLoop:
         def _draw_players():
             # placeholder for a playable character; is movable
             pygame.draw.rect(self.surface, LBLUE, self.player)
+            if self.player.facing_direction == LEFT:
+                self.player_eyeball.topleft = self.player.topleft
+                self.player_eyeball.move_ip((+3, 3))
+            else:
+                self.player_eyeball.topright = self.player.topright
+                self.player_eyeball.move_ip((-3, 3))
+            pygame.draw.rect(self.surface, DKRED, self.player_eyeball)
 
         def _draw_particles():
             for p in self.active_particles:

@@ -9,7 +9,6 @@ from pygame.locals import *
 # our modules
 from classes import *
 from globals import *
-from gametime import *
 
 # set window starting position for my desktop which has multiple monitors, this
 # is a convenience thing for me.  You guys can add your own setting here if

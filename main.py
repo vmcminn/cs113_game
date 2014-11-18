@@ -52,11 +52,11 @@ class GameLoop:
             self.arena = arena1
 
         def _setup_fonts():
-            self.timer_font = pygame.font.Font('gigi.ttf', 36)
+            self.timer_font = pygame.font.Font('data/gigi.ttf', 36)
             self.timer_font_xy = 640, 500
-            self.health_font = pygame.font.Font('gigi.ttf', 55)
+            self.health_font = pygame.font.Font('data/gigi.ttf', 55)
             self.health_font_xy = 60, 510
-            self.pause_font = pygame.font.Font('gigi.ttf', 200)
+            self.pause_font = pygame.font.Font('data/gigi.ttf', 200)
             self.pause_font_xy = font_position_center((self.window.w, self.window.h), self.pause_font, '-PAUSE-')
             self.debug_font = pygame.font.SysFont('consolas', 20)  # monospace
             self.debug_font_xy1 = 1000, 505

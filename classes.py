@@ -117,6 +117,8 @@ class Player(Rect2):
         self.move_ip((self.dx, self.dy))  # move then check for collisions
         for terrain in arena.rects:
 
+            # @TODO: implement Peter's modified coded for movement to squelch bug of glitchy behavior near edge of platforms.
+
             # (player's bottom in between terrain top and bottom) or (player's top in between terrain top and bottom)
             if (terrain.top < self.bottom < terrain.bottom) or (terrain.bottom > self.top > terrain.top):
 
@@ -198,6 +200,12 @@ class Input:
         self.RESET = self.kb_input[K_r] or self.y_button
         self.DEBUG = self.kb_input[K_F12] or (self.start_button and self.back_button)
         self.EXIT = self.kb_input[K_q] or self.kb_input[K_ESCAPE] or self.back_button
+        self.SKILL1 = self.kb_input[K_s]
+        self.SKILL2 = self.kb_input[K_d]
+        self.SKILL3 = self.kb_input[K_f]
+        self.ULT = self.kb_input[K_g]
+        self.DROP_SKILL = self.kb_input[K_q]
+        self.MEDITATE = self.kb_input[K_w]
 
     def __getattr__(self, name):
         return None
@@ -295,12 +303,4 @@ class GameTime:
         sec = self.qsec / 4
         return '{:>2}:{:0>2}'.format(str(int(sec / 60)), str(int(sec % 60)))
 
-
-
-
-
-
-
-
-
-
+# ------------------------------------------------------------------------

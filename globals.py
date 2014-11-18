@@ -27,6 +27,14 @@ DEBUG = 'DEBUG'
 EXIT = 'EXIT'
 RESET = 'RESET'
 
+#FOR ANIMATIONS
+STAND = 'STAND'
+LWALK = 'LWALK'
+RWALK = 'RWALK'
+WALK = 'WALK'
+JUMP = 'JUMP'
+FALL = 'FALL'
+
 
 def all_in(items_want_inside, container_being_checked):
     for thing in items_want_inside:

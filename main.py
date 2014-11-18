@@ -55,7 +55,9 @@ class GameLoop:
             self.timer_font = pygame.font.Font('data/gigi.ttf', 36)
             self.timer_font_xy = 640, 500
             self.health_font = pygame.font.Font('data/gigi.ttf', 55)
-            self.health_font_xy = 60, 510
+            self.health_font_xy = 60, 480
+            self.energy_font = pygame.font.Font('data/gigi.ttf', 55)
+            self.energy_font_xy = 80, 525
             self.pause_font = pygame.font.Font('data/gigi.ttf', 200)
             self.pause_font_xy = font_position_center((self.window.w, self.window.h), self.pause_font, '-PAUSE-')
             self.debug_font = pygame.font.SysFont('consolas', 20)  # monospace
@@ -141,7 +143,9 @@ class GameLoop:
 
             # font for health indicator, for testing purposes only
             health_display = self.health_font.render(str(self.player.hit_points), True, RED)
+            energy_display = self.energy_font.render(str(self.player.energy), True, YELLOW)
             self.surface.blit(health_display, self.health_font_xy)
+            self.surface.blit(energy_display, self.energy_font_xy)
 
         def _draw_timer():
             time_display = self.timer_font.render(str(self.game_time), True, BLUE)

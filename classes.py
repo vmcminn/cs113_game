@@ -55,11 +55,15 @@ class Player(Rect2):
         # character stats
         self.hit_points = self.hit_points_max = 100
         self.energy = self.energy_max = 10
+        self.level = 10
 
         # attacking
         self.facing_direction = RIGHT
         self.attack_cooldown_expired = True
         self.new_particle = None
+
+        # conditions : both good and bad
+        #self.conditions = []
 
     def copy(self):
         return Player(self.left, self.top, self.width, self.height)

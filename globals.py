@@ -1,5 +1,6 @@
 #COLOR = (RRR, GGG, BBB)
 from pygame import Color
+from pygame.locals import *  # for event timers
 
 BLACK = Color(0, 0, 0)
 DGREY = Color(64, 64, 64)

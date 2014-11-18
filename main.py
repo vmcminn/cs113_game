@@ -35,7 +35,8 @@ class GameLoop:
         def _setup_time():
             self.clock = pygame.time.Clock()
             self.fps = 30
-            pygame.time.set_timer(USEREVENT + 1, 250)
+            pygame.time.set_timer(TIME_TICK_EVENT, 250)
+            pygame.time.set_timer(REGENERATION_EVENT, 1000)
             self.game_time = GameTime()
 
         def _setup_input():
@@ -202,12 +203,27 @@ class GameLoop:
         # loop through all pygame events
         for event in pygame.event.get():
             # update game timer
-            if event.type == USEREVENT + 1:
+            if event.type == TIME_TICK_EVENT:
                 self.game_time.inc()
 
-            if event.type == USEREVENT + 2:
+            if event.type == REGENERATION_EVENT:
+                self.player.hit_points += self.player.level/10
+                if self.player.hit_points > 100:
+                    self.player.hit_points = 100
+                self.player.energy += self.player.level/5
+                if self.player.energy > 10:
+                    self.player.energy = 10
+
+            # player 1 skill lock timer
+            if event.type == PLAYER1_LOCK_EVENT:
                 self.player.attack_cooldown_expired = True
-                pygame.time.set_timer(USEREVENT + 2, 0)
+                pygame.time.set_timer(PLAYER1_LOCK_EVENT, 0)
+
+            if event.type == PLAYER1_MEDITATE_EVENT:
+                self.player.energy += 5
+                if self.player.energy > 10:
+                    self.player.energy = 10
+                pygame.time.set_timer(PLAYER1_MEDITATE_EVENT, 0)
 
             # QUIT event occurs when click X on window bar
             if event.type == QUIT:

@@ -29,7 +29,9 @@ class Rect2(pygame.Rect):
 
 
 class Player(Rect2):
-    def __init__(self, left, top, width, height):
+    def __init__(self, id, left, top, width, height):
+        # id = 1 if player 1, id = 2 if player 2
+        self.id = id
 
         # position
         super().__init__(left, top, width, height)

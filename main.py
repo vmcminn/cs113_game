@@ -48,7 +48,7 @@ class GameLoop:
             self.window_border = Rect2(left=0, top=0, width=1278, height=600)
             self.play_area = Rect2(left=65, top=0, width=1150, height=475)
             self.play_area_border = Rect2(left=40, top=0, width=1200, height=500)
-            self.player = Player(left=200, top=150, width=30, height=40)
+            self.player = Player(id=1, left=200, top=150, width=30, height=40)
             self.player_eyeball = Rect2(left=200, top=150, width=5, height=5)
             self.arena = arena1
 

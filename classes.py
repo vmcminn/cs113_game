@@ -92,9 +92,10 @@ class Player(Rect2):
         self._handle_inputs(input)
 
     def _handle_facing_direction(self, input):
-        self.facing_direction = RIGHT if input.RIGHT \
-            else LEFT if input.LEFT \
-            else self.facing_direction
+        if self.attack_cooldown_expired:
+            self.facing_direction = RIGHT if input.RIGHT \
+                else LEFT if input.LEFT \
+                else self.facing_direction
 
     def _handle_acceleration(self, input):
 
@@ -123,9 +124,11 @@ class Player(Rect2):
             self.dx = eval('{:+}'.format(self.dx)[0] + str(min(abs(self.dx), self.dx_max)))
             self.dy = min(self.dy, self.dy_max)
 
-        _apply_accel_left_right_input(input)
+        if self.attack_cooldown_expired:
+            #These can only be used if not attacking
+            _apply_accel_left_right_input(input)
+            _apply_accel_jump_input(input)
         _apply_friction()
-        _apply_accel_jump_input(input)
         _apply_gravity()
         _apply_limits()
 

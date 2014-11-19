@@ -4,6 +4,7 @@ import pygame
 from pygame.locals import *
 
 from globals import *
+from skills import *
 
 # -------------------------------------------------------------------------
 
@@ -59,6 +60,17 @@ class Player(Rect2):
         self.energy = self.energy_max = 10
         self.level = 10
 
+        # skills
+        self.attack_id = 1
+        self.skill1_id=self.skill2_id=self.skill3_id=self.ult_id = 0
+
+        #for debugging/testing:
+        self.attack_id = 1
+        self.skill1_id = 100
+        self.skill2_id = 101
+        self.skill3_id = 102
+        self.ult_id = 0
+
         # attacking
         self.facing_direction = RIGHT
         self.attack_cooldown_expired = True
@@ -77,7 +89,7 @@ class Player(Rect2):
         self._handle_facing_direction(input)
         self._handle_acceleration(input)
         self._handle_movement(arena_map)
-        self._handle_attack(input)
+        self._handle_inputs(input)
 
     def _handle_facing_direction(self, input):
         self.facing_direction = RIGHT if input.RIGHT \
@@ -156,12 +168,39 @@ class Player(Rect2):
                     self.bottom = terrain.top
                     self.dy, self.touching_ground = 0, True
 
-    def _handle_attack(self, input):
-        self.new_particle = None
-        if input.ATTACK:
-            if self.attack_cooldown_expired:
-                self.attack_cooldown_expired = False
-                self.new_particle = MeleeParticle(attack_particle)
+    #Handles attacks, skill buttons, and meditate
+    #If multiple pushed, priority is:
+    #   ultimate > skill3 > skill2 > skill1 > attack > meditate
+    #Dropping skills and picking up skills can be handled here later on
+    def _handle_inputs(self,input):
+        if input.DROP_SKILL:    #Drop skill pressed
+            pass
+
+        else:   #Drop skill not pressed
+            i = self._priority_inputs(input)
+            if i and self.attack_cooldown_expired:
+                if self.energy >= SKILLS_TABLE[i]['energy']:
+                    self.energy -= SKILLS_TABLE[i]['energy']
+                    self.attack_cooldown_expired = False
+                    self.new_particle = SKILLS_TABLE[i]['start'](i, self, input.UP, input.DOWN)
+                    pygame.time.set_timer(USEREVENT+1+self.id, SKILLS_TABLE[self.attack_id]['cooldown'])
+                    if (i == -1):
+                        pygame.time.set_timer(USEREVENT+3+self.id, SKILLS_TABLE[-1]['cooldown'])
+
+    def _priority_inputs(self, input):
+        if input.ULT:
+            return self.ult_id
+        elif input.SKILL3:
+            return self.skill3_id
+        elif input.SKILL2:
+            return self.skill2_id
+        elif input.SKILL1:
+            return self.skill1_id
+        elif input.ATTACK:
+            return self.attack_id
+        elif input.MEDITATE:
+            return -1
+        return 0
 # -------------------------------------------------------------------------
 
 
@@ -246,42 +285,136 @@ arena1 = Arena(
 
 
 class Particle(Rect2):
-    def __init__(self, width, height, radius, cooldown, duration, color):
-        super().__init__(left=0, top=0, width=width, height=height)
-        self.radius = radius
-        self.cooldown = cooldown
-        self.duration = duration
-        self.color = color
+    #def __init__(self, width, height, radius, cooldown, duration, color):
+    def __init__(self, sid, player):
+        #super().__init__(left=0, top=0, width=width, height=height)
+        self.left = 0
+        self.top = 0
+        self.width = SKILLS_TABLE[sid]['width']
+        self.height = SKILLS_TABLE[sid]['height']
+        self.cooldown = SKILLS_TABLE[sid]['cooldown']
+        self.duration = SKILLS_TABLE[sid]['duration']
+        self.color = SKILLS_TABLE[sid]['color']
+        self.spawn_time = 0
+        self.expired = False
+        self.dmg = SKILLS_TABLE[sid]['dmg']
+        self.energy = SKILLS_TABLE[sid]['energy']
+        self.belongs_to = player
+        #self.conditions = []
 
+        #if 'conditions' in SKILLS_TABLE[sid].keys():
+        #    for c in SKILLS_TABLE[sid]['conditions']:
+        #        self.conditions.append(c)
+        if 'on_hit_f' in SKILLS_TABLE[sid].keys():
+            self.on_hit_f = SKILLS_TABLE[sid]['on_hit_f']
+        else:
+            self.on_hit_f = None
 
 class MeleeParticle(Particle):
-    def __init__(self, particle):
-        super().__init__(particle.width, particle.height, particle.radius, particle.cooldown, particle.duration, particle.color)
-        self.total_time = particle.cooldown + particle.duration
-        self.expired = False
-        self.spawn_time = 0
+    def __init__(self, sid, player):
+        #super().__init__(particle.width, particle.height, particle.radius, particle.cooldown, particle.duration, particle.color)
+        super().__init__(sid,player)
+        self.arc = SKILLS_TABLE[sid]['arc']
+        self.radius = SKILLS_TABLE[sid]['radius']
+        self.has_hit = []   #Need this to keep track of what it has hit;
+                            #melee particles are not delete upon hitting
+                            #a target, so we need to know who it has hit
+                            #to prevent the same target being hit multiple
+                            #times
 
-    def update(self, time, player):
+    #def update(self, time, player):
+    #Let the particle know how it belongs to so it can
+    #rotate around that player and also in collision
+    #detection, will not hit the player who made particle
+    def update(self, time):
         if self.spawn_time == 0:
             self.spawn_time = time
 
         elapsed_time = time - self.spawn_time
         self.expired = (elapsed_time >= self.duration)
         r = (elapsed_time / self.duration)
-        arc = math.pi / 2
 
-        if player.facing_direction == RIGHT:
-            self.centerx = player.centerx + self.radius * math.cos((1 - r) * arc)
+        if self.belongs_to.facing_direction == RIGHT:
+            self.centerx = self.belongs_to.centerx + self.radius * math.cos((1 - r) * self.arc)
         else:
-            self.centerx = player.centerx - self.radius * math.cos((1 - r) * arc)
+            self.centerx = self.belongs_to.centerx - self.radius * math.cos((1 - r) * self.arc)
 
-        self.centery = player.centery - self.radius * math.sin((1 - r) * arc)
+        self.centery = self.belongs_to.centery - self.radius * math.sin((1 - r) * self.arc)
 
+    def on_hit(self,target,time):   #DONT delete time; will use later
+        if target != self.belongs_to and target not in self.has_hit:
+            self.has_hit.append(target)
+            target.hit_points - self.dmg
+            #for c in self.conditions:
+            #    player.conditions.append(c)
+            if self.on_hit_f:
+                self.on_hit_f(target)
 
-attack_particle = Particle(width=30, height=30, radius=35, cooldown=1000, duration=500, color=YELLOW)
 # -------------------------------------------------------------------------
 
+class RangeParticle(Particle):
+    def __init__(self, sid, player, up, down):
+        super().__init__(sid,player)
+        self.has_special = False
+        self.direction = player.facing_direction
+        self.originx = player.centerx   #Where the particle started
+        self.originy = player.centery   #These might be useful later on
 
+        #If has special path, upload function to special_f
+        if 'special_path' in SKILLS_TABLE[sid].keys():
+            self.has_special = True
+            self.special_f = SKILLS_TABLE[sid]['special_path']
+        else:   #Using standard linear path
+            self.dx = SKILLS_TABLE[sid]['speed']
+            self.ddx = SKILLS_TABLE[sid]['acceleration']
+
+            #if player pressed up
+            if up:
+                self.dy = SKILLS_TABLE[sid]['speed'] * -1
+                self.ddy = SKILLS_TABLE[sid]['acceleration'] * -1
+            elif down:
+                self.dy = SKILLS_TABLE[sid]['speed']
+                self.ddy = SKILLS_TABLE[sid]['acceleration']
+            elif not up and not down:
+                self.dy = 0
+                self.ddy = 0
+
+        #initial position
+        self.centerx = player.centerx
+        self.centery = player.centery
+
+        if self.direction == RIGHT:
+            self.centerx -= 30
+        else:
+            self.centerx += 30
+            if not self.has_special:
+                self.dx = self.dx * -1
+                self.ddx = self.ddx * -1
+
+    def update(self,time):
+        if self.spawn_time == 0:
+            self.spawn_time = time
+
+        elapsed_time = time - self.spawn_time
+        self.expired = (elapsed_time >= self.duration)
+
+        if self.has_special:
+            self.centerx,self.centery = self.special_f(self,time)
+        else:
+            self.dx += self.ddx
+            self.dy += self.ddy
+            self.centerx += self.dx
+            self.centery += self.dy
+
+    def on_hit(self,target,time):     #DONT delete time; will use later
+        if target != self.belongs_to:
+            target.hit_points - self.dmg
+            #for c in self.conditions:
+            #    player.conditions.append(c)
+            if self.on_hit_f:
+                self.on_hit_f(target)
+
+# -------------------------------------------------------------------------
 class GameTime:
     def __init__(self):
         self.qsec = 0

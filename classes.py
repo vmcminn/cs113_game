@@ -186,7 +186,7 @@ class Player(Rect2):
                     self.energy -= SKILLS_TABLE[i]['energy']
                     self.attack_cooldown_expired = False
                     self.new_particle = SKILLS_TABLE[i]['start'](i, self, input.UP, input.DOWN)
-                    pygame.time.set_timer(USEREVENT+1+self.id, SKILLS_TABLE[self.attack_id]['cooldown'])
+                    pygame.time.set_timer(USEREVENT+1+self.id, SKILLS_TABLE[i]['cooldown'])
                     if (i == -1):
                         pygame.time.set_timer(USEREVENT+3+self.id, SKILLS_TABLE[-1]['cooldown'])
 

@@ -99,9 +99,6 @@ class Player(Rect2):
         self.attack_cooldown_expired = True
         self.new_particle = None
 
-        # conditions : both good and bad
-        #self.conditions = []
-
     def copy(self):
         return Player(self.left, self.top, self.width, self.height)
 
@@ -173,6 +170,7 @@ class Player(Rect2):
             #These can only be used if not attacking
             _apply_accel_left_right_input(input)
             _apply_accel_jump_input(input)
+
         _apply_friction()
         _apply_gravity()
         _apply_limits()
@@ -192,6 +190,7 @@ class Player(Rect2):
             self.move_ip((self.dx*delta, (self.dy*delta) if self.dy < 0 else self.dy))
         else:
             self.move_ip((self.dx, self.dy))  # move then check for collisions
+
         for terrain in arena.rects:
 
             # @TODO: implement Peter's modified coded for movement to squelch bug of glitchy behavior near edge of platforms.
@@ -525,7 +524,6 @@ class MeleeParticle(Particle):
                 self.on_hit_f(target)
 
 # -------------------------------------------------------------------------
-
 class RangeParticle(Particle):
     def __init__(self, sid, player, up, down):
         super().__init__(sid,player)

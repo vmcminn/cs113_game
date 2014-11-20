@@ -196,20 +196,24 @@ class Player(Rect2):
 
         for terrain in arena.rects:
 
-            # @TODO: implement Peter's modified coded for movement to squelch bug of glitchy behavior near edge of platforms.
+            # (player's left in between terrain right and left) or (player's right in between terrain left and right)
+            if (terrain.right > self.left > terrain.left) or (terrain.left < self.right < terrain.right):
+                # (if player's bottom lower than terrain top) and (player's top above terrain's top)
+                if (self.bottom > terrain.top) and (self.top < terrain.top):
+                    # move player so it's bottom is flush with terrain's top
+                    self.bottom = terrain.top
+                    self.dy, self.touching_ground = 0, True
 
             # (player's bottom in between terrain top and bottom) or (player's top in between terrain top and bottom)
             if (terrain.top < self.bottom < terrain.bottom) or (terrain.bottom > self.top > terrain.top):
-
                 # (player's left "to the left of" terrain's right) and (player's right "to the right of" terrain's right)
-                if (self.left < terrain.right) and (self.right > terrain.right):
+                if (self.left < terrain.right) and (self.right > terrain.right) and (self.dx <= 0):
                     # move player so it's left is flush with terrain's right
                     self.left = terrain.right
                     self.hit_wall_from = LEFT
                     self.dx = self.dy = 0
-
                 # (player's left "to the left of" terrain's left) and (player's right "to the right of" terrain's left)
-                elif (self.left < terrain.left) and (self.right > terrain.left):
+                elif (self.left < terrain.left) and (self.right > terrain.left) and (self.dx >= 0):
                     # move player so it's right is flush with terrain's left
                     self.right = terrain.left
                     self.hit_wall_from = RIGHT
@@ -217,17 +221,11 @@ class Player(Rect2):
 
             # (player's left in between terrain right and left) or (player's right in between terrain left and right)
             if (terrain.right > self.left > terrain.left) or (terrain.left < self.right < terrain.right):
-
                 # (if player's bottom lower than terrain bottom) and (player's top above terrain's bottom)
-                if (self.bottom > terrain.bottom) and (self.top < terrain.bottom):
+                if (self.bottom > terrain.bottom) and (self.top < terrain.bottom) and (self.dy < 0):
                     # move player so it's top is flush with terrain's bottom
                     self.top = terrain.bottom
-
-                # (if player's bottom lower than terrain top) and (player's top above terrain's top)
-                elif (self.bottom > terrain.top) and (self.top < terrain.top):
-                    # move player so it's bottom is flush with terrain's top
-                    self.bottom = terrain.top
-                    self.dy, self.touching_ground = 0, True
+                    self.dy = -3
         out_of_arena_fix(self)            # otherwise, player can jump up and over arena
 
 

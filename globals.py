@@ -2,6 +2,7 @@
 from pygame import Color
 from pygame.locals import *  # for event timers
 
+
 BLACK = Color(0, 0, 0)
 DGREY = Color(64, 64, 64)
 WHITE = Color(255, 255, 255)
@@ -37,6 +38,18 @@ RESET = 'RESET'
 MELEE = 'MELEE'
 RANGE = 'RANGED'
 
+#Conditions
+STUN = 'STUN'
+SLOW = 'SLOW'
+SNARE = 'SNARE'
+DOT = 'DOT'
+SILENCE = 'SILENCE'
+WOUNDED = 'WOUNDED'
+WEAKENED = 'WEAKENED'
+SPEED = 'SPEED'
+SHIELD = 'SHIELD'
+INVIGORATED = 'INVIGORATED'
+EMPOWERED = 'EMPOWERED'
 
 #EVENTS:
 TIME_TICK_EVENT = USEREVENT + 1

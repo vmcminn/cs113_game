@@ -1,3 +1,4 @@
+import copy
 import math
 import random
 
@@ -64,18 +65,30 @@ class Player(Rect2):
         # misc.
         self.touching_ground = False  # for jumping
         self.hit_wall_from = None  # for wall jumping
+        self.conditions = {STUN:[],
+                           SLOW:[],
+                           SNARE:[],
+                           DOT:[],
+                           SILENCE:[],
+                           WOUNDED:[],
+                           WEAKENED:[],
+                           SPEED:[],
+                           SHIELD:[],
+                           INVIGORATED:[],
+                           EMPOWERED:[]
+                          }
 
         # character stats
         self.hit_points = self.hit_points_max = 100
         self.energy = self.energy_max = 10
-        self.level = 10
+        self.level = 1
 
         # skills
         self.attack_id = 1
         self.skill1_id=self.skill2_id=self.skill3_id=self.ult_id = 0
 
         #for debugging/testing:
-        self.attack_id = 1
+        self.attack_id = 2
         self.skill1_id = 100
         self.skill2_id = 101
         self.skill3_id = 102
@@ -92,6 +105,15 @@ class Player(Rect2):
     def copy(self):
         return Player(self.left, self.top, self.width, self.height)
 
+    #Handles how shield works
+    #Call this after any damage is taken
+    def shield_trigger(self):
+        if self.hit_points < self.hit_points_max and self.conditions[SHIELD]:
+            s.sort(lambda k: k.remaining)   #Will subtract from lowest remaining time shield first
+            for s in self.conditions[SHIELD]:
+                s.exchange()
+
+
     def is_dead(self):
         return self.hit_points <= 0
 
@@ -107,10 +129,11 @@ class Player(Rect2):
         self._handle_facing_direction(input)
         self._handle_acceleration(input)
         self._handle_movement(arena_map)
-        self._handle_inputs(input)
+        if not self.conditions[STUN] and not self.conditions[SILENCE]:
+            self._handle_inputs(input)
 
     def _handle_facing_direction(self, input):
-        if self.attack_cooldown_expired:
+        if self.attack_cooldown_expired and not self.conditions[STUN]:
             self.facing_direction = RIGHT if input.RIGHT \
                 else LEFT if input.LEFT \
                 else self.facing_direction
@@ -146,7 +169,7 @@ class Player(Rect2):
             self.dx = eval('{:+}'.format(self.dx)[0] + str(min(abs(self.dx), self.dx_max)))
             self.dy = min(self.dy, self.dy_max)
 
-        if self.attack_cooldown_expired:
+        if self.attack_cooldown_expired and not self.conditions[STUN]:
             #These can only be used if not attacking
             _apply_accel_left_right_input(input)
             _apply_accel_jump_input(input)
@@ -157,7 +180,18 @@ class Player(Rect2):
     def _handle_movement(self, arena):
         self.hit_wall_from = None  # reset every frame
         self.touching_ground = False  # reset every frame
-        self.move_ip((self.dx, self.dy))  # move then check for collisions
+
+        if self.conditions[SNARE]:
+            self.move_ip((0,0))
+        elif self.conditions[SLOW] or self.conditions[SPEED]:
+            max_slow = max(self.conditions[SLOW], key=lambda x:x.magnitude).magnitude \
+                       if self.conditions[SLOW] else 0
+            max_speed = max(self.conditions[SPEED], key=lambda y:y.magnitude).magnitude \
+                        if self.conditions[SPEED] else 0
+            delta = 1.0 + max_speed - max_slow
+            self.move_ip((self.dx*delta, (self.dy*delta) if self.dy < 0 else self.dy))
+        else:
+            self.move_ip((self.dx, self.dy))  # move then check for collisions
         for terrain in arena.rects:
 
             # @TODO: implement Peter's modified coded for movement to squelch bug of glitchy behavior near edge of platforms.
@@ -258,7 +292,7 @@ class Monster(Player):
 
         self.dy_jump = 30
         self.dy_gravity = 2
-        self.dx_friction = 0
+        self.dx_friction = 0.5
         self.p1 = player1
         self.p2 = player2
 
@@ -431,15 +465,16 @@ class Particle(Rect2):
         self.dmg = SKILLS_TABLE[sid]['dmg']
         self.energy = SKILLS_TABLE[sid]['energy']
         self.belongs_to = player
-        #self.conditions = []
+        self.conditions = []
 
-        #if 'conditions' in SKILLS_TABLE[sid].keys():
-        #    for c in SKILLS_TABLE[sid]['conditions']:
-        #        self.conditions.append(c)
+        if 'conditions' in SKILLS_TABLE[sid].keys():
+            for c in SKILLS_TABLE[sid]['conditions']:
+                self.conditions.append(c)
         if 'on_hit_f' in SKILLS_TABLE[sid].keys():
             self.on_hit_f = SKILLS_TABLE[sid]['on_hit_f']
         else:
             self.on_hit_f = None
+
 
 class MeleeParticle(Particle):
     def __init__(self, sid, player):
@@ -476,8 +511,16 @@ class MeleeParticle(Particle):
         if target != self.belongs_to and target not in self.has_hit:
             self.has_hit.append(target)
             target.hit_points - self.dmg
-            #for c in self.conditions:
-            #    player.conditions.append(c)
+            target.shield_trigger()
+
+            for c in self.conditions:
+                c.begin(time, target)
+
+            #On hitting monster, small pushback
+            if isinstance(target, Monster):
+                target.centerx = target.centerx + (-5 * target.dx)
+                target.dx = target.dx * -1
+
             if self.on_hit_f:
                 self.on_hit_f(target)
 
@@ -540,8 +583,16 @@ class RangeParticle(Particle):
     def on_hit(self,target,time):     #DONT delete time; will use later
         if target != self.belongs_to:
             target.hit_points - self.dmg
-            #for c in self.conditions:
-            #    player.conditions.append(c)
+            target.shield_trigger()
+
+            for c in self.conditions:
+                c.begin(time, target)
+
+            #On hitting monster, small pushback
+            if isinstance(target, Monster):
+                target.centerx = target.centerx + (-5 * target.dx)
+                target.dx = target.dx * -1
+
             if self.on_hit_f:
                 self.on_hit_f(target)
 
@@ -574,3 +625,118 @@ class GameTime:
         return '{:>2}:{:0>2}'.format(str(int(sec / 60)), str(int(sec % 60)))
 
 # ------------------------------------------------------------------------
+class Condition:
+    def __init__(self, duration):
+        self.start = -1
+        self.duration = duration
+
+    def begin(self,time,target):
+        c = copy.copy(self)
+        c.start = time
+        c.target = target
+        target.conditions[c.type].append(c)
+
+    def is_expired(self,time):
+        return self.duration <= (time - self.start)
+
+#---Debuffs-----------------------------------------------------------------
+class Stun(Condition):
+    def __init__(self, duration):
+        super().__init__(duration)
+        self.type = STUN
+
+class Slow(Condition):
+    #Magnitude = 0 to 1
+    def __init__(self, duration, magnitude):
+        super().__init__(duration)
+        self.magnitude = magnitude
+        self.type = SLOW
+
+class Snare(Condition):
+    def __init__(self, duration):
+        super().__init__(duration)
+        self.type = SNARE
+
+class Dot(Condition):
+    #Magnitude = Dot flat dmg value
+    #Frequency = Every x seconds; make frequency a factor of 250 ms
+    def __init__(self, magnitude, ticks, frequency):
+        super().__init__(ticks * frequency)
+        self.magnitude = magnitude
+        self.frequency = frequency
+        self.last_tick = self.start
+        self.ticks = ticks
+        self.type = DOT
+
+    def begin(self, time, target):
+        c = copy.copy(self)
+        c.start = time
+        c.target = target
+        c.last_tick = time
+        target.conditions[c.type].append(c)
+
+    def is_expired(self, time):
+        t = time - self.last_tick
+        if t >= self.frequency:
+            self.last_tick = time
+            self.target.hit_points -= self.magnitude
+            self.target.shield_trigger()
+            self.ticks -= 1
+        return (self.ticks <= 0)
+
+class Silence(Condition):
+    def __init__(self, duration):
+        super().__init__(duration)
+        self.type = SILENCE
+
+#Reduces HP regen
+class Wounded(Condition):
+    def __init__(self, duration):
+        super().__init__(duration)
+        self.type = WOUNDED
+
+#Reduces Energy regen
+class Weakened(Condition):
+    def __init__(self, duration):
+        super().__init__(duration)
+        self.type = WEAKENED
+
+ #---Debuffs-----------------------------------------------------------------
+class Speed(Condition):
+    def __init__(self, duration, magnitude):
+        super().__init__(duration)
+        self.type = SPEED
+        self.magnitude = magnitude
+
+class Shield(Condition):
+    def __init__(self, duration, magnitude):
+        super().__init__(duration)
+        self.magnitude = magnitude
+        self.type = SHIELD
+        self.remaining = self.duration #used for sorting
+
+    def is_expired(self,time):
+        self.remaining = self.duration - time - self.start
+        if self.duration <= (time - self.start):
+            return True
+        elif self.magnitude <= 0:
+            return True
+        return False
+
+    def exchange(self):
+        if self.magnitude > 0:
+            diff = min(self.target.hit_points_max - self.target.hit_points, self.magnitude)
+            self.target.hit_points += diff
+            self.magnitude -= diff
+
+#Increases HP regen
+class Invigorated(Condition):
+    def __init__(self, duration):
+        super().__init__(duration)
+        self.type = INVIGORATED
+
+#Increases energy regen
+class Empowered(Condition):
+    def __init__(self, duration):
+        super().__init__(duration)
+        self.type = EMPOWERED

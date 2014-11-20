@@ -18,6 +18,13 @@ YELLOW = Color(255, 255, 0)
 PURPLE = Color(255, 0, 255)
 ORANGE = Color(255, 153, 0)
 
+#monster types and globals
+WEAK = 'WEAK'
+MEDIUM = 'MEDIUM'
+ULTIMATE = 'ULTIMATE'
+CHASING = 'CHASING'
+IDLE = 'IDLE'
+
 LEFT = 'LEFT'
 RIGHT = 'RIGHT'
 UP = 'UP'
@@ -58,3 +65,18 @@ def font_position_center(center_within_size, font, text):
     x = (center_within_size[0] - font.size(text)[0]) // 2
     y = (center_within_size[1] - font.size(text)[1]) // 2
     return x, y
+
+#Global to handle players from reaching out of
+#arena.
+def out_of_arena_fix(r):
+    fixed = False   #Can be used for out-of-bounds checking since it returns true
+    if r.left < 65:
+        r.left = 65
+        fixed = True
+    if r.bottom > 475:
+        r.bottom = 475
+        fixed = True
+    if r.right > 1215:
+        r.right = 1215
+        fixed = True
+    return fixed

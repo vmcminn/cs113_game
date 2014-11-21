@@ -75,7 +75,7 @@ class Player(Rect2):
         self.attack_id = 1
         self.skill1_id = self.skill2_id = self.skill3_id = self.ult_id = 0
 
-        #for debugging/testing:
+        # for debugging/testing:
         self.attack_id = 1
         self.skill1_id = 100
         self.skill2_id = 101
@@ -93,8 +93,8 @@ class Player(Rect2):
     def copy(self):
         return Player(self.left, self.top, self.width, self.height)
 
-    #Handles how shield works
-    #Call this after any damage is taken
+    # Handles how shield works
+    # Call this after any damage is taken
     def shield_trigger(self):
         if self.hit_points < self.hit_points_max and self.conditions[SHIELD]:
             s.sort(lambda k: k.remaining)  # Will subtract from lowest remaining time shield first
@@ -158,7 +158,7 @@ class Player(Rect2):
             self.dy = min(self.dy, self.dy_max)
 
         if self.attack_cooldown_expired and not self.conditions[STUN]:
-            #These can only be used if not attacking
+            # These can only be used if not attacking
             _apply_accel_left_right_input(input)
             _apply_accel_jump_input(input)
 
@@ -217,10 +217,10 @@ class Player(Rect2):
         out_of_arena_fix(self)            # otherwise, player can jump up and over arena
 
 
-    #Handles attacks, skill buttons, and meditate
-    #If multiple pushed, priority is:
+    # Handles attacks, skill buttons, and meditate
+    # If multiple pushed, priority is:
     #   ultimate > skill3 > skill2 > skill1 > attack > meditate
-    #Dropping skills and picking up skills can be handled here later on
+    # Dropping skills and picking up skills can be handled here later on
     def _handle_inputs(self, input):
         if input.DROP_SKILL:  # Drop skill pressed
             pass
@@ -436,9 +436,9 @@ arena1 = Arena(
 
 
 class Particle(Rect2):
-    #def __init__(self, width, height, radius, cooldown, duration, color):
+    # def __init__(self, width, height, radius, cooldown, duration, color):
     def __init__(self, sid, player):
-        #super().__init__(left=0, top=0, width=width, height=height)
+        # super().__init__(left=0, top=0, width=width, height=height)
         self.left = 0
         self.top = 0
         self.width = SKILLS_TABLE[sid]['width']
@@ -464,7 +464,7 @@ class Particle(Rect2):
 
 class MeleeParticle(Particle):
     def __init__(self, sid, player):
-        #super().__init__(particle.width, particle.height, particle.radius, particle.cooldown, particle.duration, particle.color)
+        # super().__init__(particle.width, particle.height, particle.radius, particle.cooldown, particle.duration, particle.color)
         super().__init__(sid, player)
         self.arc = SKILLS_TABLE[sid]['arc']
         self.radius = SKILLS_TABLE[sid]['radius']
@@ -501,7 +501,7 @@ class MeleeParticle(Particle):
             for c in self.conditions:
                 c.begin(time, target)
 
-            #On hitting monster, small pushback
+            # On hitting monster, small pushback
             if isinstance(target, Monster):
                 target.centerx += -5 * target.dx
                 target.dx *= -1
@@ -518,7 +518,7 @@ class RangeParticle(Particle):
         self.originx = player.centerx  # Where the particle started
         self.originy = player.centery  # These might be useful later on
 
-        #If has special path, upload function to special_f
+        # If has special path, upload function to special_f
         if 'special_path' in SKILLS_TABLE[sid].keys():
             self.has_special = True
             self.special_f = SKILLS_TABLE[sid]['special_path']
@@ -526,7 +526,7 @@ class RangeParticle(Particle):
             self.dx = SKILLS_TABLE[sid]['speed']
             self.ddx = SKILLS_TABLE[sid]['acceleration']
 
-            #if player pressed up
+            # if player pressed up
             if up:
                 self.dy = SKILLS_TABLE[sid]['speed'] * -1
                 self.ddy = SKILLS_TABLE[sid]['acceleration'] * -1
@@ -537,7 +537,7 @@ class RangeParticle(Particle):
                 self.dy = 0
                 self.ddy = 0
 
-        #initial position
+        # initial position
         self.centerx = player.centerx
         self.centery = player.centery
 
@@ -571,7 +571,7 @@ class RangeParticle(Particle):
             for c in self.conditions:
                 c.begin(time, target)
 
-            #On hitting monster, small pushback
+            # On hitting monster, small pushback
             if isinstance(target, Monster):
                 target.centerx += -5 * target.dx
                 target.dx *= -1
@@ -629,7 +629,7 @@ class Stun(Condition):
         self.type = STUN
 
 class Slow(Condition):
-    #Magnitude = 0 to 1
+    # Magnitude = 0 to 1
     def __init__(self, duration, magnitude):
         super().__init__(duration)
         self.magnitude = magnitude
@@ -641,8 +641,8 @@ class Snare(Condition):
         self.type = SNARE
 
 class Dot(Condition):
-    #Magnitude = Dot flat dmg value
-    #Frequency = Every x seconds; make frequency a factor of 250 ms
+    # Magnitude = Dot flat dmg value
+    # Frequency = Every x seconds; make frequency a factor of 250 ms
     def __init__(self, magnitude, ticks, frequency):
         super().__init__(ticks * frequency)
         self.magnitude = magnitude
@@ -671,13 +671,13 @@ class Silence(Condition):
         super().__init__(duration)
         self.type = SILENCE
 
-#Reduces HP regen
+# Reduces HP regen
 class Wounded(Condition):
     def __init__(self, duration):
         super().__init__(duration)
         self.type = WOUNDED
 
-#Reduces Energy regen
+# Reduces Energy regen
 class Weakened(Condition):
     def __init__(self, duration):
         super().__init__(duration)
@@ -711,13 +711,13 @@ class Shield(Condition):
             self.target.hit_points += diff
             self.magnitude -= diff
 
-#Increases HP regen
+# Increases HP regen
 class Invigorated(Condition):
     def __init__(self, duration):
         super().__init__(duration)
         self.type = INVIGORATED
 
-#Increases energy regen
+# Increases energy regen
 class Empowered(Condition):
     def __init__(self, duration):
         super().__init__(duration)

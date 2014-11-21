@@ -52,8 +52,8 @@ class GameLoop:
 
             self.player1 = Player(id=1, left=200, top=150, width=30, height=40)
             self.player1_eyeball = Rect2(left=200, top=150, width=5, height=5)
-            #self.player2 = Player(id=2, left=1080, top=150, width=30, height=40)
-            #self.player2_eyeball = Rect2(left=1080, top=150, width=5, height=5)
+            # self.player2 = Player(id=2, left=1080, top=150, width=30, height=40)
+            # self.player2_eyeball = Rect2(left=1080, top=150, width=5, height=5)
 
             self.arena = arena1
 
@@ -71,7 +71,7 @@ class GameLoop:
             self.debug_font_xy2 = 1000, 520
             self.debug_font_xy3 = 1000, 540
             self.debug_font_xy4 = 1000, 560
-            #Scrolling text font
+            # Scrolling text font
             self.st_font = pygame.font.Font('data/gigi.ttf', 30)
 
         def _setup_particles():
@@ -80,7 +80,7 @@ class GameLoop:
         def _setup_monsters():
             self.active_monsters = []
 
-            #TEST - Monster
+            # TEST - Monster
             # self.active_monsters.append(Monster(ULTIMATE, 400, 150, self.player1, self.player1))
             # self.active_monsters.append(Monster(MEDIUM, 400, 150, self.player1, self.player1))
             self.active_monsters.append(Monster(WEAK, 400, 150, self.player1, self.player1))
@@ -154,30 +154,30 @@ class GameLoop:
                 else:
                     self.active_particles.append(self.player1.new_particle)
                 self.player1.new_particle = None
-                #Added this part into player inputs; causing bugs if skill doesn't create particle
-                #pygame.time.set_timer(USEREVENT + 2, self.player1.new_particle.cooldown)
+                # Added this part into player inputs; causing bugs if skill doesn't create particle
+                # pygame.time.set_timer(USEREVENT + 2, self.player1.new_particle.cooldown)
 
         def _update_particles():
             for p in self.active_particles:
                 if p.expired:
                     self.active_particles.remove(p)
                 else:
-                    p.update(self.game_time.msec)#, self.player1)
+                    p.update(self.game_time.msec)
 
         def _check_particle_collisions():
             for p in self.active_particles:
-                #opposite = self.player2 if p.belongs_to == self.player1 else \
+                # opposite = self.player2 if p.belongs_to == self.player1 else \
                 #           self.player1
                 if isinstance(p, RangeParticle):
                     if p.p_collidelist(self.arena.rects) != -1:
                         self.active_particles.remove(p)
-                    #else: destructible terrain collision here
+                    # else: destructible terrain collision here
                     else:
                         first_hit = p.collidelist(self.active_monsters)
                         if first_hit != -1:
                             p.on_hit(self.active_monsters[first_hit], self.game_time.msec)
                             self.active_particles.remove(p)
-                        #else:
+                        # else:
                         #    if p.colliderect(opposite):
                         #        p.on_hit(opposite, self.game_time.msec)
                         #        self.active_particles.remove(p)
@@ -185,7 +185,7 @@ class GameLoop:
                     allhit = p.collidelistall(self.active_monsters)
                     for i in allhit:
                         p.on_hit(self.active_monsters[i], self.game_time.msec)
-                    #if p.colliderect(opposite):
+                    # if p.colliderect(opposite):
                     #    p.on_hit(opposite, self.game_time.msec)
 
 
@@ -270,7 +270,7 @@ class GameLoop:
                 (self.player1.centerx, self.player1.top - (3000 - t[1] + self.game_time.msec)/50))
                 if t[1] <= self.game_time.msec:
                     self.player1.st_buffer.remove(t)
-            #for t in self.player2.st_buffer:
+            # for t in self.player2.st_buffer:
             #    self.surface.blit(self.st_font.render("-"+str(int(t[0])), True, RED), \
             #    (self.player2.centerx, self.player2.top - (3000 - t[1] + self.game_time.msec)/50))
             #    if t[1] <= self.game_time.msec:
@@ -318,19 +318,19 @@ class GameLoop:
             if event.type == TIME_TICK_EVENT:
                 self.game_time.inc()
 
-                #Player 1 conditions
+                # Player 1 conditions
                 for k,v in self.player1.conditions.items():
                     for e in v:
                         if e.is_expired(self.game_time.msec):
                             self.player1.conditions[k].remove(e)
 
-                #Player 2 conditions
-                #for k,v in self.player2.conditions.items():
+                # Player 2 conditions
+                # for k,v in self.player2.conditions.items():
                 #    for e in v:
                 #        if e.is_expired(self.game_time.msec):
                 #            self.player2.conditions[k].remove(e)
 
-                #Monster conditions
+                # Monster conditions
                 for m in self.active_monsters:
                     for k,v in m.conditions.items():
                         for e in v:

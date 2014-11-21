@@ -1,8 +1,7 @@
-#COLOR = (RRR, GGG, BBB)
 from pygame import Color
 from pygame.locals import *  # for event timers
 
-
+# COLOR = (RRR, GGG, BBB)
 BLACK = Color(0, 0, 0)
 DGREY = Color(64, 64, 64)
 WHITE = Color(255, 255, 255)
@@ -19,9 +18,9 @@ YELLOW = Color(255, 255, 0)
 PURPLE = Color(255, 0, 255)
 ORANGE = Color(255, 153, 0)
 
-BROWN = Color(139,69,19)
+BROWN = Color(139, 69, 19)
 
-#monster types and globals
+# monster types and globals
 WEAK = 'WEAK'
 MEDIUM = 'MEDIUM'
 ULTIMATE = 'ULTIMATE'
@@ -81,10 +80,10 @@ def font_position_center(center_within_size, font, text):
     y = (center_within_size[1] - font.size(text)[1]) // 2
     return x, y
 
-#Global to handle players from reaching out of
-#arena.
+
+# Global to handle players from reaching out of arena.
 def out_of_arena_fix(r):
-    fixed = False   #Can be used for out-of-bounds checking since it returns true
+    fixed = False  # Can be used for out-of-bounds checking since it returns true
     if r.left < 65:
         r.left = 65
         fixed = True
@@ -95,6 +94,7 @@ def out_of_arena_fix(r):
         r.right = 1215
         fixed = True
     return fixed
+
 
 def handle_damage(target, value, time):
     target.hit_points -= value

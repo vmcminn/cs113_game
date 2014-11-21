@@ -65,18 +65,8 @@ class Player(Rect2):
         # misc.
         self.touching_ground = False  # for jumping
         self.hit_wall_from = None  # for wall jumping
-        self.conditions = {STUN:[],
-                           SLOW:[],
-                           SNARE:[],
-                           DOT:[],
-                           SILENCE:[],
-                           WOUNDED:[],
-                           WEAKENED:[],
-                           SPEED:[],
-                           SHIELD:[],
-                           INVIGORATED:[],
-                           EMPOWERED:[]
-                          }
+        self.conditions = {STUN: [], SLOW: [], SNARE: [], DOT: [], SILENCE: [], WOUNDED: [],
+                           WEAKENED: [], SPEED: [], SHIELD: [], INVIGORATED: [], EMPOWERED: []}
 
         # character stats
         self.hit_points = self.hit_points_max = 100
@@ -109,7 +99,7 @@ class Player(Rect2):
     #Call this after any damage is taken
     def shield_trigger(self):
         if self.hit_points < self.hit_points_max and self.conditions[SHIELD]:
-            s.sort(lambda k: k.remaining)   #Will subtract from lowest remaining time shield first
+            s.sort(lambda k: k.remaining)  # Will subtract from lowest remaining time shield first
             for s in self.conditions[SHIELD]:
                 s.exchange()
 
@@ -185,12 +175,12 @@ class Player(Rect2):
         if self.conditions[SNARE]:
             self.move_ip((0,0))
         elif self.conditions[SLOW] or self.conditions[SPEED]:
-            max_slow = max(self.conditions[SLOW], key=lambda x:x.magnitude).magnitude \
-                       if self.conditions[SLOW] else 0
-            max_speed = max(self.conditions[SPEED], key=lambda y:y.magnitude).magnitude \
-                        if self.conditions[SPEED] else 0
+            max_slow = max(self.conditions[SLOW], key=lambda x: x.magnitude).magnitude if \
+            self.conditions[SLOW] else 0
+            max_speed = max(self.conditions[SPEED], key=lambda y: y.magnitude).magnitude if \
+            self.conditions[SPEED] else 0
             delta = 1.0 + max_speed - max_slow
-            self.move_ip((self.dx*delta, (self.dy*delta) if self.dy < 0 else self.dy))
+            self.move_ip((self.dx * delta, (self.dy * delta) if self.dy < 0 else self.dy))
         else:
             self.move_ip((self.dx, self.dy))  # move then check for collisions
 
@@ -233,20 +223,20 @@ class Player(Rect2):
     #If multiple pushed, priority is:
     #   ultimate > skill3 > skill2 > skill1 > attack > meditate
     #Dropping skills and picking up skills can be handled here later on
-    def _handle_inputs(self,input):
-        if input.DROP_SKILL:    #Drop skill pressed
+    def _handle_inputs(self, input):
+        if input.DROP_SKILL:  # Drop skill pressed
             pass
 
-        else:   #Drop skill not pressed
+        else:  # Drop skill not pressed
             i = self._priority_inputs(input)
             if i and self.attack_cooldown_expired:
                 if self.energy >= SKILLS_TABLE[i]['energy']:
                     self.energy -= SKILLS_TABLE[i]['energy']
                     self.attack_cooldown_expired = False
                     self.new_particle = SKILLS_TABLE[i]['start'](i, self, input.UP, input.DOWN)
-                    pygame.time.set_timer(USEREVENT+1+self.id, SKILLS_TABLE[i]['cooldown'])
-                    if (i == -1):
-                        pygame.time.set_timer(USEREVENT+3+self.id, SKILLS_TABLE[-1]['cooldown'])
+                    pygame.time.set_timer(USEREVENT + 1 + self.id, SKILLS_TABLE[i]['cooldown'])
+                    if i == -1:
+                        pygame.time.set_timer(USEREVENT + 3 + self.id, SKILLS_TABLE[-1]['cooldown'])
 
     def _priority_inputs(self, input):
         if input.ULT:
@@ -266,7 +256,7 @@ class Player(Rect2):
 
 class Monster(Player):
     def __init__(self, type, left, top, player1, player2):
-        self.type = type    #WEAK, MEDIUM, ULTIMATE
+        self.type = type  # WEAK, MEDIUM, ULTIMATE
 
         if self.type == WEAK:
             super().__init__(0,left,top,30,40)
@@ -350,7 +340,6 @@ class Monster(Player):
                     self.ai_input.LEFT = False
             if random.randint(1,10) == 2:
                 self.ai_input.JUMP = True
-
 
     def __call__(self, time, arena_map):
         self._ai(time)
@@ -482,16 +471,16 @@ class MeleeParticle(Particle):
         super().__init__(sid,player)
         self.arc = SKILLS_TABLE[sid]['arc']
         self.radius = SKILLS_TABLE[sid]['radius']
-        self.has_hit = []   #Need this to keep track of what it has hit;
-                            #melee particles are not delete upon hitting
-                            #a target, so we need to know who it has hit
-                            #to prevent the same target being hit multiple
-                            #times
+        self.has_hit = []  # Need this to keep track of what it has hit;
+                           # melee particles are not delete upon hitting
+                           # a target, so we need to know who it has hit
+                           # to prevent the same target being hit multiple
+                           # times
 
-    #def update(self, time, player):
-    #Let the particle know how it belongs to so it can
-    #rotate around that player and also in collision
-    #detection, will not hit the player who made particle
+    # def update(self, time, player):
+    # Let the particle know how it belongs to so it can
+    # rotate around that player and also in collision
+    # detection, will not hit the player who made particle
     def update(self, time):
         if self.spawn_time == 0:
             self.spawn_time = time
@@ -507,7 +496,7 @@ class MeleeParticle(Particle):
 
         self.centery = self.belongs_to.centery - self.radius * math.sin((1 - r) * self.arc)
 
-    def on_hit(self,target,time):   #DONT delete time; will use later
+    def on_hit(self, target, time):  # DON'T delete time; will use later
         if target != self.belongs_to and target not in self.has_hit:
             self.has_hit.append(target)
             handle_damage(target, self.dmg, time)
@@ -529,14 +518,14 @@ class RangeParticle(Particle):
         super().__init__(sid,player)
         self.has_special = False
         self.direction = player.facing_direction
-        self.originx = player.centerx   #Where the particle started
-        self.originy = player.centery   #These might be useful later on
+        self.originx = player.centerx  # Where the particle started
+        self.originy = player.centery  # These might be useful later on
 
         #If has special path, upload function to special_f
         if 'special_path' in SKILLS_TABLE[sid].keys():
             self.has_special = True
             self.special_f = SKILLS_TABLE[sid]['special_path']
-        else:   #Using standard linear path
+        else:  # Using standard linear path
             self.dx = SKILLS_TABLE[sid]['speed']
             self.ddx = SKILLS_TABLE[sid]['acceleration']
 
@@ -578,7 +567,7 @@ class RangeParticle(Particle):
             self.centerx += self.dx
             self.centery += self.dy
 
-    def on_hit(self,target,time):     #DONT delete time; will use later
+    def on_hit(self, target, time):  # DONT delete time; will use later
         if target != self.belongs_to:
             handle_damage(target, self.dmg, time)
 
@@ -627,7 +616,7 @@ class Condition:
         self.start = -1
         self.duration = duration
 
-    def begin(self,time,target):
+    def begin(self, time, target):
         c = copy.copy(self)
         c.start = time
         c.target = target
@@ -678,7 +667,7 @@ class Dot(Condition):
             self.last_tick = time
             handle_damage(self.target, self.magnitude, time)
             self.ticks -= 1
-        return (self.ticks <= 0)
+        return self.ticks <= 0
 
 class Silence(Condition):
     def __init__(self, duration):
@@ -697,7 +686,7 @@ class Weakened(Condition):
         super().__init__(duration)
         self.type = WEAKENED
 
- #---Debuffs-----------------------------------------------------------------
+#---Buffs-------------------------------------------------------------------
 class Speed(Condition):
     def __init__(self, duration, magnitude):
         super().__init__(duration)
@@ -709,7 +698,7 @@ class Shield(Condition):
         super().__init__(duration)
         self.magnitude = magnitude
         self.type = SHIELD
-        self.remaining = self.duration #used for sorting
+        self.remaining = self.duration  # used for sorting
 
     def is_expired(self,time):
         self.remaining = self.duration - time - self.start

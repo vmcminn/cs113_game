@@ -88,7 +88,7 @@ class GameLoop:
         def _setup_music():
             pygame.mixer.init()
             pygame.mixer.music.load('data/404error.mp3')
-            pygame.mixer.music.play()
+            pygame.mixer.music.play(loops=-1)
 
 
         pygame.init()

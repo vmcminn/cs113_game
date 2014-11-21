@@ -29,12 +29,10 @@ class Rect2(pygame.Rect):
             elif all_in(('topleft', 'size'), kargs):
                 super().__init__(kargs['topleft'], kargs['size'])
 
-    def p_collidelist(self,li):
-        #follows same logic as pygame.collidelist, but customized
-        #to look at center coords
+    def p_collidelist(self, li):
+        # follows same logic as pygame.collidelist, but customized to look at center coords
         for i in range(len(li)):
-            if self.centerx < li[i].right and self.centerx > li[i].left \
-            and self.centery > li[i].top and self.centery < li[i].bottom:
+            if li[i].left < self.centerx < li[i].right and li[i].top < self.centery < li[i].bottom:
                 return i
         return -1
 # -------------------------------------------------------------------------
@@ -75,7 +73,7 @@ class Player(Rect2):
 
         # skills
         self.attack_id = 1
-        self.skill1_id=self.skill2_id=self.skill3_id=self.ult_id = 0
+        self.skill1_id = self.skill2_id = self.skill3_id = self.ult_id = 0
 
         #for debugging/testing:
         self.attack_id = 1
@@ -113,7 +111,7 @@ class Player(Rect2):
     def distance_from(self, other):
         a = self.centerx - other.centerx
         b = self.centery - other.centery
-        return math.sqrt(a*a + b*b)
+        return math.sqrt(a * a + b * b)
 
     def __call__(self, input, arena_map):
         self._handle_facing_direction(input)
@@ -259,22 +257,22 @@ class Monster(Player):
         self.type = type  # WEAK, MEDIUM, ULTIMATE
 
         if self.type == WEAK:
-            super().__init__(0,left,top,30,40)
-            self.dx_max, self.dy_max = 2,10
+            super().__init__(0, left, top, 30, 40)
+            self.dx_max, self.dy_max = 2, 10
             self.dy_gravity = 6
             self.hit_points = self.hit_points_max = 100
             self.chasing_time = 5000
             self.idle_time = 5000
         elif self.type == MEDIUM:
-            super().__init__(0,left,top,50,60)
-            self.dx_max, self.dy_max = 3,12
+            super().__init__(0, left, top, 50, 60)
+            self.dx_max, self.dy_max = 3, 12
             self.dy_gravity = 6
             self.hit_points = self.hit_points_max = 250
             self.chasing_time = 7000
             self.idle_time = 5000
         elif self.type == ULTIMATE:
-            super().__init__(0,left,top,80,80)
-            self.dx_max, self.dy_max = 4,13
+            super().__init__(0, left, top, 80, 80)
+            self.dx_max, self.dy_max = 4, 13
             self.dy_gravity = 6
             self.hit_points = self.hit_points_max = 500
             self.chasing_time = 10000
@@ -300,7 +298,7 @@ class Monster(Player):
         elif d2 < d2:
             self.target = self.p2
         else:
-            if random.randint(1,2)  == 1:
+            if random.randint(1, 2) == 1:
                 self.target = self.p1
             else:
                 self.target = self.p2
@@ -326,19 +324,19 @@ class Monster(Player):
                 self.ai_input.LEFT = True
 
             if self.target.centery < self.centery:
-                if random.randint(1,10) == 1:
+                if random.randint(1, 10) == 1:
                     self.ai_input.JUMP = True
 
         else:
             self.ai_input.JUMP = False
-            if random.randint(1,30) < 5:
+            if random.randint(1, 30) < 5:
                 if self.ai_input.RIGHT:
                     self.ai_input.RIGHT = False
                     self.ai_input.LEFT = True
                 else:
                     self.ai_input.RIGHT = True
                     self.ai_input.LEFT = False
-            if random.randint(1,10) == 2:
+            if random.randint(1, 10) == 2:
                 self.ai_input.JUMP = True
 
     def __call__(self, time, arena_map):
@@ -410,7 +408,6 @@ class Input:
         return None
 # -------------------------------------------------------------------------
 
-
 class Arena:
     def __init__(self, *color_rects):
         rects = [Rect2(rect) for rect, color in color_rects]
@@ -468,7 +465,7 @@ class Particle(Rect2):
 class MeleeParticle(Particle):
     def __init__(self, sid, player):
         #super().__init__(particle.width, particle.height, particle.radius, particle.cooldown, particle.duration, particle.color)
-        super().__init__(sid,player)
+        super().__init__(sid, player)
         self.arc = SKILLS_TABLE[sid]['arc']
         self.radius = SKILLS_TABLE[sid]['radius']
         self.has_hit = []  # Need this to keep track of what it has hit;
@@ -506,8 +503,8 @@ class MeleeParticle(Particle):
 
             #On hitting monster, small pushback
             if isinstance(target, Monster):
-                target.centerx = target.centerx + (-5 * target.dx)
-                target.dx = target.dx * -1
+                target.centerx += -5 * target.dx
+                target.dx *= -1
 
             if self.on_hit_f:
                 self.on_hit_f(target)
@@ -549,10 +546,10 @@ class RangeParticle(Particle):
         else:
             self.centerx += 30
             if not self.has_special:
-                self.dx = self.dx * -1
-                self.ddx = self.ddx * -1
+                self.dx *= -1
+                self.ddx *= -1
 
-    def update(self,time):
+    def update(self, time):
         if self.spawn_time == 0:
             self.spawn_time = time
 
@@ -576,8 +573,8 @@ class RangeParticle(Particle):
 
             #On hitting monster, small pushback
             if isinstance(target, Monster):
-                target.centerx = target.centerx + (-5 * target.dx)
-                target.dx = target.dx * -1
+                target.centerx += -5 * target.dx
+                target.dx *= -1
 
             if self.on_hit_f:
                 self.on_hit_f(target)

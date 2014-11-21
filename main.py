@@ -81,15 +81,20 @@ class GameLoop:
             self.active_monsters = []
 
             #TEST - Monster
-            self.active_monsters.append(Monster(ULTIMATE, 400, 150, self.player1, self.player1))
-            #self.active_monsters.append(Monster(MEDIUM, 400, 150, self.player1, self.player1))
-            #self.active_monsters.append(Monster(WEAK, 400, 150, self.player1, self.player1))
+            # self.active_monsters.append(Monster(ULTIMATE, 400, 150, self.player1, self.player1))
+            # self.active_monsters.append(Monster(MEDIUM, 400, 150, self.player1, self.player1))
+            self.active_monsters.append(Monster(WEAK, 400, 150, self.player1, self.player1))
 
         def _setup_music():
             pygame.mixer.init()
             pygame.mixer.music.load('data/404error.mp3')
             pygame.mixer.music.play(loops=-1)
 
+        def _setup_rain():
+            self.rain = Rect2(left=0, top=0, width=1, height=3)
+            self.rain_particles = []
+            self.make_rain = False
+            pygame.event.post(pygame.event.Event(TIME_FOR_MORE_RAIN_EVENT))
 
         pygame.init()
         initialize_skill_table()
@@ -101,6 +106,7 @@ class GameLoop:
         _setup_fonts()
         _setup_particles()
         _setup_music()
+        _setup_rain()
 
     # ------------------------------------------------------------------------
     def __call__(self):
@@ -162,7 +168,7 @@ class GameLoop:
             for p in self.active_particles:
                 #opposite = self.player2 if p.belongs_to == self.player1 else \
                 #           self.player1
-                if isinstance(p,RangeParticle):
+                if isinstance(p, RangeParticle):
                     if p.p_collidelist(self.arena.rects) != -1:
                         self.active_particles.remove(p)
                     #else: destructible terrain collision here
@@ -276,6 +282,21 @@ class GameLoop:
                     if t[1] <= self.game_time.msec:
                         m.st_buffer.remove(t)
 
+        def _draw_rain():
+            if self.make_rain:
+                for i in range(5, self.play_area.width, 10):
+                    raincopy = self.rain.copy()
+                    raincopy.left = i + 65
+                    self.rain_particles.append(raincopy)
+
+            for r in self.rain_particles:
+                r.move_ip((0,5))
+                pygame.draw.rect(self.surface, BLUE, r)
+
+            for r in self.rain_particles[:]:
+                if r.top > 475:
+                    self.rain_particles.remove(r)
+            self.make_rain = False
 
         _draw_ui()
         _draw_timer()
@@ -285,6 +306,7 @@ class GameLoop:
         _draw_players()
         _draw_particles()
         _draw_scrolling_text()
+        _draw_rain()
         pygame.display.update()  # necessary to update the display
 
     # -------------------------------------------------------------------------
@@ -317,20 +339,20 @@ class GameLoop:
 
             if event.type == REGENERATION_EVENT:
                 if self.player1.conditions[WOUNDED] and not self.player1.conditions[INVIGORATED]:
-                    self.player1.hit_points += self.player1.level/20
+                    self.player1.hit_points += self.player1.level / 20
                 elif not self.player1.conditions[WOUNDED] and self.player1.conditions[INVIGORATED]:
-                    self.player1.hit_points += self.player1.level/5
+                    self.player1.hit_points += self.player1.level / 5
                 else:
-                    self.player1.hit_points += self.player1.level/10
+                    self.player1.hit_points += self.player1.level / 10
                 if self.player1.hit_points > 100:
                     self.player1.hit_points = 100
 
                 if self.player1.conditions[WEAKENED] and not self.player1.conditions[EMPOWERED]:
-                    self.player1.energy += self.player1.level/10
+                    self.player1.energy += self.player1.level / 10
                 elif not self.player1.conditions[WEAKENED] and self.player1.conditions[EMPOWERED]:
-                    self.player1.energy += self.player1.level/2.5
+                    self.player1.energy += self.player1.level / 2.5
                 else:
-                    self.player1.energy += self.player1.level/5
+                    self.player1.energy += self.player1.level / 5
                 if self.player1.energy > 10:
                     self.player1.energy = 10
 
@@ -344,6 +366,10 @@ class GameLoop:
                 if self.player1.energy > 10:
                     self.player1.energy = 10
                 pygame.time.set_timer(PLAYER1_MEDITATE_EVENT, 0)
+
+            if event.type == TIME_FOR_MORE_RAIN_EVENT:
+                self.make_rain = True
+                pygame.time.set_timer(TIME_FOR_MORE_RAIN_EVENT, 150)
 
             # QUIT event occurs when click X on window bar
             if event.type == QUIT:

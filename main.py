@@ -85,6 +85,12 @@ class GameLoop:
             #self.active_monsters.append(Monster(MEDIUM, 400, 150, self.player1, self.player1))
             #self.active_monsters.append(Monster(WEAK, 400, 150, self.player1, self.player1))
 
+        def _setup_music():
+            pygame.mixer.init()
+            pygame.mixer.music.load('data/404error.mp3')
+            pygame.mixer.music.play()
+
+
         pygame.init()
         initialize_skill_table()
         _setup_display()
@@ -94,6 +100,7 @@ class GameLoop:
         _setup_monsters()
         _setup_fonts()
         _setup_particles()
+        _setup_music()
 
     # ------------------------------------------------------------------------
     def __call__(self):

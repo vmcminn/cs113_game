@@ -15,18 +15,22 @@ class Rect2(pygame.Rect):
         if args != tuple():
             if all_isinstance(args, tuple) and len(args) is 2:
                 super().__init__(args[0], args[1])
-
             if all_isinstance(args, tuple) and len(args) is 1:
                 super().__init__(args[0][0], args[0][1], args[0][2], args[0][3])
-
             elif all_isinstance(args, int):
                 super().__init__(args[0], args[1], args[2], args[3])
         else:
-            if all_in('top,left,width,height'.split(','), kargs.keys()):
+            if all_in('left,top,width,height'.split(','), kargs.keys()):
                 super().__init__(kargs['left'], kargs['top'], kargs['width'], kargs['height'])
-
             elif all_in(('topleft', 'size'), kargs):
                 super().__init__(kargs['topleft'], kargs['size'])
+            for i in 'left,top,width,height,topleft,size'.split(','):
+                try:
+                    kargs.pop(i)
+                except KeyError:
+                    pass
+        for k, v in kargs.items():
+            exec('self.{} = {}'.format(k, repr(v)))
 
     def p_collidelist(self, li):
         # follows same logic as pygame.collidelist, but customized to look at center coords
@@ -34,14 +38,6 @@ class Rect2(pygame.Rect):
             if li[i].left < self.centerx < li[i].right and li[i].top < self.centery < li[i].bottom:
                 return i
         return -1
-
-
-# -------------------------------------------------------------------------
-class CRect2(Rect2):
-    def __init__(self, left, top, width, height, color):
-        super().__init__(left, top, width, height)
-        self.color = color
-
 
 # -------------------------------------------------------------------------
 class Player(Rect2):
@@ -323,6 +319,7 @@ class Monster(Player):
         self._handle_acceleration(self.ai_input)
         self._handle_movement(arena_map)
 
+# -------------------------------------------------------------------------
 
 class AI_Input():
     def __init__(self):
@@ -385,14 +382,13 @@ class Input:
     def __getattr__(self, name):
         return None
 
-
 # -------------------------------------------------------------------------
 class Arena:
     def __init__(self, *color_rects):
-        required = (CRect2(65, 0, 1150, 475, SKYBLUE),  # play_area
-                    CRect2(0, 475, 1280, 50, None),  # floor
-                    CRect2(15, 0, 50, 600, None),  # left wall
-                    CRect2(1215, 0, 50, 600, None))  # right wall
+        required = (Rect2(65, 0, 1150, 475, color=SKYBLUE),  # play_area
+                    Rect2(0, 475, 1280, 50, color=None),  # floor
+                    Rect2(15, 0, 50, 600, color=None),  # left wall
+                    Rect2(1215, 0, 50, 600, color=None))  # right wall
         rects = [c_rect for c_rect in required + color_rects]
         for rect in rects[4:]:  # don't shift the first 4 rects
             rect.move_ip((65, 0))  # to account for play area starting 65 pixels from left
@@ -406,23 +402,22 @@ class Arena:
 
 
 arena1 = Arena(
-    CRect2(0, 270, 300, 60, DKGREEN),
-    CRect2(850, 270, 300, 60, DKGREEN),
-    CRect2(545, 150, 60, 230, DKGREEN),
-    CRect2(140, 100, 150, 20, DKGREEN),
-    CRect2(860, 100, 150, 20, DKGREEN),
+    Rect2(0, 270, 300, 60, color=DKGREEN),
+    Rect2(850, 270, 300, 60, color=DKGREEN),
+    Rect2(545, 150, 60, 230, color=DKGREEN),
+    Rect2(140, 100, 150, 20, color=DKGREEN),
+    Rect2(860, 100, 150, 20, color=DKGREEN),
 )
 arena2 = Arena(
-    CRect2(50, 100, 50, 300, DKGREEN),
-    CRect2(240, 40, 50, 300, DKGREEN),
-    CRect2(500, 135, 100, 25, DKGREEN),
-    CRect2(725, 255, 175, 25, DKGREEN),
-    CRect2(1050, 375, 100, 25, DKGREEN),
-    CRect2(400, 434, 300, 41, DKGREEN),
-    CRect2(485, 394, 300, 41, DKGREEN),
-    CRect2(970, 65, 80, 10, DKGREEN),
+    Rect2(50, 100, 50, 300, color=DKGREEN),
+    Rect2(240, 40, 50, 300, color=DKGREEN),
+    Rect2(500, 135, 100, 25, color=DKGREEN),
+    Rect2(725, 255, 175, 25, color=DKGREEN),
+    Rect2(1050, 375, 100, 25, color=DKGREEN),
+    Rect2(400, 434, 300, 41, color=DKGREEN),
+    Rect2(485, 394, 300, 41, color=DKGREEN),
+    Rect2(970, 65, 80, 10, color=DKGREEN),
 )
-
 
 # -------------------------------------------------------------------------
 class Particle(Rect2):
@@ -451,7 +446,7 @@ class Particle(Rect2):
         else:
             self.on_hit_f = None
 
-
+# -------------------------------------------------------------------------
 class MeleeParticle(Particle):
     def __init__(self, sid, player):
         # super().__init__(particle.width, particle.height, particle.radius, particle.cooldown, particle.duration, particle.color)

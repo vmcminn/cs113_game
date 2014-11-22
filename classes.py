@@ -206,7 +206,7 @@ class Player(Rect2):
                     if self.top < terrain.bottom < self.bottom and self.dy < 0:
                         self.top = terrain.bottom
                         self.dy = -3
-                out_of_arena_fix(self)  # otherwise, player can jump up and over arena
+            out_of_arena_fix(self)  # otherwise, player can jump up and over arena
 
         _move()  # move then check for collisions
         _check_for_collisions()

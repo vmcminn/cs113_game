@@ -79,11 +79,10 @@ class GameLoop:
 
         def _setup_monsters():
             self.active_monsters = []
-
             # TEST - Monster
-            self.active_monsters.append(Monster(ULTIMATE, 400, 150, self.player1, self.player1))
-            self.active_monsters.append(Monster(MEDIUM, 400, 150, self.player1, self.player1))
-            self.active_monsters.append(Monster(WEAK, 400, 150, self.player1, self.player1))
+            self.active_monsters.append(Monster(MONSTER_TABLE[WEAK], 400, 150, self.player1, self.player1))
+            self.active_monsters.append(Monster(MONSTER_TABLE[MEDIUM], 400, 150, self.player1, self.player1))
+            self.active_monsters.append(Monster(MONSTER_TABLE[ULTIMATE], 400, 150, self.player1, self.player1))
 
         def _setup_music():
             pygame.mixer.init()
@@ -263,6 +262,13 @@ class GameLoop:
         def _draw_monsters():
             for m in self.active_monsters:
                 pygame.draw.rect(self.surface, ORANGE, m)
+                health_bar = Rect2(left=m.left, top=m.top - 8, width=m.width, height=6)
+                health_bar_width = round(m.width * (m.hit_points / m.hit_points_max))
+                health_bar_life = Rect2(left=m.left, top=m.top - 8, width=health_bar_width, height=6)
+
+                pygame.draw.rect(self.surface, WHITE, health_bar)
+                pygame.draw.rect(self.surface, RED, health_bar_life)
+                pygame.draw.rect(self.surface, BLACK, health_bar, 1)
 
         def _draw_particles():
             for p in self.active_particles:
@@ -319,7 +325,7 @@ class GameLoop:
         _draw_players()
         _draw_particles()
         _draw_scrolling_text()
-        _draw_rain()
+        # _draw_rain()
         _draw_mouse_text()
         pygame.display.update()
 

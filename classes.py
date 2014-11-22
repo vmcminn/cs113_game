@@ -1,6 +1,7 @@
 import copy
 import math
 import random
+from collections import namedtuple
 
 import pygame
 from pygame.locals import *
@@ -252,42 +253,24 @@ class Player(Rect2):
         return 0
 # -------------------------------------------------------------------------
 
+monster_info = namedtuple('monster_info', 'w, h, dx, dy, hp, chase, idle')
+MONSTER_TABLE = {
+    WEAK: monster_info(30, 40, 2, 10, 100, 5000, 5000),
+    MEDIUM: monster_info(50, 60, 3, 12, 250, 7000, 5000),
+    ULTIMATE: monster_info(80, 80, 4, 13, 500, 10000, 5000)}
+
+
 class Monster(Player):
-    def __init__(self, type, left, top, player1, player2):
-        self.type = type  # WEAK, MEDIUM, ULTIMATE
-
-        if self.type == WEAK:
-            super().__init__(0, left, top, 30, 40)
-            self.dx_max, self.dy_max = 2, 10
-            self.dy_gravity = 6
-            self.hit_points = self.hit_points_max = 100
-            self.chasing_time = 5000
-            self.idle_time = 5000
-        elif self.type == MEDIUM:
-            super().__init__(0, left, top, 50, 60)
-            self.dx_max, self.dy_max = 3, 12
-            self.dy_gravity = 6
-            self.hit_points = self.hit_points_max = 250
-            self.chasing_time = 7000
-            self.idle_time = 5000
-        elif self.type == ULTIMATE:
-            super().__init__(0, left, top, 80, 80)
-            self.dx_max, self.dy_max = 4, 13
-            self.dy_gravity = 6
-            self.hit_points = self.hit_points_max = 500
-            self.chasing_time = 10000
-            self.idle_time = 5000
-
-        self.dy_jump = 30
-        self.dy_gravity = 2
-        self.dx_friction = 0.5
-        self.p1 = player1
-        self.p2 = player2
-
-        self.target = None
-        self.status = IDLE
+    def __init__(self, info, left, top, player1, player2):
+        super().__init__(0, left, top, info.w, info.h)
+        self.dx_max, self.dy_max = info.dx, info.dy
+        self.hit_points = self.hit_points_max = info.hp
+        self.chasing_time = info.chase
+        self.idle_time = info.idle
+        self.dx_friction, self.dy_gravity, self.dy_jump = 0.5, 2, 30
+        self.p1, self.p2 = player1, player2
+        self.target, self.status = None, IDLE
         self.last_status_change = 0
-
         self.ai_input = AI_Input()
 
     def _pick_new_target(self):

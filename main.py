@@ -1,5 +1,6 @@
 # python standard library modules
 import os
+import random
 import sys
 
 # pygame
@@ -53,8 +54,7 @@ class GameLoop:
             # self.player2 = Player(id=2, left=1080, top=150, width=30, height=40)
             # self.player2_eyeball = Rect2(left=1080, top=150, width=5, height=5)
 
-            # self.arena = arena1
-            self.arena = arena2
+            self.arena = random.choice((arena1, arena2))
 
         def _setup_fonts():
             self.timer_font = pygame.font.Font('data/gigi.ttf', 36)

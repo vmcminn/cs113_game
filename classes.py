@@ -10,8 +10,6 @@ from globals import *
 from skills import *
 
 # -------------------------------------------------------------------------
-
-
 class Rect2(pygame.Rect):
     def __init__(self, *args, **kargs):
         if args != tuple():
@@ -36,9 +34,16 @@ class Rect2(pygame.Rect):
             if li[i].left < self.centerx < li[i].right and li[i].top < self.centery < li[i].bottom:
                 return i
         return -1
+
+
 # -------------------------------------------------------------------------
+class CRect2(Rect2):
+    def __init__(self, left, top, width, height, color):
+        super().__init__(left, top, width, height)
+        self.color = color
 
 
+# -------------------------------------------------------------------------
 class Player(Rect2):
     def __init__(self, id, left, top, width, height):
         # id = 1 if player 1, id = 2 if player 2
@@ -251,8 +256,9 @@ class Player(Rect2):
         elif input.MEDITATE:
             return -1
         return 0
-# -------------------------------------------------------------------------
 
+
+# -------------------------------------------------------------------------
 monster_info = namedtuple('monster_info', 'w, h, dx, dy, hp, chase, idle')
 MONSTER_TABLE = {
     WEAK: monster_info(30, 40, 2, 10, 100, 5000, 5000),
@@ -389,49 +395,47 @@ class Input:
 
     def __getattr__(self, name):
         return None
-# -------------------------------------------------------------------------
 
+
+# -------------------------------------------------------------------------
 class Arena:
     def __init__(self, *color_rects):
-        required = (
-            ((65, 0, 1150, 475), SKYBLUE),  # play_area
-            ((0, 475, 1280, 50), None),  # floor
-            ((15, 0, 50, 600), None),  # left wall
-            ((1215, 0, 50, 600), None))  # right wall
-        rects = [Rect2(rect) for rect, color in required + color_rects]
-        colors = [color for rect, color in required + color_rects]
+        required = (CRect2(65, 0, 1150, 475, SKYBLUE),  # play_area
+                    CRect2(0, 475, 1280, 50, None),  # floor
+                    CRect2(15, 0, 50, 600, None),  # left wall
+                    CRect2(1215, 0, 50, 600, None))  # right wall
+        rects = [c_rect for c_rect in required + color_rects]
         for rect in rects[4:]:  # don't shift the first 4 rects
             rect.move_ip((65, 0))  # to account for play area starting 65 pixels from left
         self.play_area_rect = rects[0]
-        self.play_area_color = colors[0]
         self.rects = rects[1:]
-        self.colors = colors[1:]
 
     def __iter__(self):
         # currently only time iteration is used is when the rects are drawn
-        for rect, rect_color in zip([self.play_area_rect] + self.rects, [self.play_area_color] + self.colors):
-            yield rect, rect_color
+        for c_rect in [self.play_area_rect] + self.rects:
+            yield c_rect
+
 
 arena1 = Arena(
-    ((0, 270, 300, 60), DKGREEN),
-    ((850, 270, 300, 60), DKGREEN),
-    ((545, 150, 60, 230), DKGREEN),
-    ((140, 100, 150, 20), DKGREEN),
-    ((860, 100, 150, 20), DKGREEN),
+    CRect2(0, 270, 300, 60, DKGREEN),
+    CRect2(850, 270, 300, 60, DKGREEN),
+    CRect2(545, 150, 60, 230, DKGREEN),
+    CRect2(140, 100, 150, 20, DKGREEN),
+    CRect2(860, 100, 150, 20, DKGREEN),
 )
-
 arena2 = Arena(
-    ((50, 100, 50, 300), DKGREEN),
-    ((240, 40, 50, 300), DKGREEN),
-    ((500, 135, 100, 25), DKGREEN),
-    ((725, 255, 175, 25), DKGREEN),
-    ((1050, 375, 100, 25), DKGREEN),
-    ((400, 434, 300, 41), DKGREEN),
-    ((485, 394, 300, 41), DKGREEN),
-    ((970, 65, 80, 10), DKGREEN),
+    CRect2(50, 100, 50, 300, DKGREEN),
+    CRect2(240, 40, 50, 300, DKGREEN),
+    CRect2(500, 135, 100, 25, DKGREEN),
+    CRect2(725, 255, 175, 25, DKGREEN),
+    CRect2(1050, 375, 100, 25, DKGREEN),
+    CRect2(400, 434, 300, 41, DKGREEN),
+    CRect2(485, 394, 300, 41, DKGREEN),
+    CRect2(970, 65, 80, 10, DKGREEN),
 )
 
 
+# -------------------------------------------------------------------------
 class Particle(Rect2):
     # def __init__(self, width, height, radius, cooldown, duration, color):
     def __init__(self, sid, player):

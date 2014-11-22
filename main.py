@@ -245,9 +245,10 @@ class GameLoop:
             self.surface.blit(debug_font, self.debug_font_xy4)
 
         def _draw_map():
-            for rect, rect_color in self.arena:
-                if rect_color is not None:
-                    pygame.draw.rect(self.surface, rect_color, rect)
+            # for rect, rect_color in self.arena:
+            for rect in self.arena:
+                if rect.color is not None:
+                    pygame.draw.rect(self.surface, rect.color, rect)
 
         def _draw_players():
             pygame.draw.rect(self.surface, LBLUE, self.player1)

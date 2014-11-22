@@ -57,13 +57,13 @@ class GameLoop:
             self.arena = random.choice((arena1, arena2))
 
         def _setup_fonts():
-            self.timer_font = pygame.font.Font('data/gigi.ttf', 36)
-            self.timer_font_xy = 640, 500
-            self.health_font = pygame.font.Font('data/gigi.ttf', 55)
-            self.health_font_xy = 60, 480
-            self.energy_font = pygame.font.Font('data/gigi.ttf', 55)
-            self.energy_font_xy = 80, 525
-            self.pause_font = pygame.font.Font('data/gigi.ttf', 200)
+            self.timer_font = pygame.font.Font('data/viner-hand-itc.ttf', 36)
+            self.timer_font_xy = 605, 500
+            self.health_font = pygame.font.Font('data/viner-hand-itc.ttf', 55)
+            self.health_font_xy = 60, 490
+            self.energy_font = pygame.font.Font('data/viner-hand-itc.ttf', 55)
+            self.energy_font_xy = 80, 535
+            self.pause_font = pygame.font.Font('data/viner-hand-itc.ttf', 200)
             self.pause_font_xy = font_position_center((self.window.w, self.window.h), self.pause_font, '-PAUSE-')
             self.debug_font_small = pygame.font.SysFont('consolas', 10)  # monospace
             self.debug_font = pygame.font.SysFont('consolas', 20)  # monospace
@@ -72,7 +72,7 @@ class GameLoop:
             self.debug_font_xy3 = 1000, 540
             self.debug_font_xy4 = 1000, 560
             # Scrolling text font
-            self.st_font = pygame.font.Font('data/gigi.ttf', 30)
+            self.st_font = pygame.font.Font('data/viner-hand-itc.ttf', 30)
 
         def _setup_particles():
             self.active_particles = []

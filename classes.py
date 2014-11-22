@@ -417,6 +417,8 @@ class Arena:
             ((1215, 0, 50, 600), None))  # right wall
         rects = [Rect2(rect) for rect, color in required + color_rects]
         colors = [color for rect, color in required + color_rects]
+        for rect in rects[4:]:  # don't shift the first 4 rects
+            rect.move_ip((65, 0))  # to account for play area starting 65 pixels from left
         self.play_area_rect = rects[0]
         self.play_area_color = colors[0]
         self.rects = rects[1:]
@@ -428,22 +430,22 @@ class Arena:
             yield rect, rect_color
 
 arena1 = Arena(
-    ((65, 270, 300, 60), DKGREEN),
-    ((915, 270, 300, 60), DKGREEN),
-    ((610, 150, 60, 230), DKGREEN),
-    ((205, 100, 150, 20), DKGREEN),
-    ((925, 100, 150, 20), DKGREEN),
+    ((0, 270, 300, 60), DKGREEN),
+    ((850, 270, 300, 60), DKGREEN),
+    ((545, 150, 60, 230), DKGREEN),
+    ((140, 100, 150, 20), DKGREEN),
+    ((860, 100, 150, 20), DKGREEN),
 )
 
 arena2 = Arena(
-    ((65 + 50, 100, 50, 300), DKGREEN),
-    ((65 + 240, 40, 50, 300), DKGREEN),
-    ((65 + 500, 135, 100, 25), DKGREEN),
-    ((65 + 725, 255, 175, 25), DKGREEN),
-    ((65 + 1050, 375, 100, 25), DKGREEN),
-    ((65 + 400, 434, 300, 41), DKGREEN),
-    ((65 + 485, 394, 300, 40), DKGREEN),
-    ((65 + 970, 65, 80, 10), DKGREEN),
+    ((50, 100, 50, 300), DKGREEN),
+    ((240, 40, 50, 300), DKGREEN),
+    ((500, 135, 100, 25), DKGREEN),
+    ((725, 255, 175, 25), DKGREEN),
+    ((1050, 375, 100, 25), DKGREEN),
+    ((400, 434, 300, 41), DKGREEN),
+    ((485, 394, 300, 40), DKGREEN),
+    ((970, 65, 80, 10), DKGREEN),
 )
 
 

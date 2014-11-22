@@ -101,7 +101,6 @@ class Player(Rect2):
             for s in self.conditions[SHIELD]:
                 s.exchange()
 
-
     def is_dead(self):
         return self.hit_points <= 0
 
@@ -167,54 +166,55 @@ class Player(Rect2):
         _apply_limits()
 
     def _handle_movement(self, arena):
-        self.hit_wall_from = None  # reset every frame
-        self.touching_ground = False  # reset every frame
 
-        if self.conditions[SNARE]:
-            self.move_ip((0,0))
-        elif self.conditions[SLOW] or self.conditions[SPEED]:
-            max_slow = max(self.conditions[SLOW], key=lambda x: x.magnitude).magnitude if \
-            self.conditions[SLOW] else 0
-            max_speed = max(self.conditions[SPEED], key=lambda y: y.magnitude).magnitude if \
-            self.conditions[SPEED] else 0
-            delta = 1.0 + max_speed - max_slow
-            self.move_ip((self.dx * delta, (self.dy * delta) if self.dy < 0 else self.dy))
-        else:
-            self.move_ip((self.dx, self.dy))  # move then check for collisions
+        def _move():
+            if self.conditions[SNARE]:
+                self.move_ip((0, 0))
+            elif self.conditions[SLOW] or self.conditions[SPEED]:
+                max_slow = max(self.conditions[SLOW], key=lambda x: x.magnitude).magnitude if \
+                    self.conditions[SLOW] else 0
+                max_speed = max(self.conditions[SPEED], key=lambda y: y.magnitude).magnitude if \
+                    self.conditions[SPEED] else 0
+                delta = 1.0 + max_speed - max_slow
+                self.move_ip((self.dx * delta, (self.dy * delta) if self.dy < 0 else self.dy))
+            else:
+                self.move_ip((self.dx, self.dy))
 
-        for terrain in arena.rects:
+        def _check_for_collisions():
+            self.hit_wall_from, self.touching_ground = None, False  # reset every frame
 
-            # (player's left in between terrain right and left) or (player's right in between terrain left and right)
-            if (terrain.right > self.left > terrain.left) or (terrain.left < self.right < terrain.right):
-                # (if player's bottom lower than terrain top) and (player's top above terrain's top)
-                if (self.bottom > terrain.top) and (self.top < terrain.top):
-                    # move player so it's bottom is flush with terrain's top
-                    self.bottom = terrain.top
-                    self.dy, self.touching_ground = 0, True
+            for terrain in arena.rects:
+                terrain_left_overlap_player = self.left <= terrain.left <= self.right
+                terrain_right_overlap_player = self.left <= terrain.right <= self.right
+                terrain_top_overlap_player = self.top <= terrain.top <= self.bottom
+                terrain_bottom_overlap_player = self.top <= terrain.bottom <= self.bottom
 
-            # (player's bottom in between terrain top and bottom) or (player's top in between terrain top and bottom)
-            if (terrain.top < self.bottom < terrain.bottom) or (terrain.bottom > self.top > terrain.top):
-                # (player's left "to the left of" terrain's right) and (player's right "to the right of" terrain's right)
-                if (self.left < terrain.right) and (self.right > terrain.right) and (self.dx <= 0):
-                    # move player so it's left is flush with terrain's right
-                    self.left = terrain.right
-                    self.hit_wall_from = LEFT
-                    self.dx = self.dy = 0
-                # (player's left "to the left of" terrain's left) and (player's right "to the right of" terrain's left)
-                elif (self.left < terrain.left) and (self.right > terrain.left) and (self.dx >= 0):
-                    # move player so it's right is flush with terrain's left
-                    self.right = terrain.left
-                    self.hit_wall_from = RIGHT
-                    self.dx = self.dy = 0
+                player_left_overlap_terrain = terrain.left <= self.left <= terrain.right
+                player_right_overlap_terrain = terrain.left <= self.right <= terrain.right
+                player_top_overlap_terrain = terrain.top <= self.top <= terrain.bottom
+                player_bottom_overlap_terrain = terrain.top <= self.bottom <= terrain.bottom
 
-            # (player's left in between terrain right and left) or (player's right in between terrain left and right)
-            if (terrain.right > self.left > terrain.left) or (terrain.left < self.right < terrain.right):
-                # (if player's bottom lower than terrain bottom) and (player's top above terrain's bottom)
-                if (self.bottom > terrain.bottom) and (self.top < terrain.bottom) and (self.dy < 0):
-                    # move player so it's top is flush with terrain's bottom
-                    self.top = terrain.bottom
-                    self.dy = -3
-        out_of_arena_fix(self)            # otherwise, player can jump up and over arena
+                if player_left_overlap_terrain or player_right_overlap_terrain:
+                    if terrain_top_overlap_player:
+                        self.bottom = terrain.top
+                        self.dy, self.touching_ground = 0, True
+                if player_bottom_overlap_terrain or player_top_overlap_terrain:
+                    if terrain_right_overlap_player and self.dx <= 0:
+                        self.left = terrain.right
+                        self.hit_wall_from = LEFT
+                        self.dx = self.dy = 0
+                    elif terrain_left_overlap_player and self.dx >= 0:
+                        self.right = terrain.left
+                        self.hit_wall_from = RIGHT
+                        self.dx = self.dy = 0
+                if player_left_overlap_terrain or player_right_overlap_terrain:
+                    if terrain_bottom_overlap_player and self.dy < 0:
+                        self.top = terrain.bottom
+                        self.dy = -3
+                out_of_arena_fix(self)  # otherwise, player can jump up and over arena
+
+        _move()  # move then check for collisions
+        _check_for_collisions()
 
 
     # Handles attacks, skill buttons, and meditate
@@ -444,7 +444,7 @@ arena2 = Arena(
     ((725, 255, 175, 25), DKGREEN),
     ((1050, 375, 100, 25), DKGREEN),
     ((400, 434, 300, 41), DKGREEN),
-    ((485, 394, 300, 40), DKGREEN),
+    ((485, 394, 300, 41), DKGREEN),
     ((970, 65, 80, 10), DKGREEN),
 )
 

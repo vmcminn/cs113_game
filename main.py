@@ -91,8 +91,8 @@ class GameLoop:
             pygame.mixer.music.play(loops=-1)
 
         def _setup_rain():
-            self.rain = Rect2(left=0, top=0, width=1, height=3)
             self.rain_particles = []
+            self.rain = Rect2(left=0, top=0, width=1, height=3)
             self.make_rain = False
             pygame.event.post(pygame.event.Event(TIME_FOR_MORE_RAIN_EVENT))
 

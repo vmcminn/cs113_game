@@ -188,33 +188,22 @@ class Player(Rect2):
 
         def _check_for_collisions():
             self.hit_wall_from, self.touching_ground = None, False  # reset every frame
-
             for terrain in arena.rects:
-                terrain_left_overlap_player = self.left <= terrain.left <= self.right
-                terrain_right_overlap_player = self.left <= terrain.right <= self.right
-                terrain_top_overlap_player = self.top <= terrain.top <= self.bottom
-                terrain_bottom_overlap_player = self.top <= terrain.bottom <= self.bottom
-
-                player_left_overlap_terrain = terrain.left <= self.left <= terrain.right
-                player_right_overlap_terrain = terrain.left <= self.right <= terrain.right
-                player_top_overlap_terrain = terrain.top <= self.top <= terrain.bottom
-                player_bottom_overlap_terrain = terrain.top <= self.bottom <= terrain.bottom
-
-                if player_left_overlap_terrain or player_right_overlap_terrain:
-                    if terrain_top_overlap_player:
+                if terrain.left < self.left < terrain.right or terrain.left < self.right < terrain.right:
+                    if self.top < terrain.top < self.bottom:
                         self.bottom = terrain.top
                         self.dy, self.touching_ground = 0, True
-                if player_bottom_overlap_terrain or player_top_overlap_terrain:
-                    if terrain_right_overlap_player and self.dx <= 0:
+                if terrain.top < self.bottom < terrain.bottom or terrain.top < self.top < terrain.bottom:
+                    if self.left < terrain.right < self.right and self.dx <= 0:
                         self.left = terrain.right
                         self.hit_wall_from = LEFT
                         self.dx = self.dy = 0
-                    elif terrain_left_overlap_player and self.dx >= 0:
+                    elif self.left < terrain.left < self.right and self.dx >= 0:
                         self.right = terrain.left
                         self.hit_wall_from = RIGHT
                         self.dx = self.dy = 0
-                if player_left_overlap_terrain or player_right_overlap_terrain:
-                    if terrain_bottom_overlap_player and self.dy < 0:
+                if terrain.left < self.left < terrain.right or terrain.left < self.right < terrain.right:
+                    if self.top < terrain.bottom < self.bottom and self.dy < 0:
                         self.top = terrain.bottom
                         self.dy = -3
                 out_of_arena_fix(self)  # otherwise, player can jump up and over arena

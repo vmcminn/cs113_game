@@ -1,11 +1,11 @@
 from pygame import Color
 from pygame.locals import *  # for event timers
 
-# COLOR = (RRR, GGG, BBB)
+# Colors
 BLACK = Color(0, 0, 0)
 DGREY = Color(64, 64, 64)
 WHITE = Color(255, 255, 255)
-
+BROWN = Color(139, 69, 19)
 RED = Color(255, 0, 0)
 DKRED = Color(128, 0, 0)
 DKGREEN = Color(0, 128, 0)
@@ -13,20 +13,18 @@ GREEN = Color(0, 255, 0)
 BLUE = Color(0, 0, 255)
 LBLUE = Color(0, 128, 255)
 SKYBLUE = Color(128, 223, 223)
-
 YELLOW = Color(255, 255, 0)
 PURPLE = Color(255, 0, 255)
 ORANGE = Color(255, 153, 0)
 
-BROWN = Color(139, 69, 19)
-
-# monster types and globals
+# Monster Types and Globals
 WEAK = 'WEAK'
 MEDIUM = 'MEDIUM'
 ULTIMATE = 'ULTIMATE'
 CHASING = 'CHASING'
 IDLE = 'IDLE'
 
+# Inputs
 LEFT = 'LEFT'
 RIGHT = 'RIGHT'
 UP = 'UP'
@@ -52,7 +50,7 @@ SHIELD = 'SHIELD'
 INVIGORATED = 'INVIGORATED'
 EMPOWERED = 'EMPOWERED'
 
-# EVENTS:
+# Events
 TIME_TICK_EVENT = USEREVENT + 1
 PLAYER1_LOCK_EVENT = USEREVENT + 2
 PLAYER2_LOCK_EVENT = USEREVENT + 3
@@ -61,13 +59,12 @@ PLAYER2_MEDITATE_EVENT = USEREVENT + 5
 REGENERATION_EVENT = USEREVENT + 6
 TIME_FOR_MORE_RAIN_EVENT = USEREVENT + 7
 
-
+# Global Functions
 def all_in(items_want_inside, container_being_checked):
     for thing in items_want_inside:
         if thing not in container_being_checked:
             return False
     return True
-
 
 def all_isinstance(items_checking, instance_wanted):
     for thing in items_checking:
@@ -75,15 +72,13 @@ def all_isinstance(items_checking, instance_wanted):
             return False
     return True
 
-
 def font_position_center(center_within_size, font, text):
     x = (center_within_size[0] - font.size(text)[0]) // 2
     y = (center_within_size[1] - font.size(text)[1]) // 2
     return x, y
 
-
-# Global to handle players from reaching out of arena.
 def out_of_arena_fix(r):
+    """Global to handle players from reaching out of arena."""
     fixed = False  # Can be used for out-of-bounds checking since it returns true
     if r.left < 65:
         r.left = 65
@@ -95,7 +90,6 @@ def out_of_arena_fix(r):
         r.right = 1215
         fixed = True
     return fixed
-
 
 def handle_damage(target, value, time):
     target.hit_points -= value

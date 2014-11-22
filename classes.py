@@ -410,8 +410,13 @@ class Input:
 
 class Arena:
     def __init__(self, *color_rects):
-        rects = [Rect2(rect) for rect, color in color_rects]
-        colors = [color for rect, color in color_rects]
+        required = (
+            ((65, 0, 1150, 475), SKYBLUE),  # play_area
+            ((0, 475, 1280, 50), None),  # floor
+            ((15, 0, 50, 600), None),  # left wall
+            ((1215, 0, 50, 600), None))  # right wall
+        rects = [Rect2(rect) for rect, color in required + color_rects]
+        colors = [color for rect, color in required + color_rects]
         self.play_area_rect = rects[0]
         self.play_area_color = colors[0]
         self.rects = rects[1:]
@@ -423,15 +428,22 @@ class Arena:
             yield rect, rect_color
 
 arena1 = Arena(
-    ((65, 0, 1150, 475), SKYBLUE),  # play_area (must be first)
-    ((0, 475, 1280, 50), None),  # floor
-    ((15, 0, 50, 600), None),  # left wall
-    ((1215, 0, 50, 600), None),  # right wall
     ((65, 270, 300, 60), DKGREEN),
     ((915, 270, 300, 60), DKGREEN),
     ((610, 150, 60, 230), DKGREEN),
     ((205, 100, 150, 20), DKGREEN),
     ((925, 100, 150, 20), DKGREEN),
+)
+
+arena2 = Arena(
+    ((65 + 50, 100, 50, 300), DKGREEN),
+    ((65 + 240, 40, 50, 300), DKGREEN),
+    ((65 + 500, 135, 100, 25), DKGREEN),
+    ((65 + 725, 255, 175, 25), DKGREEN),
+    ((65 + 1050, 375, 100, 25), DKGREEN),
+    ((65 + 400, 434, 300, 41), DKGREEN),
+    ((65 + 485, 394, 300, 40), DKGREEN),
+    ((65 + 970, 65, 80, 10), DKGREEN),
 )
 
 

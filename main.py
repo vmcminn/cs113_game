@@ -47,15 +47,14 @@ class GameLoop:
         def _setup_Rects():
             self.window = self.surface.get_rect()
             self.window_border = Rect2(left=0, top=0, width=1278, height=600)
-            self.play_area = Rect2(left=65, top=0, width=1150, height=475)
             self.play_area_border = Rect2(left=40, top=0, width=1200, height=500)
-
             self.player1 = Player(id=1, left=200, top=150, width=30, height=40)
             self.player1_eyeball = Rect2(left=200, top=150, width=5, height=5)
             # self.player2 = Player(id=2, left=1080, top=150, width=30, height=40)
             # self.player2_eyeball = Rect2(left=1080, top=150, width=5, height=5)
 
-            self.arena = arena1
+            # self.arena = arena1
+            self.arena = arena2
 
         def _setup_fonts():
             self.timer_font = pygame.font.Font('data/gigi.ttf', 36)
@@ -66,6 +65,7 @@ class GameLoop:
             self.energy_font_xy = 80, 525
             self.pause_font = pygame.font.Font('data/gigi.ttf', 200)
             self.pause_font_xy = font_position_center((self.window.w, self.window.h), self.pause_font, '-PAUSE-')
+            self.debug_font_small = pygame.font.SysFont('consolas', 10)  # monospace
             self.debug_font = pygame.font.SysFont('consolas', 20)  # monospace
             self.debug_font_xy1 = 1000, 505
             self.debug_font_xy2 = 1000, 520
@@ -81,8 +81,8 @@ class GameLoop:
             self.active_monsters = []
 
             # TEST - Monster
-            # self.active_monsters.append(Monster(ULTIMATE, 400, 150, self.player1, self.player1))
-            # self.active_monsters.append(Monster(MEDIUM, 400, 150, self.player1, self.player1))
+            self.active_monsters.append(Monster(ULTIMATE, 400, 150, self.player1, self.player1))
+            self.active_monsters.append(Monster(MEDIUM, 400, 150, self.player1, self.player1))
             self.active_monsters.append(Monster(WEAK, 400, 150, self.player1, self.player1))
 
         def _setup_music():
@@ -96,6 +96,9 @@ class GameLoop:
             self.make_rain = False
             pygame.event.post(pygame.event.Event(TIME_FOR_MORE_RAIN_EVENT))
 
+        def _setup_mouse():
+            pygame.mouse.set_visible(False)
+
         pygame.init()
         initialize_skill_table()
         _setup_display()
@@ -107,6 +110,7 @@ class GameLoop:
         _setup_particles()
         _setup_music()
         _setup_rain()
+        _setup_mouse()
 
     # ------------------------------------------------------------------------
     def __call__(self):
@@ -144,6 +148,7 @@ class GameLoop:
         self.player1(self.input, self.arena)
         _special_input()
 
+    # -------------------------------------------------------------------------
     def handle_particles(self):
 
         def _update_active_particles():
@@ -188,10 +193,10 @@ class GameLoop:
                     # if p.colliderect(opposite):
                     #    p.on_hit(opposite, self.game_time.msec)
 
-
         _update_active_particles()
         _update_particles()
         _check_particle_collisions()
+
     # -------------------------------------------------------------------------
     def handle_monsters(self):
         for m in self.active_monsters:
@@ -212,7 +217,7 @@ class GameLoop:
             # red border of playable movement space
             pygame.draw.rect(self.surface, DKRED, self.play_area_border)
 
-            # font for health indicator, for testing purposes only
+            # font for player's health and energy
             health_display = self.health_font.render(str(self.player1.hit_points), True, RED)
             energy_display = self.energy_font.render(str(int(self.player1.energy)), True, YELLOW)
             self.surface.blit(health_display, self.health_font_xy)
@@ -246,7 +251,6 @@ class GameLoop:
                     pygame.draw.rect(self.surface, rect_color, rect)
 
         def _draw_players():
-            # placeholder for a playable character; is movable
             pygame.draw.rect(self.surface, LBLUE, self.player1)
             if self.player1.facing_direction == LEFT:
                 self.player1_eyeball.topleft = self.player1.topleft
@@ -266,8 +270,8 @@ class GameLoop:
 
         def _draw_scrolling_text():
             for t in self.player1.st_buffer:
-                self.surface.blit(self.st_font.render("-"+str(int(t[0])), True, RED), \
-                (self.player1.centerx, self.player1.top - (3000 - t[1] + self.game_time.msec)/50))
+                self.surface.blit(self.st_font.render('-' + str(int(t[0])), True, RED),
+                (self.player1.centerx, self.player1.top - (3000 - t[1] + self.game_time.msec) / 50))
                 if t[1] <= self.game_time.msec:
                     self.player1.st_buffer.remove(t)
             # for t in self.player2.st_buffer:
@@ -277,26 +281,35 @@ class GameLoop:
             #        self.player2.st_buffer.remove(t)
             for m in self.active_monsters:
                 for t in m.st_buffer:
-                    self.surface.blit(self.st_font.render("-"+str(int(t[0])), True, RED), \
-                    (m.centerx, m.top - (3000 - t[1] + self.game_time.msec)/50))
+                    self.surface.blit(self.st_font.render('-' + str(int(t[0])), True, RED),
+                    (m.centerx, m.top - (3000 - t[1] + self.game_time.msec) / 50))
                     if t[1] <= self.game_time.msec:
                         m.st_buffer.remove(t)
 
         def _draw_rain():
             if self.make_rain:
-                for i in range(5, self.play_area.width, 10):
-                    raincopy = self.rain.copy()
-                    raincopy.left = i + 65
-                    self.rain_particles.append(raincopy)
+                for i in range(5, self.arena.play_area_rect.width, 10):
+                    rain_copy = self.rain.copy()
+                    rain_copy.left = i + self.arena.play_area_rect.left
+                    self.rain_particles.append(rain_copy)
 
             for r in self.rain_particles:
-                r.move_ip((0,5))
+                r.move_ip((0, 5))
                 pygame.draw.rect(self.surface, BLUE, r)
 
             for r in self.rain_particles[:]:
-                if r.top > 475:
+                if r.top > self.arena.play_area_rect.height:
                     self.rain_particles.remove(r)
             self.make_rain = False
+
+        def _draw_mouse_text():
+            mouse_pos = pygame.mouse.get_pos()
+            play_area_mouse_pos = mouse_pos[0] - self.arena.play_area_rect.left, mouse_pos[1]
+            if 0 <= play_area_mouse_pos[0] <= self.arena.play_area_rect.width and 0 <= play_area_mouse_pos[1] <= self.arena.play_area_rect.height:
+
+                pygame.draw.circle(self.surface, BLACK, mouse_pos, 2, 1)
+                rendered_debug_font = self.debug_font_small.render(str(play_area_mouse_pos), True, BLACK)
+                self.surface.blit(rendered_debug_font, mouse_pos)
 
         _draw_ui()
         _draw_timer()
@@ -307,7 +320,8 @@ class GameLoop:
         _draw_particles()
         _draw_scrolling_text()
         _draw_rain()
-        pygame.display.update()  # necessary to update the display
+        _draw_mouse_text()
+        pygame.display.update()
 
     # -------------------------------------------------------------------------
     def handle_event_queue(self):
@@ -319,7 +333,7 @@ class GameLoop:
                 self.game_time.inc()
 
                 # Player 1 conditions
-                for k,v in self.player1.conditions.items():
+                for k, v in self.player1.conditions.items():
                     for e in v:
                         if e.is_expired(self.game_time.msec):
                             self.player1.conditions[k].remove(e)

@@ -65,8 +65,9 @@ class GameLoop:
             self.energy_font = pygame.font.Font('data/viner-hand-itc.ttf', 55)
             self.energy_font_xy = 80, 535
             self.pause_font = pygame.font.Font('data/viner-hand-itc.ttf', 200)
-            self.pause_font_xy = font_position_center((self.window.w, self.window.h), self.pause_font, '-PAUSE-')
+            self.pause_font_xy = font_position_center(self.window, self.pause_font, '-PAUSE-')
             self.debug_font_small = pygame.font.SysFont('consolas', 10)  # monospace
+            self.debug_font_small_2 = pygame.font.SysFont('lucidasans', 12)  # monospace
             self.debug_font = pygame.font.SysFont('consolas', 20)  # monospace
             self.debug_font_xy1 = 1000, 505
             self.debug_font_xy2 = 1000, 520
@@ -262,12 +263,9 @@ class GameLoop:
 
         def _draw_destructible_terrain_debug_text():
             for rect in self.arena:
-                try:
-                    rect.hits_to_destroy
-                    rendered_debug_font = self.debug_font_small.render(str(rect.hits_to_destroy), True, BLACK)
-                    self.surface.blit(rendered_debug_font, rect.center)
-                except AttributeError:
-                    pass
+                rendered_debug_font = self.debug_font_small_2.render(str(rect.hits_to_destroy), True, BLACK)
+                pos = font_position_center(rect, self.debug_font_small_2, str(rect.hits_to_destroy))
+                self.surface.blit(rendered_debug_font, pos)
 
         def _draw_players():
             pygame.draw.rect(self.surface, LBLUE, self.player1)

@@ -72,10 +72,10 @@ def all_isinstance(items_checking, instance_wanted):
             return False
     return True
 
-def font_position_center(center_within_size, font, text):
-    x = (center_within_size[0] - font.size(text)[0]) // 2
-    y = (center_within_size[1] - font.size(text)[1]) // 2
-    return x, y
+def font_position_center(rect, font, text):
+    x = (rect.width - font.size(text)[0]) // 2
+    y = (rect.height - font.size(text)[1]) // 2
+    return rect.left + x, rect.top + y
 
 def out_of_arena_fix(r):
     """Global to handle players from reaching out of arena."""

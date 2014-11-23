@@ -412,7 +412,6 @@ class Arena:
         for c_rect in [self.play_area_rect] + self.rects:
             yield c_rect
 
-
 arena1 = Arena(
     Rect2(0, 270, 300, 60, color=DKGREEN),
     Rect2(850, 270, 300, 60, color=DKGREEN),

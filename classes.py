@@ -33,11 +33,23 @@ class Rect2(pygame.Rect):
             exec('self.{} = {}'.format(k, repr(v)))
 
     def p_collidelist(self, li):
-        # follows same logic as pygame.collidelist, but customized to look at center coords
+        # follows same logic as pygame.Rect.collidelist, but customized to look at center coords
         for i in range(len(li)):
             if li[i].left < self.centerx < li[i].right and li[i].top < self.centery < li[i].bottom:
                 return i
         return -1
+
+    def p_collidelistall(self, li):
+        # follows same logic as pygame.Rect.collidelistall, but customized to look at center coords
+        hit_indices = []
+        for i, r in enumerate(li):
+            if self.collidepoint(r.center):
+                hit_indices.append(i)
+        return hit_indices
+
+    def __getattr__(self, name):
+        if name == 'hits_to_destroy':
+            return -1
 
 # -------------------------------------------------------------------------
 class Player(Rect2):
@@ -407,6 +419,7 @@ arena1 = Arena(
     Rect2(545, 150, 60, 230, color=DKGREEN),
     Rect2(140, 100, 150, 20, color=DKGREEN),
     Rect2(860, 100, 150, 20, color=DKGREEN),
+    Rect2(30, 240, 40, 20, color=WHITE, hits_to_destroy=5),
 )
 arena2 = Arena(
     Rect2(50, 100, 50, 300, color=DKGREEN),

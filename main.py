@@ -55,6 +55,7 @@ class GameLoop:
             # self.player2_eyeball = Rect2(left=1080, top=150, width=5, height=5)
 
             self.arena = random.choice((arena1, arena2))
+            self.arena = random.choice((arena1,))
 
         def _setup_fonts():
             self.timer_font = pygame.font.Font('data/viner-hand-itc.ttf', 36)
@@ -173,9 +174,13 @@ class GameLoop:
                 # opposite = self.player2 if p.belongs_to == self.player1 else \
                 #           self.player1
                 if isinstance(p, RangeParticle):
-                    if p.p_collidelist(self.arena.rects) != -1:
+                    all_terrain_hit_i = p.p_collidelistall(self.arena.rects)
+                    if all_terrain_hit_i:  # False if empty list
                         self.active_particles.remove(p)
-                    # else: destructible terrain collision here
+                        for i in all_terrain_hit_i:
+                            self.arena.rects[i].hits_to_destroy -= 1
+                            if self.arena.rects[i].hits_to_destroy == 0:
+                                self.arena.rects.pop(i)
                     else:
                         first_hit = p.collidelist(self.active_monsters)
                         if first_hit != -1:
@@ -186,9 +191,15 @@ class GameLoop:
                         #        p.on_hit(opposite, self.game_time.msec)
                         #        self.active_particles.remove(p)
                 else:
-                    allhit = p.collidelistall(self.active_monsters)
-                    for i in allhit:
+                    all_monsters_hit_i = p.collidelistall(self.active_monsters)
+                    for i in all_monsters_hit_i:
                         p.on_hit(self.active_monsters[i], self.game_time.msec)
+
+                    # NOT WORKING PROPERLY YET - Terrain will take multiple hits for a single attack
+                    first_terrain_hit_i = p.collidelist(self.arena.rects)
+                    self.arena.rects[first_terrain_hit_i].hits_to_destroy -= 1
+                    if self.arena.rects[first_terrain_hit_i].hits_to_destroy == 0:
+                        self.arena.rects.pop(first_terrain_hit_i)
                     # if p.colliderect(opposite):
                     #    p.on_hit(opposite, self.game_time.msec)
 
@@ -245,10 +256,18 @@ class GameLoop:
             self.surface.blit(debug_font, self.debug_font_xy4)
 
         def _draw_map():
-            # for rect, rect_color in self.arena:
             for rect in self.arena:
                 if rect.color is not None:
                     pygame.draw.rect(self.surface, rect.color, rect)
+
+        def _draw_destructible_terrain_debug_text():
+            for rect in self.arena:
+                try:
+                    rect.hits_to_destroy
+                    rendered_debug_font = self.debug_font_small.render(str(rect.hits_to_destroy), True, BLACK)
+                    self.surface.blit(rendered_debug_font, rect.center)
+                except AttributeError:
+                    pass
 
         def _draw_players():
             pygame.draw.rect(self.surface, LBLUE, self.player1)
@@ -322,6 +341,7 @@ class GameLoop:
         _draw_timer()
         _draw_debug()
         _draw_map()
+        _draw_destructible_terrain_debug_text()
         _draw_monsters()
         _draw_players()
         _draw_particles()

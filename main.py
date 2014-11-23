@@ -96,7 +96,7 @@ class GameLoop:
             self.rain_particles = []
             self.rain = Rect2(left=0, top=0, width=1, height=3)
             self.make_rain = False
-            pygame.event.post(pygame.event.Event(TIME_FOR_MORE_RAIN_EVENT))
+            pygame.event.post(pygame.event.Event(MORE_RAIN_EVENT))
 
         def _setup_mouse():
             pygame.mouse.set_visible(False)
@@ -399,9 +399,9 @@ class GameLoop:
                     self.player1.energy = 10
                 pygame.time.set_timer(PLAYER1_MEDITATE_EVENT, 0)
 
-            if event.type == TIME_FOR_MORE_RAIN_EVENT:
+            if event.type == MORE_RAIN_EVENT:
                 self.make_rain = True
-                pygame.time.set_timer(TIME_FOR_MORE_RAIN_EVENT, 150)
+                pygame.time.set_timer(MORE_RAIN_EVENT, 150)
 
             # QUIT event occurs when click X on window bar
             if event.type == QUIT:

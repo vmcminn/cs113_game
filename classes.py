@@ -235,9 +235,9 @@ class Player(Rect2):
                     self.energy -= SKILLS_TABLE[i]['energy']
                     self.attack_cooldown_expired = False
                     self.new_particle = SKILLS_TABLE[i]['start'](i, self, input.UP, input.DOWN)
-                    pygame.time.set_timer(USEREVENT + 1 + self.id, SKILLS_TABLE[i]['cooldown'])
+                    pygame.time.set_timer(TIME_TICK_EVENT + self.id, SKILLS_TABLE[i]['cooldown'])
                     if i == -1:
-                        pygame.time.set_timer(USEREVENT + 3 + self.id, SKILLS_TABLE[-1]['cooldown'])
+                        pygame.time.set_timer(PLAYER2_LOCK_EVENT + self.id, SKILLS_TABLE[-1]['cooldown'])
 
     def _priority_inputs(self, input):
         if input.ULT:

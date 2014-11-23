@@ -73,6 +73,7 @@ class GameLoop:
             self.debug_font_xy2 = 1000, 520
             self.debug_font_xy3 = 1000, 540
             self.debug_font_xy4 = 1000, 560
+            self.debug_font_xy5 = 800, 505
             # Scrolling text font
             self.st_font = pygame.font.Font('data/viner-hand-itc.ttf', 30)
 
@@ -234,30 +235,19 @@ class GameLoop:
             self.surface.blit(time_display, self.timer_font_xy)
 
         def _draw_debug():
-            x = '| x:{:>8.2f}|'.format(self.player1.x)
-            y = '| y:{:>8.2f}|'.format(self.player1.y)
-            dx = '|dx:{:>8.2f}|'.format(self.player1.dx)
-            dy = '|dy:{:>8.2f}|'.format(self.player1.dy)
-            debug_font_1 = self.debug_font.render(x, True, GREEN)
-            debug_font_2 = self.debug_font.render(y, True, GREEN)
-            debug_font_3 = self.debug_font.render(dx, True, GREEN)
-            debug_font_4 = self.debug_font.render(dy, True, GREEN)
-            self.surface.blit(debug_font_1, self.debug_font_xy1)
-            self.surface.blit(debug_font_2, self.debug_font_xy2)
-            self.surface.blit(debug_font_3, self.debug_font_xy3)
-            self.surface.blit(debug_font_4, self.debug_font_xy4)
-
-            debug_font = self.debug_font.render(x, True, GREEN)
-            self.surface.blit(debug_font, self.debug_font_xy1)
-
-            debug_font = self.debug_font.render(y, True, GREEN)
-            self.surface.blit(debug_font, self.debug_font_xy2)
-
-            debug_font = self.debug_font.render(dx, True, GREEN)
-            self.surface.blit(debug_font, self.debug_font_xy3)
-
-            debug_font = self.debug_font.render(dy, True, GREEN)
-            self.surface.blit(debug_font, self.debug_font_xy4)
+            if self.input.debug_text_on:
+                x = '| x:{:>8.2f}|'.format(self.player1.x)
+                y = '| y:{:>8.2f}|'.format(self.player1.y)
+                dx = '|dx:{:>8.2f}|'.format(self.player1.dx)
+                dy = '|dy:{:>8.2f}|'.format(self.player1.dy)
+                debug_font_1 = self.debug_font.render(x, True, GREEN)
+                debug_font_2 = self.debug_font.render(y, True, GREEN)
+                debug_font_3 = self.debug_font.render(dx, True, GREEN)
+                debug_font_4 = self.debug_font.render(dy, True, GREEN)
+                self.surface.blit(debug_font_1, self.debug_font_xy1)
+                self.surface.blit(debug_font_2, self.debug_font_xy2)
+                self.surface.blit(debug_font_3, self.debug_font_xy3)
+                self.surface.blit(debug_font_4, self.debug_font_xy4)
 
         def _draw_map():
             for rect in self.arena:

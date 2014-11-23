@@ -351,10 +351,12 @@ class Input:
             self.gamepad_found = True
         except pygame.error:
             self.gamepad_found = False
+        self.debug_text_on = True
 
     def refresh(self):
         self._get_gamepad_input()
-        self._get_keyboard_input()
+        self._get_keyboard_keys_pressed()
+        self._handle_keyboard_updown_events()
         self._update_attributes()
 
     def _get_gamepad_input(self):
@@ -371,8 +373,13 @@ class Input:
             self.start_button = self.gamepad.get_button(9)
             self.back_button = self.gamepad.get_button(8)
 
-    def _get_keyboard_input(self):
+    def _get_keyboard_keys_pressed(self):
         self.kb_input = pygame.key.get_pressed()
+
+    def _handle_keyboard_updown_events(self):
+        for event in pygame.event.get(KEYUP):
+            if event.key == K_BACKQUOTE:
+                self.debug_text_on = not self.debug_text_on
 
     def _update_attributes(self):
         self.LEFT = self.kb_input[K_LEFT] or self.left_right_axis == -1

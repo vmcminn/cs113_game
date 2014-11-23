@@ -196,11 +196,11 @@ class GameLoop:
                     for i in all_monsters_hit_i:
                         p.on_hit(self.active_monsters[i], self.game_time.msec)
 
-                    # NOT WORKING PROPERLY YET - Terrain will take multiple hits for a single attack
                     first_terrain_hit_i = p.collidelist(self.arena.rects)
-                    self.arena.rects[first_terrain_hit_i].hits_to_destroy -= 1
-                    if self.arena.rects[first_terrain_hit_i].hits_to_destroy == 0:
-                        self.arena.rects.pop(first_terrain_hit_i)
+                    if first_terrain_hit_i != -1:
+                        self.arena.rects[first_terrain_hit_i].hits_to_destroy -= 1
+                        if self.arena.rects[first_terrain_hit_i].hits_to_destroy == 0:
+                            self.arena.rects.pop(first_terrain_hit_i)
                     # if p.colliderect(opposite):
                     #    p.on_hit(opposite, self.game_time.msec)
 

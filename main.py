@@ -219,14 +219,9 @@ class GameLoop:
     # -------------------------------------------------------------------------
     def draw_screen(self):
         def _draw_ui():
-            # fill background dark grey
-            self.surface.fill(DGREY)
-
-            # thin green border of surface
-            pygame.draw.rect(self.surface, GREEN, self.window_border, 1)
-
-            # red border of playable movement space
-            pygame.draw.rect(self.surface, DKRED, self.play_area_border)
+            self.surface.fill(DGREY)  # dark grey background
+            pygame.draw.rect(self.surface, GREEN, self.window_border, 1)  # thin green border
+            pygame.draw.rect(self.surface, DKRED, self.play_area_border)  # thick red border
 
             # font for player's health and energy
             health_display = self.health_font.render(str(self.player1.hit_points), True, RED)
@@ -243,6 +238,14 @@ class GameLoop:
             y = '| y:{:>8.2f}|'.format(self.player1.y)
             dx = '|dx:{:>8.2f}|'.format(self.player1.dx)
             dy = '|dy:{:>8.2f}|'.format(self.player1.dy)
+            debug_font_1 = self.debug_font.render(x, True, GREEN)
+            debug_font_2 = self.debug_font.render(y, True, GREEN)
+            debug_font_3 = self.debug_font.render(dx, True, GREEN)
+            debug_font_4 = self.debug_font.render(dy, True, GREEN)
+            self.surface.blit(debug_font_1, self.debug_font_xy1)
+            self.surface.blit(debug_font_2, self.debug_font_xy2)
+            self.surface.blit(debug_font_3, self.debug_font_xy3)
+            self.surface.blit(debug_font_4, self.debug_font_xy4)
 
             debug_font = self.debug_font.render(x, True, GREEN)
             self.surface.blit(debug_font, self.debug_font_xy1)
@@ -262,7 +265,7 @@ class GameLoop:
                     pygame.draw.rect(self.surface, rect.color, rect)
 
         def _draw_destructible_terrain_debug_text():
-            for rect in self.arena:
+            for rect in filter(lambda x: x.hits_to_destroy > 0, self.arena):
                 rendered_debug_font = self.debug_font_small_2.render(str(rect.hits_to_destroy), True, BLACK)
                 pos = font_position_center(rect, self.debug_font_small_2, str(rect.hits_to_destroy))
                 self.surface.blit(rendered_debug_font, pos)
@@ -329,8 +332,8 @@ class GameLoop:
         def _draw_mouse_text():
             mouse_pos = pygame.mouse.get_pos()
             play_area_mouse_pos = mouse_pos[0] - self.arena.play_area_rect.left, mouse_pos[1]
-            if 0 <= play_area_mouse_pos[0] <= self.arena.play_area_rect.width and 0 <= play_area_mouse_pos[1] <= self.arena.play_area_rect.height:
-
+            if 0 <= play_area_mouse_pos[0] <= self.arena.play_area_rect.width and \
+                    0 <= play_area_mouse_pos[1] <= self.arena.play_area_rect.height:
                 pygame.draw.circle(self.surface, BLACK, mouse_pos, 2, 1)
                 rendered_debug_font = self.debug_font_small.render(str(play_area_mouse_pos), True, BLACK)
                 self.surface.blit(rendered_debug_font, mouse_pos)

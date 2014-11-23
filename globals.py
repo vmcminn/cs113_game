@@ -18,6 +18,7 @@ PURPLE = Color(255, 0, 255)
 ORANGE = Color(255, 153, 0)
 
 # Monster Types and Globals
+ALL = 'ALL'
 WEAK = 'WEAK'
 MEDIUM = 'MEDIUM'
 ULTIMATE = 'ULTIMATE'

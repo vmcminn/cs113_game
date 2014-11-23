@@ -408,8 +408,11 @@ class Input:
 
 # -------------------------------------------------------------------------
 class Arena:
-    def __init__(self, *color_rects, max_monsters=5):
+    def __init__(self, *color_rects, max_monsters=5, possible_monsters=ALL):
         self.max_monsters = max_monsters
+        self.possible_monsters = tuple(MONSTER_TABLE.keys()) if possible_monsters == ALL \
+            else possible_monsters
+
         required = (Rect2(65, 0, 1150, 475, color=SKYBLUE),  # play_area
                     Rect2(0, 475, 1280, 50, color=None),  # floor
                     Rect2(15, 0, 50, 600, color=None),  # left wall
@@ -432,7 +435,9 @@ arena1 = Arena(
     Rect2(140, 100, 150, 20, color=DKGREEN),
     Rect2(860, 100, 150, 20, color=DKGREEN),
     Rect2(30, 240, 40, 20, color=WHITE, hits_to_destroy=5),
-    Rect2(1145, 465, -10, 5, color=RED, spawn_point=True),  # neg width/height is trick to create rect that won't work for collisions
+    Rect2(1145, 465, -5, 5, color=RED, spawn_point=True),  # neg width/height is trick to create rect that won't work for collisions
+    Rect2(15, 465, -5, 5, color=RED, spawn_point=True),
+    max_monsters=7, possible_monsters=(WEAK, MEDIUM)  # keyword args must be after all the Rect2s
 )
 arena2 = Arena(
     Rect2(50, 100, 50, 300, color=DKGREEN),
@@ -443,6 +448,9 @@ arena2 = Arena(
     Rect2(400, 434, 300, 41, color=DKGREEN),
     Rect2(485, 394, 300, 41, color=DKGREEN),
     Rect2(970, 65, 80, 10, color=DKGREEN),
+    Rect2(150, 465, -5, 5, color=RED, spawn_point=True),
+    Rect2(930, 465, -5, 5, color=RED, spawn_point=True),
+    max_monsters=7, possible_monsters=ALL  # keyword args must be after all the Rect2s
 )
 
 # -------------------------------------------------------------------------

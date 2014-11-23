@@ -55,7 +55,6 @@ class GameLoop:
             # self.player2_eyeball = Rect2(left=1080, top=150, width=5, height=5)
 
             self.arena = random.choice((arena1, arena2))
-            self.arena = random.choice((arena1,))
 
         def _setup_fonts():
             self.timer_font = pygame.font.Font('data/viner-hand-itc.ttf', 36)
@@ -73,7 +72,8 @@ class GameLoop:
             self.debug_font_xy2 = 1000, 520
             self.debug_font_xy3 = 1000, 540
             self.debug_font_xy4 = 1000, 560
-            self.debug_font_xy5 = 800, 505
+            self.debug_font_xy5 = 725, 505
+            self.debug_font_xy6 = 725, 520
             # Scrolling text font
             self.st_font = pygame.font.Font('data/viner-hand-itc.ttf', 30)
 
@@ -82,9 +82,6 @@ class GameLoop:
 
         def _setup_monsters():
             self.active_monsters = []
-            self.active_monsters.append(Monster(MONSTER_TABLE[WEAK], 400, 150, self.player1, self.player1))
-            self.active_monsters.append(Monster(MONSTER_TABLE[MEDIUM], 400, 150, self.player1, self.player1))
-            self.active_monsters.append(Monster(MONSTER_TABLE[ULTIMATE], 400, 150, self.player1, self.player1))
             self.spawn_monsters = False
             pygame.event.post(pygame.event.Event(MONSTER_SPAWN_EVENT))
 
@@ -224,7 +221,8 @@ class GameLoop:
     def handle_monsters(self):
         if self.spawn_monsters and len(self.active_monsters) < self.arena.max_monsters:
             spawn_point = random.choice(list(filter(lambda x: x.spawn_point, self.arena)))  # pick a random spawn point
-            self.active_monsters.append(Monster(MONSTER_TABLE[WEAK], spawn_point.left, spawn_point.top, self.player1, self.player1))
+            monster_info = MONSTER_TABLE[random.choice(self.arena.possible_monsters)]
+            self.active_monsters.append(Monster(monster_info, spawn_point.left, spawn_point.top, self.player1, self.player1))
 
         for m in self.active_monsters:
             if m.is_dead():
@@ -266,9 +264,12 @@ class GameLoop:
                 self.surface.blit(debug_font_3, self.debug_font_xy3)
                 self.surface.blit(debug_font_4, self.debug_font_xy4)
 
-                num_monsters = '|monsters:{:>2}|'.format(len(self.active_monsters))
-                debug_font_m = self.debug_font.render(num_monsters, True, GREEN)
-                self.surface.blit(debug_font_m, self.debug_font_xy5)
+                num_monsters = '|curr num monsters:{:>2}|'.format(len(self.active_monsters))
+                max_monsters = '| max num monsters:{:>2}|'.format(self.arena.max_monsters)
+                debug_font_m1 = self.debug_font.render(num_monsters, True, GREEN)
+                debug_font_m2 = self.debug_font.render(max_monsters, True, GREEN)
+                self.surface.blit(debug_font_m1, self.debug_font_xy5)
+                self.surface.blit(debug_font_m2, self.debug_font_xy6)
 
         def _draw_map():
             for rect in self.arena:

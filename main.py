@@ -82,7 +82,6 @@ class GameLoop:
 
         def _setup_monsters():
             self.active_monsters = []
-            # TEST - Monster
             self.active_monsters.append(Monster(MONSTER_TABLE[WEAK], 400, 150, self.player1, self.player1))
             self.active_monsters.append(Monster(MONSTER_TABLE[MEDIUM], 400, 150, self.player1, self.player1))
             self.active_monsters.append(Monster(MONSTER_TABLE[ULTIMATE], 400, 150, self.player1, self.player1))
@@ -119,28 +118,34 @@ class GameLoop:
     # ------------------------------------------------------------------------
     def __call__(self):
         while True:
-            self.handle_player_input()
-            self.handle_monsters()
-            self.handle_particles()
-            self.draw_screen()
-            self.handle_event_queue()
-            self.clock.tick(self.fps)
+            if not self.input.PAUSED:
+                self.handle_input()
+                self.handle_monsters()
+                self.handle_particles()
+                self.draw_screen()
+                self.handle_event_queue()
+                self.clock.tick(self.fps)
+            else:
+                self.handle_input()
+                self.handle_event_queue()
 
     # -------------------------------------------------------------------------
-    def handle_player_input(self):
+    def handle_input(self):
 
-        def _special_input():
-            if self.input.RESET:
-                self.player1.topleft = self.player1.topleft_initial
-
-            if self.input.DEBUG:
+        def _handle_special_input():
+            if self.input.PAUSED:
                 rendered_font = self.pause_font.render('-PAUSE-', True, RED)
                 self.surface.blit(rendered_font, self.pause_font_xy)
                 pygame.display.update()
-                try:
-                    exec(input('\nEnter something to exec: '))
-                except Exception as err:
-                    print('>> {}: {} <<'.format(type(err).__name__, err))
+
+            # if self.input.DEBUG:
+            #     try:
+            #         exec(input('\nEnter something to exec: '))
+            #     except Exception as err:
+            #         print('>> {}: {} <<'.format(type(err).__name__, err))
+
+            if self.input.RESET and not self.input.PAUSED:
+                self.player1.topleft = self.player1.topleft_initial
 
             if self.input.EXIT:
                 # Add the QUIT event to the pygame event queue to be handled
@@ -148,9 +153,13 @@ class GameLoop:
                 # window X is handled
                 pygame.event.post(pygame.event.Event(QUIT))
 
+        def _handle_player_input():
+            if not self.input.PAUSED:
+                self.player1(self.input, self.arena)
+
         self.input.refresh()
-        self.player1(self.input, self.arena)
-        _special_input()
+        _handle_player_input()
+        _handle_special_input()
 
     # -------------------------------------------------------------------------
     def handle_particles(self):
@@ -355,74 +364,99 @@ class GameLoop:
 
     # -------------------------------------------------------------------------
     def handle_event_queue(self):
-        # loop through all pygame events
-        for event in pygame.event.get():
-            # update game timer
-            # handle conditions
-            if event.type == TIME_TICK_EVENT:
-                self.game_time.inc()
 
-                # Player 1 conditions
-                for k, v in self.player1.conditions.items():
-                    for e in v:
-                        if e.is_expired(self.game_time.msec):
-                            self.player1.conditions[k].remove(e)
+        def _handle_time_tick_event():
+            for event in pygame.event.get(TIME_TICK_EVENT):
+                if event.type == TIME_TICK_EVENT:
+                    self.game_time.inc()
 
-                # Player 2 conditions
-                # for k,v in self.player2.conditions.items():
-                #    for e in v:
-                #        if e.is_expired(self.game_time.msec):
-                #            self.player2.conditions[k].remove(e)
-
-                # Monster conditions
-                for m in self.active_monsters:
-                    for k,v in m.conditions.items():
+                    # Player 1 conditions
+                    for k, v in self.player1.conditions.items():
                         for e in v:
                             if e.is_expired(self.game_time.msec):
-                                m.conditions[k].remove(e)
+                                self.player1.conditions[k].remove(e)
 
-            if event.type == REGENERATION_EVENT:
-                if self.player1.conditions[WOUNDED] and not self.player1.conditions[INVIGORATED]:
-                    self.player1.hit_points += self.player1.level / 20
-                elif not self.player1.conditions[WOUNDED] and self.player1.conditions[INVIGORATED]:
-                    self.player1.hit_points += self.player1.level / 5
-                else:
-                    self.player1.hit_points += self.player1.level / 10
-                if self.player1.hit_points > 100:
-                    self.player1.hit_points = 100
+                    # Player 2 conditions
+                    # for k,v in self.player2.conditions.items():
+                    #    for e in v:
+                    #        if e.is_expired(self.game_time.msec):
+                    #            self.player2.conditions[k].remove(e)
 
-                if self.player1.conditions[WEAKENED] and not self.player1.conditions[EMPOWERED]:
-                    self.player1.energy += self.player1.level / 10
-                elif not self.player1.conditions[WEAKENED] and self.player1.conditions[EMPOWERED]:
-                    self.player1.energy += self.player1.level / 2.5
-                else:
-                    self.player1.energy += self.player1.level / 5
-                if self.player1.energy > 10:
-                    self.player1.energy = 10
+                    # Monster conditions
+                    for m in self.active_monsters:
+                        for k,v in m.conditions.items():
+                            for e in v:
+                                if e.is_expired(self.game_time.msec):
+                                    m.conditions[k].remove(e)
 
-            # player 1 skill lock timer
-            if event.type == PLAYER1_LOCK_EVENT:
-                self.player1.attack_cooldown_expired = True
-                pygame.time.set_timer(PLAYER1_LOCK_EVENT, 0)
+        def _handle_regeneration_event():
+            for event in pygame.event.get(REGENERATION_EVENT):
+                if event.type == REGENERATION_EVENT:
+                    if self.player1.conditions[WOUNDED] and not self.player1.conditions[INVIGORATED]:
+                        self.player1.hit_points += self.player1.level / 20
+                    elif not self.player1.conditions[WOUNDED] and self.player1.conditions[INVIGORATED]:
+                        self.player1.hit_points += self.player1.level / 5
+                    else:
+                        self.player1.hit_points += self.player1.level / 10
+                    if self.player1.hit_points > 100:
+                        self.player1.hit_points = 100
 
-            if event.type == PLAYER1_MEDITATE_EVENT:
-                self.player1.energy += 5
-                if self.player1.energy > 10:
-                    self.player1.energy = 10
-                pygame.time.set_timer(PLAYER1_MEDITATE_EVENT, 0)
+                    if self.player1.conditions[WEAKENED] and not self.player1.conditions[EMPOWERED]:
+                        self.player1.energy += self.player1.level / 10
+                    elif not self.player1.conditions[WEAKENED] and self.player1.conditions[EMPOWERED]:
+                        self.player1.energy += self.player1.level / 2.5
+                    else:
+                        self.player1.energy += self.player1.level / 5
+                    if self.player1.energy > 10:
+                        self.player1.energy = 10
 
-            if event.type == MORE_RAIN_EVENT:
-                self.make_rain = True
-                pygame.time.set_timer(MORE_RAIN_EVENT, 150)
+        def _handle_player_lock_events():
+            for event in pygame.event.get(PLAYER1_LOCK_EVENT):
+                # player 1 skill lock timer
+                if event.type == PLAYER1_LOCK_EVENT:
+                    self.player1.attack_cooldown_expired = True
+                    pygame.time.set_timer(PLAYER1_LOCK_EVENT, 0)
 
-            if event.type == MONSTER_SPAWN_EVENT:
-                self.spawn_monsters = True
-                pygame.time.set_timer(MONSTER_SPAWN_EVENT, 10000)
+        def _handle_player_meditate_events():
+            for event in pygame.event.get(PLAYER1_MEDITATE_EVENT):
+                if event.type == PLAYER1_MEDITATE_EVENT:
+                    self.player1.energy += 5
+                    if self.player1.energy > 10:
+                        self.player1.energy = 10
+                    pygame.time.set_timer(PLAYER1_MEDITATE_EVENT, 0)
 
-            # QUIT event occurs when click X on window bar
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
+        def _handle_rain_event():
+            for event in pygame.event.get(MORE_RAIN_EVENT):
+                if event.type == MORE_RAIN_EVENT:
+                    self.make_rain = True
+                    pygame.time.set_timer(MORE_RAIN_EVENT, 150)
+
+        def _handle_monster_spawn_event():
+            for event in pygame.event.get(MONSTER_SPAWN_EVENT):
+                if event.type == MONSTER_SPAWN_EVENT:
+                    self.spawn_monsters = True
+                    pygame.time.set_timer(MONSTER_SPAWN_EVENT, 10000)
+
+        def _handle_quit_event():
+            for event in pygame.event.get(QUIT):
+                # QUIT event occurs when click X on window bar
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+        if not self.input.PAUSED:
+            _handle_time_tick_event()
+            _handle_regeneration_event()
+            _handle_player_lock_events()
+            _handle_player_meditate_events()
+            _handle_rain_event()
+            _handle_monster_spawn_event()
+            _handle_quit_event()
+            pygame.event.clear()
+        else:
+            _handle_quit_event()
+            self.input._handle_keyboard_updown_events()
+            pygame.event.clear()
 
 # -------------------------------------------------------------------------
 if __name__ == '__main__':

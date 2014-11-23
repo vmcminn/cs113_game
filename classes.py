@@ -354,6 +354,7 @@ class Input:
         except pygame.error:
             self.gamepad_found = False
         self.debug_text_on = True
+        self.PAUSED = False
 
     def refresh(self):
         self._get_gamepad_input()
@@ -382,6 +383,8 @@ class Input:
         for event in pygame.event.get(KEYUP):
             if event.key == K_BACKQUOTE:
                 self.debug_text_on = not self.debug_text_on
+            if event.key == K_PAUSE:
+                self.PAUSED = not self.PAUSED
 
     def _update_attributes(self):
         self.LEFT = self.kb_input[K_LEFT] or self.left_right_axis == -1

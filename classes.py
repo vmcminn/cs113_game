@@ -50,6 +50,8 @@ class Rect2(pygame.Rect):
     def __getattr__(self, name):
         if name == 'hits_to_destroy':
             return -1
+        elif name == 'spawn_point':
+            return None
 
 # -------------------------------------------------------------------------
 class Player(Rect2):
@@ -403,7 +405,8 @@ class Input:
 
 # -------------------------------------------------------------------------
 class Arena:
-    def __init__(self, *color_rects):
+    def __init__(self, *color_rects, max_monsters=5):
+        self.max_monsters = max_monsters
         required = (Rect2(65, 0, 1150, 475, color=SKYBLUE),  # play_area
                     Rect2(0, 475, 1280, 50, color=None),  # floor
                     Rect2(15, 0, 50, 600, color=None),  # left wall
@@ -426,6 +429,7 @@ arena1 = Arena(
     Rect2(140, 100, 150, 20, color=DKGREEN),
     Rect2(860, 100, 150, 20, color=DKGREEN),
     Rect2(30, 240, 40, 20, color=WHITE, hits_to_destroy=5),
+    Rect2(1145, 465, -10, 5, color=RED, spawn_point=True),  # neg width/height is trick to create rect that won't work for collisions
 )
 arena2 = Arena(
     Rect2(50, 100, 50, 300, color=DKGREEN),

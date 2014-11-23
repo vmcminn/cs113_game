@@ -86,6 +86,8 @@ class GameLoop:
             self.active_monsters.append(Monster(MONSTER_TABLE[WEAK], 400, 150, self.player1, self.player1))
             self.active_monsters.append(Monster(MONSTER_TABLE[MEDIUM], 400, 150, self.player1, self.player1))
             self.active_monsters.append(Monster(MONSTER_TABLE[ULTIMATE], 400, 150, self.player1, self.player1))
+            self.spawn_monsters = False
+            pygame.event.post(pygame.event.Event(MONSTER_SPAWN_EVENT))
 
         def _setup_music():
             pygame.mixer.init()
@@ -211,11 +213,17 @@ class GameLoop:
 
     # -------------------------------------------------------------------------
     def handle_monsters(self):
+        if self.spawn_monsters and len(self.active_monsters) < self.arena.max_monsters:
+            spawn_point = random.choice(list(filter(lambda x: x.spawn_point, self.arena)))  # pick a random spawn point
+            self.active_monsters.append(Monster(MONSTER_TABLE[WEAK], spawn_point.left, spawn_point.top, self.player1, self.player1))
+
         for m in self.active_monsters:
             if m.is_dead():
                 self.active_monsters.remove(m)
             else:
                 m(self.game_time.msec, self.arena)
+
+        self.spawn_monsters = False
 
     # -------------------------------------------------------------------------
     def draw_screen(self):
@@ -248,6 +256,10 @@ class GameLoop:
                 self.surface.blit(debug_font_2, self.debug_font_xy2)
                 self.surface.blit(debug_font_3, self.debug_font_xy3)
                 self.surface.blit(debug_font_4, self.debug_font_xy4)
+
+                num_monsters = '|monsters:{:>2}|'.format(len(self.active_monsters))
+                debug_font_m = self.debug_font.render(num_monsters, True, GREEN)
+                self.surface.blit(debug_font_m, self.debug_font_xy5)
 
         def _draw_map():
             for rect in self.arena:
@@ -402,6 +414,10 @@ class GameLoop:
             if event.type == MORE_RAIN_EVENT:
                 self.make_rain = True
                 pygame.time.set_timer(MORE_RAIN_EVENT, 150)
+
+            if event.type == MONSTER_SPAWN_EVENT:
+                self.spawn_monsters = True
+                pygame.time.set_timer(MONSTER_SPAWN_EVENT, 10000)
 
             # QUIT event occurs when click X on window bar
             if event.type == QUIT:

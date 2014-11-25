@@ -10,7 +10,9 @@ from pygame.locals import *
 # our modules
 from classes import *
 from globals import *
+from pages import *
 from skills import *
+from pygbutton import PygButton
 
 # set window starting position for my desktop which has multiple monitors, this
 # is a convenience thing for me.  You guys can add your own setting here if
@@ -23,9 +25,82 @@ if os.environ['COMPUTERNAME'] == 'MAX-LT':
 # @PYGAMERUNSPECIAL  setting for my IDE
 # -------------------------------------------------------------------------
 
+class StartMenu:
+
+    def __init__(self):
+        def _setup_display():
+            pygame.display.set_mode((1280, 600))
+            pygame.display.set_caption('Famished Tournament')
+            self.screen = pygame.display.get_surface()
+            self.done = False
+
+            self.start_button = PygButton((325,395,140,40),'Start')
+            self.help_button = PygButton((485,395,110,40), 'Help')
+            self.options_button = PygButton((615,395,175,40), 'Options')
+            self.exit_button = PygButton((810,395,105,40), 'Exit')
+
+        def _setup_music():
+            turn_on_music()
+
+        pygame.init()
+        _setup_display()
+        _setup_music()
+
+    def __call__(self):
+        while not self.done:
+            self.draw_UI()
+            self.handle_events()
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if 'click' in self.start_button.handleEvent(event):
+                GameLoop(self)()
+            if 'click' in self.exit_button.handleEvent(event):
+                pygame.quit()
+                sys.exit()
+            if 'click' in self.help_button.handleEvent(event):
+                HelpPage(self)()
+            if 'click' in self.options_button.handleEvent(event):
+                OptionsPage(self)()
+
+    def draw_UI(self):
+
+        self.image = pygame.image.load('data/temp_start_bkg.png')
+        self.screen.blit(self.image, (0,0))
+
+        self.start_button.draw(self.screen)
+        self.help_button.draw(self.screen)
+        self.options_button.draw(self.screen)
+        self.exit_button.draw(self.screen)
+
+        self.title_font = pygame.font.Font('data/Kremlin.ttf', 50)
+        self.title1 = self.title_font.render('Famished', True, DKRED)
+        self.title2 = self.title_font.render('Tournament', True, DKRED)
+        self.screen.blit(self.title1, (495,120))
+        self.screen.blit(self.title2, (450, 175))
+
+
+        #text for transparent buttons
+        #self.button_font = pygame.font.Font('data/Kremlin.ttf', 30)
+        #self.b_start = self.button_font.render('Start', True, DKRED)
+        #self.b_help = self.button_font.render('Help', True, DKRED)
+        #self.b_options = self.button_font.render('Options', True, DKRED)
+        #self.b_exit = self. button_font.render('Exit', True, DKRED)
+        #self.screen.blit(self.b_start, (340, 400))
+        #self.screen.blit(self.b_help, (500, 400))
+        #self.screen.blit(self.b_options, (630, 400))
+        #self.screen.blit(self.b_exit, (845, 400))
+
+        pygame.display.flip()
+
+
 
 class GameLoop:
-    def __init__(self):
+    def __init__(self, StartMenu=None):
         def _setup_display():
             # set the window size - can add the NOFRAME arg if we don't want a
             # window frame but then we have to figure out how to move the
@@ -42,13 +117,14 @@ class GameLoop:
             self.game_time = GameTime()
 
         def _setup_input():
+            self.start_menu=StartMenu
             pygame.key.set_repeat(100, 10)  # allow multiple KEYDOWN events
             self.input = Input()
 
         def _setup_Rects():
             self.window = self.surface.get_rect()
-            self.window_border = Rect2(left=0, top=0, width=1278, height=600)
-            self.play_area_border = Rect2(left=40, top=0, width=1200, height=500)
+            self.window_border = Rect2(left=0, top=0, width=1280, height=600)
+            self.play_area_border = Rect2(left=60, top=0, width=1160, height=485)
             self.player1 = Player(id=1, left=200, top=150, width=30, height=40)
             self.player1_eyeball = Rect2(left=200, top=150, width=5, height=5)
             # self.player2 = Player(id=2, left=1080, top=150, width=30, height=40)
@@ -57,13 +133,16 @@ class GameLoop:
             self.arena = random.choice((arena1, arena2))
 
         def _setup_fonts():
-            self.timer_font = pygame.font.Font('data/viner-hand-itc.ttf', 36)
+            # main_font = 'data/viner-hand-itc.ttf'
+            main_font = 'data/Kremlin.ttf'
+
+            self.timer_font = pygame.font.Font(main_font, 36)
             self.timer_font_xy = 605, 500
-            self.health_font = pygame.font.Font('data/viner-hand-itc.ttf', 55)
+            self.health_font = pygame.font.Font(main_font, 55)
             self.health_font_xy = 60, 490
-            self.energy_font = pygame.font.Font('data/viner-hand-itc.ttf', 55)
+            self.energy_font = pygame.font.Font(main_font, 55)
             self.energy_font_xy = 80, 535
-            self.pause_font = pygame.font.Font('data/viner-hand-itc.ttf', 200)
+            self.pause_font = pygame.font.Font(main_font, 200)
             self.pause_font_xy = font_position_center(self.window, self.pause_font, '-PAUSE-')
             self.debug_font_small = pygame.font.SysFont('consolas', 10)  # monospace
             self.debug_font_small_2 = pygame.font.SysFont('lucidasans', 12)  # monospace
@@ -75,7 +154,7 @@ class GameLoop:
             self.debug_font_xy5 = 725, 505
             self.debug_font_xy6 = 725, 520
             # Scrolling text font
-            self.st_font = pygame.font.Font('data/viner-hand-itc.ttf', 30)
+            self.st_font = pygame.font.Font(main_font, 30)
 
         def _setup_particles():
             self.active_particles = []
@@ -86,9 +165,15 @@ class GameLoop:
             pygame.event.post(pygame.event.Event(MONSTER_SPAWN_EVENT))
 
         def _setup_music():
-            pygame.mixer.init()
-            pygame.mixer.music.load('data/404error.mp3')
-            pygame.mixer.music.play(loops=-1)
+            self.music_flag = get_music_on()
+            if self.music_flag == True:
+                self._songs = ['data/pneumatic_driller.mp3', 'data/euglena_zielona.mp3', 'data/drilldance.mp3',
+                         'data/running_emu.mp3', 'data/wooboodoo.mp3', 'data/accident.mp3']
+                self._currently_playing_song = None
+                self.play_next_random_song()
+            else:
+                pass
+                #do not start playing music
 
         def _setup_rain():
             self.rain_particles = []
@@ -235,15 +320,85 @@ class GameLoop:
     # -------------------------------------------------------------------------
     def draw_screen(self):
         def _draw_ui():
-            self.surface.fill(DGREY)  # dark grey background
-            pygame.draw.rect(self.surface, GREEN, self.window_border, 1)  # thin green border
-            pygame.draw.rect(self.surface, DKRED, self.play_area_border)  # thick red border
+            self.surface.fill(DGREY)  # fill background dark grey
 
             # font for player's health and energy
-            health_display = self.health_font.render(str(self.player1.hit_points), True, RED)
-            energy_display = self.energy_font.render(str(int(self.player1.energy)), True, YELLOW)
-            self.surface.blit(health_display, self.health_font_xy)
-            self.surface.blit(energy_display, self.energy_font_xy)
+            #health_display = self.health_font.render(str(self.player1.hit_points), True, RED)
+            #energy_display = self.energy_font.render(str(int(self.player1.energy)), True, YELLOW)
+            #self.surface.blit(health_display, self.health_font_xy)
+            #self.surface.blit(energy_display, self.energy_font_xy)
+
+            #health bars
+            #currently only goes off of one player's health
+            #left health bar outline image
+            self.health_bar_outline = pygame.image.load('data/health_bar_outline.png')
+            self.surface.blit(self.health_bar_outline, (5,20))
+            self.health_bar_outline2 = pygame.image.load('data/health_bar_outline2.png')
+            self.surface.blit(self.health_bar_outline2, (1239,20))
+            #right health bar outline image
+            #dynamic health bars
+            self.damage_taken1 = 100 - self.player1.hit_points
+            self.health_bar1 = Rect((20, (21+(2*self.damage_taken1))), (20,(200-(2*self.damage_taken1))))
+            self.health_bar2 = Rect((1241, (21+(2*self.damage_taken1))), (20, (200-(2*self.damage_taken1))))
+            pygame.draw.rect(self.surface, YELLOW, self.health_bar1)
+            pygame.draw.rect(self.surface, YELLOW, self.health_bar2)
+
+            #need to add dynamic aspect of energy bars
+            #left energy bar outline image
+            self.energy_bar_outline = pygame.image.load('data/energy_bar_outline.png')
+            self.surface.blit(self.energy_bar_outline, (5,280))
+            #right energy bar outline image
+            self.energy_bar_outline2 = pygame.image.load('data/energy_bar_outline2.png')
+            self.surface.blit(self.energy_bar_outline2, (1239,280))
+            #dynamic energy bars
+            self.energy_used1 = 10 - self.player1.energy
+            self.energy_bar1 = Rect((20, 281+(20*self.energy_used1)), (20, 200-(20*self.energy_used1)))
+            self.energy_bar2 = Rect((1241, 281+(20*self.energy_used1)), (20, 200-(20*self.energy_used1)))
+            pygame.draw.rect(self.surface, GREEN, self.energy_bar1)
+            pygame.draw.rect(self.surface, GREEN, self.energy_bar2)
+
+            #player 1 skill boxes
+            #each skill will have an image associated with it - stored in skill table?
+            self.skill_box1 = Rect((90, 500), (40, 40))
+            pygame.draw.rect(self.surface, BLACK, self.skill_box1)
+
+            self.skill_box2 = Rect((140, 500), (40, 40))
+            pygame.draw.rect(self.surface, BLACK, self.skill_box2)
+            #self.image_box2 = pygame.image.load('assets/temp_skill.PNG')
+            #self.surface.blit(self.image_box2, (150,510))
+
+            self.skill_box3 = Rect((190, 500), (40, 40))
+            pygame.draw.rect(self.surface, BLACK, self.skill_box3)
+
+            self.skill_box4 = Rect((240, 500), (40, 40))
+            pygame.draw.rect(self.surface, BLACK, self.skill_box4)
+
+            self.skill_box5 = Rect((290, 500), (40, 40))
+            pygame.draw.rect(self.surface, BLACK, self.skill_box5)
+
+
+            #player 2 skill boxes
+            self.skill_box6 = Rect((950, 500), (40, 40))
+            pygame.draw.rect(self.surface, DKRED, self.skill_box6)
+
+            self.skill_box7 = Rect((1000, 500), (40, 40))
+            pygame.draw.rect(self.surface, DKRED, self.skill_box7)
+            #self.image_box2 = pygame.image.load('assets/temp_skill.PNG')
+            #self.surface.blit(self.image_box2, (150,510))
+
+            self.skill_box8 = Rect((1050, 500), (40, 40))
+            pygame.draw.rect(self.surface, DKRED, self.skill_box8)
+
+            self.skill_box9 = Rect((1100, 500), (40, 40))
+            pygame.draw.rect(self.surface, DKRED, self.skill_box9)
+
+            self.skill_box10 = Rect((1150, 500), (40, 40))
+            pygame.draw.rect(self.surface, DKRED, self.skill_box10)
+
+            #main menu button at bottom middle of screen
+            self.return_button = pygbutton.PygButton((490, 550, 300, 50), 'Main Menu')
+            self.return_button.draw(self.surface)
+
 
         def _draw_timer():
             time_display = self.timer_font.render(str(self.game_time), True, BLUE)
@@ -366,6 +521,17 @@ class GameLoop:
     # -------------------------------------------------------------------------
     def handle_event_queue(self):
 
+        def _handle_song_end_event():
+            for event in pygame.event.get(SONG_END_EVENT):
+                if event.type == SONG_END_EVENT:
+                    print("the song ended!")
+                    self.play_next_random_song()
+
+        def _handle_return_to_main_menu_click():
+            for event in pygame.event.get():
+                if 'click' in self.return_button.handleEvent(event):
+                    start_menu()
+
         def _handle_time_tick_event():
             for event in pygame.event.get(TIME_TICK_EVENT):
                 if event.type == TIME_TICK_EVENT:
@@ -446,6 +612,7 @@ class GameLoop:
                     sys.exit()
 
         if not self.input.PAUSED:
+            _handle_song_end_event()
             _handle_time_tick_event()
             _handle_regeneration_event()
             _handle_player_lock_events()
@@ -453,6 +620,7 @@ class GameLoop:
             _handle_rain_event()
             _handle_monster_spawn_event()
             _handle_quit_event()
+            _handle_return_to_main_menu_click()
             pygame.event.clear()
         else:
             _handle_quit_event()
@@ -460,5 +628,13 @@ class GameLoop:
             pygame.event.clear()
 
 # -------------------------------------------------------------------------
+    def play_next_random_song(self):
+        self.next_song = random.choice(self._songs)
+        while self.next_song == self._currently_playing_song:
+            self.next_song = random.choice(self._songs)
+        self._currently_playing_song = self.next_song
+        pygame.mixer.music.load(self.next_song)
+        pygame.mixer.music.play()
+# -------------------------------------------------------------------------
 if __name__ == '__main__':
-    GameLoop()()
+    StartMenu()()

@@ -1,3 +1,4 @@
+import pygame
 from pygame import Color
 from pygame.locals import *  # for event timers
 
@@ -16,6 +17,10 @@ SKYBLUE = Color(128, 223, 223)
 YELLOW = Color(255, 255, 0)
 PURPLE = Color(255, 0, 255)
 ORANGE = Color(255, 153, 0)
+
+# Music Flags
+MUSIC_ON = False
+EFFECTS_ON = False
 
 # Monster Types and Globals
 ALL = 'ALL'
@@ -60,6 +65,7 @@ PLAYER2_MEDITATE_EVENT = USEREVENT + 4
 REGENERATION_EVENT = USEREVENT + 5
 MORE_RAIN_EVENT = USEREVENT + 6
 MONSTER_SPAWN_EVENT = USEREVENT + 7
+SONG_END_EVENT = USEREVENT + 8
 
 # Global Functions
 def all_in(items_want_inside, container_being_checked):
@@ -97,3 +103,31 @@ def handle_damage(target, value, time):
     target.hit_points -= value
     target.shield_trigger()
     target.st_buffer.append((value, time + 2000))
+
+def turn_off_music():
+    global MUSIC_ON
+    MUSIC_ON = False
+    pygame.mixer.music.stop()
+
+def turn_on_music():
+    global MUSIC_ON
+    if MUSIC_ON == True:
+        pass
+    else:
+        MUSIC_ON = True
+        pygame.mixer.pre_init(44100)
+        pygame.mixer.init()
+        pygame.mixer.music.load('data/404error.mp3')
+        pygame.mixer.music.play(-1)
+
+def turn_off_effects():
+    global SOUND_ON
+    SOUND_ON = False
+
+def turn_on_effects():
+    global SOUND_ON
+    SOUND_ON = True
+
+def get_music_on():
+    global MUSIC_ON
+    return MUSIC_ON

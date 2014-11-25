@@ -9,6 +9,7 @@ from pygame.locals import *
 
 # our modules
 from classes import *
+from debug import *
 from globals import *
 from pages import *
 from skills import *
@@ -407,28 +408,6 @@ class GameLoop:
             time_display = self.timer_font.render(str(self.game_time), True, BLUE)
             self.surface.blit(time_display, self.timer_font_xy)
 
-        def _draw_debug():
-            if self.input.debug_text_on:
-                x = '| x:{:>8.2f}|'.format(self.player1.x)
-                y = '| y:{:>8.2f}|'.format(self.player1.y)
-                dx = '|dx:{:>8.2f}|'.format(self.player1.dx)
-                dy = '|dy:{:>8.2f}|'.format(self.player1.dy)
-                debug_font_1 = self.debug_font.render(x, True, GREEN)
-                debug_font_2 = self.debug_font.render(y, True, GREEN)
-                debug_font_3 = self.debug_font.render(dx, True, GREEN)
-                debug_font_4 = self.debug_font.render(dy, True, GREEN)
-                self.surface.blit(debug_font_1, self.debug_font_xy1)
-                self.surface.blit(debug_font_2, self.debug_font_xy2)
-                self.surface.blit(debug_font_3, self.debug_font_xy3)
-                self.surface.blit(debug_font_4, self.debug_font_xy4)
-
-                num_monsters = '|curr num monsters:{:>2}|'.format(len(self.active_monsters))
-                max_monsters = '| max num monsters:{:>2}|'.format(self.arena.max_monsters)
-                debug_font_m1 = self.debug_font.render(num_monsters, True, GREEN)
-                debug_font_m2 = self.debug_font.render(max_monsters, True, GREEN)
-                self.surface.blit(debug_font_m1, self.debug_font_xy5)
-                self.surface.blit(debug_font_m2, self.debug_font_xy6)
-
         def _draw_map():
             for rect in self.arena:
                 if rect.color is not None:
@@ -495,7 +474,6 @@ class GameLoop:
 
         _draw_ui()
         _draw_timer()
-        _draw_debug()
         _draw_map()
         _draw_monsters()
         _draw_players()
@@ -504,6 +482,29 @@ class GameLoop:
         # _draw_rain()
 
     def draw_debug(self):
+
+        def _draw_debug_text():
+            if self.input.debug_text_on:
+                x = '| x:{:>8.2f}|'.format(self.player1.x)
+                y = '| y:{:>8.2f}|'.format(self.player1.y)
+                dx = '|dx:{:>8.2f}|'.format(self.player1.dx)
+                dy = '|dy:{:>8.2f}|'.format(self.player1.dy)
+                debug_font_1 = self.debug_font.render(x, True, GREEN)
+                debug_font_2 = self.debug_font.render(y, True, GREEN)
+                debug_font_3 = self.debug_font.render(dx, True, GREEN)
+                debug_font_4 = self.debug_font.render(dy, True, GREEN)
+                self.surface.blit(debug_font_1, self.debug_font_xy1)
+                self.surface.blit(debug_font_2, self.debug_font_xy2)
+                self.surface.blit(debug_font_3, self.debug_font_xy3)
+                self.surface.blit(debug_font_4, self.debug_font_xy4)
+
+                num_monsters = '|curr num monsters:{:>2}|'.format(len(self.active_monsters))
+                max_monsters = '| max num monsters:{:>2}|'.format(self.arena.max_monsters)
+                debug_font_m1 = self.debug_font.render(num_monsters, True, GREEN)
+                debug_font_m2 = self.debug_font.render(max_monsters, True, GREEN)
+                self.surface.blit(debug_font_m1, self.debug_font_xy5)
+                self.surface.blit(debug_font_m2, self.debug_font_xy6)
+
         def _draw_destructible_terrain_debug_text():
             for rect in filter(lambda x: x.hits_to_destroy > 0, self.arena):
                 rendered_debug_font = self.debug_font_small_2.render(str(rect.hits_to_destroy), True, BLACK)
@@ -519,7 +520,26 @@ class GameLoop:
                 rendered_debug_font = self.debug_font_small.render(str(play_area_mouse_pos), True, BLACK)
                 self.surface.blit(rendered_debug_font, mouse_pos)
 
+        def _draw_player_collision_points_for_debugging():
+            coll_data = get_collision_data(self.player1, self.arena)
+            locs = []
+            for terr, pt, side in coll_data:
+                if pt.L: locs.append(self.player1.midleft)
+                if pt.R: locs.append(self.player1.midright)
+                if pt.T: locs.append(self.player1.midtop)
+                if pt.B: locs.append(self.player1.midbottom)
+                if pt.TL: locs.append(self.player1.topleft)
+                if pt.TR: locs.append(self.player1.topright)
+                if pt.BR: locs.append(self.player1.bottomright)
+                if pt.BL: locs.append(self.player1.bottomleft)
+                if locs != []:
+                    pygame.draw.circle(self.surface, ORANGE, self.player1.center, 5, 0)
+                for l in locs:
+                    pygame.draw.circle(self.surface, ORANGE, l, 3, 0)
+
+        _draw_debug_text()
         _draw_destructible_terrain_debug_text()
+        _draw_player_collision_points_for_debugging()
         _draw_mouse_text()
 
     # -------------------------------------------------------------------------

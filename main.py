@@ -56,7 +56,6 @@ class StartMenu:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
             if 'click' in self.start_button.handleEvent(event):
                 GameLoop(self)()
             if 'click' in self.exit_button.handleEvent(event):
@@ -66,6 +65,9 @@ class StartMenu:
                 HelpPage(self)()
             if 'click' in self.options_button.handleEvent(event):
                 OptionsPage(self)()
+            if event.type == pygame.KEYDOWN:
+                if event.key == K_RETURN:
+                    GameLoop(self)()
 
     def draw_UI(self):
 
@@ -205,6 +207,8 @@ class GameLoop:
                 self.handle_monsters()
                 self.handle_particles()
                 self.draw_screen()
+                self.draw_debug()
+                pygame.display.update()
                 self.handle_event_queue()
                 self.clock.tick(self.fps)
             else:
@@ -226,7 +230,7 @@ class GameLoop:
             #     except Exception as err:
             #         print('>> {}: {} <<'.format(type(err).__name__, err))
 
-            if self.input.RESET and not self.input.PAUSED:
+            if self.input.RESPAWN and not self.input.PAUSED:
                 self.player1.topleft = self.player1.topleft_initial
 
             if self.input.EXIT:
@@ -399,7 +403,6 @@ class GameLoop:
             self.return_button = pygbutton.PygButton((490, 550, 300, 50), 'Main Menu')
             self.return_button.draw(self.surface)
 
-
         def _draw_timer():
             time_display = self.timer_font.render(str(self.game_time), True, BLUE)
             self.surface.blit(time_display, self.timer_font_xy)
@@ -430,12 +433,6 @@ class GameLoop:
             for rect in self.arena:
                 if rect.color is not None:
                     pygame.draw.rect(self.surface, rect.color, rect)
-
-        def _draw_destructible_terrain_debug_text():
-            for rect in filter(lambda x: x.hits_to_destroy > 0, self.arena):
-                rendered_debug_font = self.debug_font_small_2.render(str(rect.hits_to_destroy), True, BLACK)
-                pos = font_position_center(rect, self.debug_font_small_2, str(rect.hits_to_destroy))
-                self.surface.blit(rendered_debug_font, pos)
 
         def _draw_players():
             pygame.draw.rect(self.surface, LBLUE, self.player1)
@@ -496,6 +493,23 @@ class GameLoop:
                     self.rain_particles.remove(r)
             self.make_rain = False
 
+        _draw_ui()
+        _draw_timer()
+        _draw_debug()
+        _draw_map()
+        _draw_monsters()
+        _draw_players()
+        _draw_particles()
+        _draw_scrolling_text()
+        # _draw_rain()
+
+    def draw_debug(self):
+        def _draw_destructible_terrain_debug_text():
+            for rect in filter(lambda x: x.hits_to_destroy > 0, self.arena):
+                rendered_debug_font = self.debug_font_small_2.render(str(rect.hits_to_destroy), True, BLACK)
+                pos = font_position_center(rect, self.debug_font_small_2, str(rect.hits_to_destroy))
+                self.surface.blit(rendered_debug_font, pos)
+
         def _draw_mouse_text():
             mouse_pos = pygame.mouse.get_pos()
             play_area_mouse_pos = mouse_pos[0] - self.arena.play_area_rect.left, mouse_pos[1]
@@ -505,18 +519,8 @@ class GameLoop:
                 rendered_debug_font = self.debug_font_small.render(str(play_area_mouse_pos), True, BLACK)
                 self.surface.blit(rendered_debug_font, mouse_pos)
 
-        _draw_ui()
-        _draw_timer()
-        _draw_debug()
-        _draw_map()
         _draw_destructible_terrain_debug_text()
-        _draw_monsters()
-        _draw_players()
-        _draw_particles()
-        _draw_scrolling_text()
-        # _draw_rain()
         _draw_mouse_text()
-        pygame.display.update()
 
     # -------------------------------------------------------------------------
     def handle_event_queue(self):
@@ -527,10 +531,12 @@ class GameLoop:
                     print("the song ended!")
                     self.play_next_random_song()
 
-        def _handle_return_to_main_menu_click():
+        def _handle_return_to_main_menu():
             for event in pygame.event.get():
                 if 'click' in self.return_button.handleEvent(event):
                     start_menu()
+            if self.input.ENTER:
+                self.start_menu()
 
         def _handle_time_tick_event():
             for event in pygame.event.get(TIME_TICK_EVENT):
@@ -620,7 +626,7 @@ class GameLoop:
             _handle_rain_event()
             _handle_monster_spawn_event()
             _handle_quit_event()
-            _handle_return_to_main_menu_click()
+            _handle_return_to_main_menu()
             pygame.event.clear()
         else:
             _handle_quit_event()

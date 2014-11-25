@@ -216,10 +216,10 @@ class Player(Rect2):
                     if self.top < terrain.bottom < self.bottom and self.dy < 0:
                         self.top = terrain.bottom
                         self.dy = -3
-            out_of_arena_fix(self)  # otherwise, player can jump up and over arena
 
         _move()  # move then check for collisions
         _check_for_collisions()
+        out_of_arena_fix(self)  # otherwise, player can jump up and over arena
 
 
     # Handles attacks, skill buttons, and meditate
@@ -334,7 +334,6 @@ class Monster(Player):
         self._handle_movement(arena_map)
 
 # -------------------------------------------------------------------------
-
 class AI_Input():
     def __init__(self):
         self.RIGHT = False
@@ -393,7 +392,7 @@ class Input:
         self.DOWN = self.kb_input[K_DOWN] or self.up_down_axis == +1
         self.JUMP = self.kb_input[K_SPACE] or self.a_button
         self.ATTACK = self.kb_input[K_a] or self.x_button
-        self.RESET = self.kb_input[K_r] or self.y_button
+        self.RESPAWN = self.kb_input[K_r] or self.y_button
         self.DEBUG = self.kb_input[K_F12] or (self.start_button and self.back_button)
         self.EXIT = self.kb_input[K_q] or self.kb_input[K_ESCAPE] or self.back_button
         self.SKILL1 = self.kb_input[K_s]
@@ -402,6 +401,7 @@ class Input:
         self.ULT = self.kb_input[K_g]
         self.DROP_SKILL = self.kb_input[K_q]
         self.MEDITATE = self.kb_input[K_w]
+        self.ENTER = self.kb_input[K_RETURN]
 
     def __getattr__(self, name):
         return None

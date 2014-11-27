@@ -159,3 +159,11 @@ arena2 = arena(all_terr=[terrain(50, 100, 50, 300, DKGREEN, -1, False),
                          terrain(150, 465, -5, 5, RED, -1, True),
                          terrain(930, 465, -5, 5, RED, -1, True), ],
                max_monsters=7, possible_monsters=ALL)
+
+# Monsters
+monster_info = namedtuple('monster_info', 'w, h, dx, dy, hp, chase, idle')
+MONSTER_TABLE = {
+    WEAK: monster_info(30, 40, 2, 10, 100, 5000, 5000),
+    MEDIUM: monster_info(50, 60, 3, 12, 250, 7000, 5000),
+    ULTIMATE: monster_info(80, 80, 4, 13, 500, 10000, 5000)}
+

@@ -408,50 +408,28 @@ class Input:
 
 # -------------------------------------------------------------------------
 class Arena:
-    def __init__(self, *color_rects, max_monsters=5, possible_monsters=ALL):
-        self.max_monsters = max_monsters
-        self.possible_monsters = tuple(MONSTER_TABLE.keys()) if possible_monsters == ALL \
-            else possible_monsters
+    def __init__(self, arena_info):
+        self.max_monsters = arena_info.max_monsters
+        self.possible_monsters = tuple(MONSTER_TABLE.keys()) if arena_info.possible_monsters == ALL \
+            else arena_info.possible_monsters
 
-        required = (Rect2(65, 0, 1150, 475, color=SKYBLUE),  # play_area
+        required = [Rect2(65, 0, 1150, 475, color=SKYBLUE),  # play_area
                     Rect2(0, 475, 1280, 50, color=None),  # floor
                     Rect2(15, 0, 50, 600, color=None),  # left wall
-                    Rect2(1215, 0, 50, 600, color=None))  # right wall
-        rects = [c_rect for c_rect in required + color_rects]
-        for rect in rects[4:]:  # don't shift the first 4 rects
+                    Rect2(1215, 0, 50, 600, color=None)]  # right wall
+
+        part2 = [Rect2(tuple(terr)[0:4], color=terr.color, hits_to_destroy=terr.hits_to_destroy, spawn_point=terr.spawn_point) for terr in arena_info.all_terr]
+        rects = required + part2
+
+        for rect in rects[4:]:  # don't shift amazthe first 4 rects
             rect.move_ip((65, 0))  # to account for play area starting 65 pixels from left
         self.play_area_rect = rects[0]
         self.rects = rects[1:]
 
     def __iter__(self):
         # currently only time iteration is used is when the rects are drawn
-        for c_rect in [self.play_area_rect] + self.rects:
-            yield c_rect
-
-arena1 = Arena(
-    Rect2(0, 270, 300, 60, color=DKGREEN),
-    Rect2(850, 270, 300, 60, color=DKGREEN),
-    Rect2(545, 150, 60, 230, color=DKGREEN),
-    Rect2(140, 100, 150, 20, color=DKGREEN),
-    Rect2(860, 100, 150, 20, color=DKGREEN),
-    Rect2(30, 240, 40, 20, color=WHITE, hits_to_destroy=5),
-    Rect2(1145, 465, -5, 5, color=RED, spawn_point=True),  # neg width/height is trick to create rect that won't work for collisions
-    Rect2(15, 465, -5, 5, color=RED, spawn_point=True),
-    max_monsters=7, possible_monsters=(WEAK, MEDIUM)  # keyword args must be after all the Rect2s
-)
-arena2 = Arena(
-    Rect2(50, 100, 50, 300, color=DKGREEN),
-    Rect2(240, 40, 50, 300, color=DKGREEN),
-    Rect2(500, 135, 100, 25, color=DKGREEN),
-    Rect2(725, 255, 175, 25, color=DKGREEN),
-    Rect2(1050, 375, 100, 25, color=DKGREEN),
-    Rect2(400, 434, 300, 41, color=DKGREEN),
-    Rect2(485, 394, 300, 41, color=DKGREEN),
-    Rect2(970, 65, 80, 10, color=DKGREEN),
-    Rect2(150, 465, -5, 5, color=RED, spawn_point=True),
-    Rect2(930, 465, -5, 5, color=RED, spawn_point=True),
-    max_monsters=7, possible_monsters=ALL  # keyword args must be after all the Rect2s
-)
+        for rect in [self.play_area_rect] + self.rects:
+            yield rect
 
 # -------------------------------------------------------------------------
 class Particle(Rect2):

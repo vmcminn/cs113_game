@@ -23,9 +23,7 @@ if os.environ['COMPUTERNAME'] == 'BRIAN-DESKTOP':
 if os.environ['COMPUTERNAME'] == 'MAX-LT':
     os.environ['SDL_VIDEO_WINDOW_POS'] = '{},{}'.format(50, 30)
 
-# @PYGAMERUNSPECIAL  setting for my IDE
 # -------------------------------------------------------------------------
-
 class StartMenu:
 
     def __init__(self):
@@ -100,8 +98,7 @@ class StartMenu:
 
         pygame.display.flip()
 
-
-
+# -------------------------------------------------------------------------
 class GameLoop:
     def __init__(self, StartMenu=None):
         def _setup_display():
@@ -132,8 +129,7 @@ class GameLoop:
             self.player1_eyeball = Rect2(left=200, top=150, width=5, height=5)
             # self.player2 = Player(id=2, left=1080, top=150, width=30, height=40)
             # self.player2_eyeball = Rect2(left=1080, top=150, width=5, height=5)
-
-            self.arena = random.choice((arena1, arena2))
+            self.arena = Arena(random.choice((arena1, arena2)))
 
         def _setup_fonts():
             # main_font = 'data/viner-hand-itc.ttf'
@@ -481,6 +477,7 @@ class GameLoop:
         _draw_scrolling_text()
         # _draw_rain()
 
+    # -------------------------------------------------------------------------
     def draw_debug(self):
 
         def _draw_debug_text():
@@ -661,6 +658,7 @@ class GameLoop:
         self._currently_playing_song = self.next_song
         pygame.mixer.music.load(self.next_song)
         pygame.mixer.music.play()
+
 # -------------------------------------------------------------------------
 if __name__ == '__main__':
     StartMenu()()

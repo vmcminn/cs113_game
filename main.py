@@ -33,10 +33,10 @@ class StartMenu:
             self.screen = pygame.display.get_surface()
             self.done = False
 
-            self.start_button = PygButton((325,395,140,40),'Start')
-            self.help_button = PygButton((485,395,110,40), 'Help')
-            self.options_button = PygButton((615,395,175,40), 'Options')
-            self.exit_button = PygButton((810,395,105,40), 'Exit')
+            self.start_button = PygButton((325, 395, 140, 40), 'Start')
+            self.help_button = PygButton((485, 395, 110, 40), 'Help')
+            self.options_button = PygButton((615, 395, 175, 40), 'Options')
+            self.exit_button = PygButton((810, 395, 105, 40), 'Exit')
 
         def _setup_music():
             turn_on_music()
@@ -69,9 +69,8 @@ class StartMenu:
                     GameLoop(self)()
 
     def draw_UI(self):
-
         self.image = pygame.image.load('data/temp_start_bkg.png')
-        self.screen.blit(self.image, (0,0))
+        self.screen.blit(self.image, (0, 0))
 
         self.start_button.draw(self.screen)
         self.help_button.draw(self.screen)
@@ -81,9 +80,8 @@ class StartMenu:
         self.title_font = pygame.font.Font('data/Kremlin.ttf', 50)
         self.title1 = self.title_font.render('Famished', True, DKRED)
         self.title2 = self.title_font.render('Tournament', True, DKRED)
-        self.screen.blit(self.title1, (495,120))
+        self.screen.blit(self.title1, (495, 120))
         self.screen.blit(self.title2, (450, 175))
-
 
         #text for transparent buttons
         #self.button_font = pygame.font.Font('data/Kremlin.ttf', 30)
@@ -100,7 +98,7 @@ class StartMenu:
 
 # -------------------------------------------------------------------------
 class GameLoop:
-    def __init__(self, StartMenu=None):
+    def __init__(self, start_menu=None):
         def _setup_display():
             # set the window size - can add the NOFRAME arg if we don't want a
             # window frame but then we have to figure out how to move the
@@ -117,7 +115,7 @@ class GameLoop:
             self.game_time = GameTime()
 
         def _setup_input():
-            self.start_menu=StartMenu
+            self.start_menu = start_menu
             pygame.key.set_repeat(100, 10)  # allow multiple KEYDOWN events
             self.input = Input()
 
@@ -165,14 +163,12 @@ class GameLoop:
 
         def _setup_music():
             self.music_flag = get_music_on()
-            if self.music_flag == True:
-                self._songs = ['data/pneumatic_driller.mp3', 'data/euglena_zielona.mp3', 'data/drilldance.mp3',
-                         'data/running_emu.mp3', 'data/wooboodoo.mp3', 'data/accident.mp3']
+            if self.music_flag:
+                self._songs = ['data/pneumatic_driller.mp3', 'data/euglena_zielona.mp3',
+                               'data/drilldance.mp3', 'data/running_emu.mp3', 'data/wooboodoo.mp3',
+                               'data/accident.mp3']
                 self._currently_playing_song = None
                 self.play_next_random_song()
-            else:
-                pass
-                #do not start playing music
 
         def _setup_rain():
             self.rain_particles = []
@@ -183,33 +179,33 @@ class GameLoop:
         def _setup_mouse():
             pygame.mouse.set_visible(False)
 
-        def _setup_player_sprites(): #load player sprites here
+        def _setup_player_sprites():  # load player sprites here
             # Will later need some value to tell the game what sprite
             # to load based on player choice, since we don't want to
             # just load everything possible
 
             # Load sprites for player 1
-            try: 
+            try:
                 spritesheet1 = pygame.image.load("data/pl_human.png")
-            except: 
-                raise(UserWarning, "Unable to load sprites") # error msg and exit
+            except:
+                raise (UserWarning, "Unable to load sprites")  # error msg and exit
             spritesheet1.convert()
             m1 = []
 
             # Put spritesheet into list, each sprite is 64x64 pixels large
-            for num in range(1,7,1): # Standing
-               m1.append(spritesheet1.subsurface((64*(num-1),0,64,64)))
-            for num in range(7,15,1): # Walk Transition
-               m1.append(spritesheet1.subsurface((64*(num-7),64,64,64)))
-            for num in range(15,23,1): # Walk Part 1
-               m1.append(spritesheet1.subsurface((64*(num-15),128,64,64)))
-            for num in range(23,31,1): # Walk Part 2
-               m1.append(spritesheet1.subsurface((64*(num-23),192,64,64)))
-            for num in range(31,35,1): # Jump and Fall
-               m1.append(spritesheet1.subsurface((64*(num-31),256,64,64)))
+            for num in range(1, 7, 1):  # Standing
+                m1.append(spritesheet1.subsurface((64 * (num - 1), 0, 64, 64)))
+            for num in range(7, 15, 1):  # Walk Transition
+                m1.append(spritesheet1.subsurface((64 * (num - 7), 64, 64, 64)))
+            for num in range(15, 23, 1):  # Walk Part 1
+                m1.append(spritesheet1.subsurface((64 * (num - 15), 128, 64, 64)))
+            for num in range(23, 31, 1):  # Walk Part 2
+                m1.append(spritesheet1.subsurface((64 * (num - 23), 192, 64, 64)))
+            for num in range(31, 35, 1):  # Jump and Fall
+                m1.append(spritesheet1.subsurface((64 * (num - 31), 256, 64, 64)))
 
             for num in range(len(m1)):
-                m1[num].set_colorkey((0,0,0)) # sprite bg rgb is (0,0,0)
+                m1[num].set_colorkey((0, 0, 0))  # sprite bg rgb is (0,0,0)
                 m1[num] = m1[num].convert_alpha()
 
             self.p1_sprite = m1
@@ -459,19 +455,20 @@ class GameLoop:
             # Draw player using wait_frames and animation_key
             # wait_frames = frames waited before key is incremented
             # animation_key = index for the sprite list
-            
+
             # Draw player 1
             if self.player1.state != self.player1.previous_state:
                 self.p1_wait_frames = 0
-                self.p1_animation_key = -1 # -1 because it will always get
-                                        # incremented at the start of each check
-            flip = False # value for flipping sprite
-            
+                self.p1_animation_key = -1  # -1 because it will always get
+                                            # incremented at the start of each check
+            flip = False  # value for flipping sprite
+
             # Animations that still need to be implemented
             # if (self.player1.state == DEATH):
             # if (self.player1.state == ATTACK):
             # if (self.player1.state == CAST):
             # if (self.player1.state == SLIDE):
+
             # JUMP
             if self.player1.state == JUMP:
                 if self.player1.facing_direction == LEFT:
@@ -501,8 +498,8 @@ class GameLoop:
                 if self.p1_wait_frames <= 0:
                     self.p1_wait_frames = 2
                     self.p1_animation_key += 1
-                    if (self.p1_animation_key > 0):
-                        self.p1_animation_key = self.p1_animation_key%16 # Loops the key
+                    if self.p1_animation_key > 0:
+                        self.p1_animation_key %= 16  # Loops the key
                 self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 14], flip, False), (self.player1.left-17,self.player1.top-22))
             # STAND (default animation)
             else:
@@ -512,7 +509,7 @@ class GameLoop:
                 self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 1], flip, False), (self.player1.left-17,self.player1.top-22))
             self.p1_wait_frames += -1
             # Draw player 2 here
-            
+
         def _draw_monsters():
             for m in self.active_monsters:
                 pygame.draw.rect(self.surface, ORANGE, m)
@@ -566,7 +563,7 @@ class GameLoop:
         _draw_timer()
         _draw_map()
         _draw_monsters()
-        _draw_players_debug()
+        # _draw_players_debug()
         _draw_players()
         _draw_particles()
         _draw_scrolling_text()
@@ -624,7 +621,7 @@ class GameLoop:
                 if pt.TR: locs.append(self.player1.topright)
                 if pt.BR: locs.append(self.player1.bottomright)
                 if pt.BL: locs.append(self.player1.bottomleft)
-                if locs != []:
+                if locs:  # True if not empty list
                     pygame.draw.circle(self.surface, ORANGE, self.player1.center, 5, 0)
                 for l in locs:
                     pygame.draw.circle(self.surface, ORANGE, l, 3, 0)
@@ -747,6 +744,9 @@ class GameLoop:
 
 # -------------------------------------------------------------------------
     def play_next_random_song(self):
+        print('self._songs', self._songs)
+        print('self._currently_playing_song', self._currently_playing_song)
+
         self.next_song = random.choice(self._songs)
         while self.next_song == self._currently_playing_song:
             self.next_song = random.choice(self._songs)

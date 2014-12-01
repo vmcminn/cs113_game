@@ -39,7 +39,7 @@ RWALK = 'RWALK'
 JUMP = 'JUMP'
 FALL = 'FALL'
 DEATH = 'DEATH'
-ATTACK = 'ATTACK' # Might neeed attack1, cast1, etc
+ATTACK = 'ATTACK'  # Might neeed attack1, cast1, etc
 CAST = 'CAST'
 
 # Inputs

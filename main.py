@@ -355,7 +355,7 @@ class GameLoop:
         def _draw_ui():
             self.surface.fill(DGREY)  # fill background dark grey
 
-            # font for player's health and energy
+            #font for player's health and energy
             #health_display = self.health_font.render(str(self.player1.hit_points), True, RED)
             #energy_display = self.energy_font.render(str(int(self.player1.energy)), True, YELLOW)
             #self.surface.blit(health_display, self.health_font_xy)
@@ -365,28 +365,28 @@ class GameLoop:
             #currently only goes off of one player's health
             #left health bar outline image
             self.health_bar_outline = pygame.image.load('data/health_bar_outline.png')
-            self.surface.blit(self.health_bar_outline, (5,20))
+            self.surface.blit(self.health_bar_outline, (5, 20))
             self.health_bar_outline2 = pygame.image.load('data/health_bar_outline2.png')
-            self.surface.blit(self.health_bar_outline2, (1239,20))
+            self.surface.blit(self.health_bar_outline2, (1239, 20))
             #right health bar outline image
             #dynamic health bars
             self.damage_taken1 = 100 - self.player1.hit_points
-            self.health_bar1 = Rect((20, (21+(2*self.damage_taken1))), (20,(200-(2*self.damage_taken1))))
-            self.health_bar2 = Rect((1241, (21+(2*self.damage_taken1))), (20, (200-(2*self.damage_taken1))))
+            self.health_bar1 = Rect((20, (21 + (2 * self.damage_taken1))), (20, (200 - (2 * self.damage_taken1))))
+            self.health_bar2 = Rect((1241, (21 + (2 * self.damage_taken1))), (20, (200 - (2 * self.damage_taken1))))
             pygame.draw.rect(self.surface, YELLOW, self.health_bar1)
             pygame.draw.rect(self.surface, YELLOW, self.health_bar2)
 
-            #need to add dynamic aspect of energy bars
+            # need to add dynamic aspect of energy bars
             #left energy bar outline image
             self.energy_bar_outline = pygame.image.load('data/energy_bar_outline.png')
-            self.surface.blit(self.energy_bar_outline, (5,280))
+            self.surface.blit(self.energy_bar_outline, (5, 280))
             #right energy bar outline image
             self.energy_bar_outline2 = pygame.image.load('data/energy_bar_outline2.png')
-            self.surface.blit(self.energy_bar_outline2, (1239,280))
+            self.surface.blit(self.energy_bar_outline2, (1239, 280))
             #dynamic energy bars
             self.energy_used1 = 10 - self.player1.energy
-            self.energy_bar1 = Rect((20, 281+(20*self.energy_used1)), (20, 200-(20*self.energy_used1)))
-            self.energy_bar2 = Rect((1241, 281+(20*self.energy_used1)), (20, 200-(20*self.energy_used1)))
+            self.energy_bar1 = Rect((20, 281 + (20 * self.energy_used1)), (20, 200 - (20 * self.energy_used1)))
+            self.energy_bar2 = Rect((1241, 281 + (20 * self.energy_used1)), (20, 200 - (20 * self.energy_used1)))
             pygame.draw.rect(self.surface, GREEN, self.energy_bar1)
             pygame.draw.rect(self.surface, GREEN, self.energy_bar2)
 
@@ -408,7 +408,6 @@ class GameLoop:
 
             self.skill_box5 = Rect((290, 500), (40, 40))
             pygame.draw.rect(self.surface, BLACK, self.skill_box5)
-
 
             #player 2 skill boxes
             self.skill_box6 = Rect((950, 500), (40, 40))
@@ -492,7 +491,7 @@ class GameLoop:
                 if self.player1.facing_direction == LEFT:
                     flip = True
                 if self.player1.state == RWALK and self.player1.previous_state != RWALK:
-                    self.p1_animation_key = -8 # Transition sprites loaded before walk
+                    self.p1_animation_key = -8  # Transition sprites loaded before walk
                 elif self.player1.state == LWALK and self.player1.previous_state != LWALK:
                     self.p1_animation_key = -8
                 if self.p1_wait_frames <= 0:
@@ -500,13 +499,14 @@ class GameLoop:
                     self.p1_animation_key += 1
                     if self.p1_animation_key > 0:
                         self.p1_animation_key %= 16  # Loops the key
-                self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 14], flip, False), (self.player1.left-17,self.player1.top-22))
+                self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 14], flip, False), (self.player1.left - 17, self.player1.top - 22))
             # STAND (default animation)
             else:
                 if self.player1.facing_direction == LEFT:
                     flip = True
                 # Currently only have 1 standing sprite
-                self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 1], flip, False), (self.player1.left-17,self.player1.top-22))
+                self.screen.blit(
+                    pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 1], flip, False), (self.player1.left - 17, self.player1.top - 22))
             self.p1_wait_frames += -1
             # Draw player 2 here
 

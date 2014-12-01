@@ -123,9 +123,7 @@ def turn_off_music():
 
 def turn_on_music():
     global MUSIC_ON
-    if MUSIC_ON == True:
-        pass
-    else:
+    if not MUSIC_ON:
         MUSIC_ON = True
         pygame.mixer.pre_init(44100)
         pygame.mixer.init()

@@ -31,8 +31,6 @@ class StartMenu:
             pygame.display.set_mode((1280, 600))
             pygame.display.set_caption('Famished Tournament')
             self.screen = pygame.display.get_surface()
-            self.done = False
-
             self.start_button = PygButton((325, 395, 140, 40), 'Start')
             self.help_button = PygButton((485, 395, 110, 40), 'Help')
             self.options_button = PygButton((615, 395, 175, 40), 'Options')
@@ -41,14 +39,20 @@ class StartMenu:
         def _setup_music():
             turn_on_music()
 
+        def _setup_time():
+            self.clock = pygame.time.Clock()
+            self.fps = 5
+
         pygame.init()
         _setup_display()
         _setup_music()
+        _setup_time()
 
     def __call__(self):
-        while not self.done:
+        while True:
             self.draw_UI()
             self.handle_events()
+            self.clock.tick(self.fps)
 
     def handle_events(self):
         for event in pygame.event.get():

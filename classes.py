@@ -194,6 +194,8 @@ class Player(Rect2):
     def _handle_movement(self, arena):
 
         def _move():
+            self.ptop = self.top
+            self.pleft = self.left
             if self.conditions[SNARE]:
                 self.move_ip((0, 0))
             elif self.conditions[SLOW] or self.conditions[SPEED]:
@@ -209,27 +211,29 @@ class Player(Rect2):
         def _check_for_collisions():
             self.hit_wall_from, self.touching_ground = None, False  # reset every frame
             for terrain in arena.rects:
-                if terrain.left < self.left < terrain.right or terrain.left < self.right < terrain.right and self.dy >= 0:
-                    if self.top < terrain.top < self.bottom:
-                        self.bottom = terrain.top
-                        self.dy, self.touching_ground = 0, True
-                if terrain.top < self.bottom < terrain.bottom or terrain.top < self.top < terrain.bottom:
-                    if self.left < terrain.right < self.right and self.dx <= 0:
-                        self.left = terrain.right
-                        self.hit_wall_from = LEFT
-                        self.dx = 0
-                        if self.dy > 0:
-                            self.dy = 0
-                    elif self.left < terrain.left < self.right and self.dx >= 0:
-                        self.right = terrain.left
-                        self.hit_wall_from = RIGHT
-                        self.dx = 0
-                        if self.dy > 0:
-                            self.dy = 0
-                if terrain.left < self.left < terrain.right or terrain.left < self.right < terrain.right:
-                    if self.top < terrain.bottom < self.bottom and self.dy < 0:
-                        self.top = terrain.bottom
-                        self.dy = self.dy * 0.4 # Prevents immediate drop when player hits ceiling
+                if not terrain.spawn_point:
+                    if (terrain.left < self.left < terrain.right or terrain.left < self.right < terrain.right) or (self.left < terrain.left < self.right or self.left < terrain.right < self.right):
+                        if self.top < terrain.top < self.bottom:
+                            if self.ptop+self.height-5 <= terrain.top:
+                                self.bottom = terrain.top
+                                self.dy, self.touching_ground = 0, True
+                        if self.top < terrain.bottom < self.bottom and self.dy < 0:
+                            if self.ptop >= terrain.bottom:
+                                self.top = terrain.bottom
+                                self.dy = self.dy * 0.4
+                    if (terrain.top < self.bottom < terrain.bottom or terrain.top < self.top < terrain.bottom) or (self.top < terrain.top < self.bottom or self.top < terrain.bottom < self.bottom):
+                        if self.left < terrain.right < self.right and self.dx <= 0:
+                            self.left = terrain.right
+                            self.hit_wall_from = LEFT
+                            self.dx = 0
+                            if self.dy > 0:
+                                self.dy = 0
+                        elif self.left < terrain.left < self.right and self.dx >= 0:
+                            self.right = terrain.left
+                            self.hit_wall_from = RIGHT
+                            self.dx = 0
+                            if self.dy > 0:
+                                self.dy = 0
 
         _move()  # move then check for collisions
         _check_for_collisions()

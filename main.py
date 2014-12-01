@@ -164,10 +164,10 @@ class GameLoop:
         def _setup_music():
             self.music_flag = get_music_on()
             if self.music_flag:
-                self._songs = ['data/pneumatic_driller.mp3', 'data/euglena_zielona.mp3',
-                               'data/drilldance.mp3', 'data/running_emu.mp3', 'data/wooboodoo.mp3',
-                               'data/accident.mp3']
-                self._currently_playing_song = None
+                self.songs = ['data/pneumatic_driller.mp3', 'data/euglena_zielona.mp3',
+                              'data/drilldance.mp3', 'data/running_emu.mp3', 'data/wooboodoo.mp3',
+                              'data/accident.mp3']
+                self.curr_song = None
                 self.play_next_random_song()
 
         def _setup_rain():
@@ -744,15 +744,14 @@ class GameLoop:
 
 # -------------------------------------------------------------------------
     def play_next_random_song(self):
-        print('self._songs', self._songs)
-        print('self._currently_playing_song', self._currently_playing_song)
-
-        self.next_song = random.choice(self._songs)
-        while self.next_song == self._currently_playing_song:
-            self.next_song = random.choice(self._songs)
-        self._currently_playing_song = self.next_song
+        print('self.songs', self.songs)
+        print('self.curr_song', self.curr_song)
+        self.next_song = random.choice([s for s in self.songs if s != self.curr_song])
+        self.curr_song = self.next_song
+        print('self.next_song', self.next_song)
         pygame.mixer.music.load(self.next_song)
         pygame.mixer.music.play()
+        pygame.mixer.music.set_endevent(SONG_END_EVENT)
 
 # -------------------------------------------------------------------------
 if __name__ == '__main__':

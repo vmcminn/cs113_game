@@ -39,7 +39,7 @@ RWALK = 'RWALK'
 JUMP = 'JUMP'
 FALL = 'FALL'
 DEATH = 'DEATH'
-ATTACK = 'ATTACK' # Might neeed attack1, cast1, etc
+ATTACK = 'ATTACK'  # Might neeed attack1, cast1, etc
 CAST = 'CAST'
 
 # Inputs
@@ -75,9 +75,9 @@ PLAYER2_LOCK_EVENT = USEREVENT + 2
 PLAYER1_MEDITATE_EVENT = USEREVENT + 3
 PLAYER2_MEDITATE_EVENT = USEREVENT + 4
 REGENERATION_EVENT = USEREVENT + 5
-MORE_RAIN_EVENT = USEREVENT + 6
-MONSTER_SPAWN_EVENT = USEREVENT + 7
-SONG_END_EVENT = USEREVENT + 8
+MONSTER_SPAWN_EVENT = USEREVENT + 6
+SONG_END_EVENT = USEREVENT + 7
+MORE_RAIN_EVENT = USEREVENT + 8
 
 # Global Functions
 def all_in(items_want_inside, container_being_checked):
@@ -123,9 +123,7 @@ def turn_off_music():
 
 def turn_on_music():
     global MUSIC_ON
-    if MUSIC_ON == True:
-        pass
-    else:
+    if not MUSIC_ON:
         MUSIC_ON = True
         pygame.mixer.pre_init(44100)
         pygame.mixer.init()

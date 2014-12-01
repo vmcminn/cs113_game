@@ -105,7 +105,7 @@ class GameLoop:
             # set the window size - can add the NOFRAME arg if we don't want a
             # window frame but then we have to figure out how to move the
             # window since it won't have a menu bar to grab
-            pygame.display.set_mode((1280, 600))
+            self.screen = pygame.display.set_mode((1280, 600))
             pygame.display.set_caption('Famished Tournament')
             self.surface = pygame.display.get_surface()
 
@@ -183,6 +183,41 @@ class GameLoop:
         def _setup_mouse():
             pygame.mouse.set_visible(False)
 
+        def _setup_player_sprites(): #load player sprites here
+            # Will later need some value to tell the game what sprite
+            # to load based on player choice, since we don't want to
+            # just load everything possible
+
+            # Load sprites for player 1
+            try: 
+                spritesheet1 = pygame.image.load("data/pl_human.png")
+            except: 
+                raise(UserWarning, "Unable to load sprites") # error msg and exit
+            spritesheet1.convert()
+            m1 = []
+
+            # Put spritesheet into list, each sprite is 64x64 pixels large
+            for num in range(1,7,1): # Standing
+               m1.append(spritesheet1.subsurface((64*(num-1),0,64,64)))
+            for num in range(7,15,1): # Walk Transition
+               m1.append(spritesheet1.subsurface((64*(num-7),64,64,64)))
+            for num in range(15,23,1): # Walk Part 1
+               m1.append(spritesheet1.subsurface((64*(num-15),128,64,64)))
+            for num in range(23,31,1): # Walk Part 2
+               m1.append(spritesheet1.subsurface((64*(num-23),192,64,64)))
+            for num in range(31,35,1): # Jump and Fall
+               m1.append(spritesheet1.subsurface((64*(num-31),256,64,64)))
+
+            for num in range(len(m1)):
+                m1[num].set_colorkey((0,0,0)) # sprite bg rgb is (0,0,0)
+                m1[num] = m1[num].convert_alpha()
+
+            self.p1_sprite = m1
+            self.p1_wait_frames = 0
+            self.p1_animation_key = -1
+
+            # Player 2 will be the same thing with a different spritesheet
+
         pygame.init()
         initialize_skill_table()
         _setup_display()
@@ -195,6 +230,7 @@ class GameLoop:
         _setup_music()
         _setup_rain()
         _setup_mouse()
+        _setup_player_sprites()
 
     # ------------------------------------------------------------------------
     def __call__(self):
@@ -409,7 +445,7 @@ class GameLoop:
                 if rect.color is not None:
                     pygame.draw.rect(self.surface, rect.color, rect)
 
-        def _draw_players():
+        def _draw_players_debug():
             pygame.draw.rect(self.surface, LBLUE, self.player1)
             if self.player1.facing_direction == LEFT:
                 self.player1_eyeball.topleft = self.player1.topleft
@@ -419,6 +455,64 @@ class GameLoop:
                 self.player1_eyeball.move_ip((-3, 3))
             pygame.draw.rect(self.surface, DKRED, self.player1_eyeball)
 
+        def _draw_players():
+            # Draw player using wait_frames and animation_key
+            # wait_frames = frames waited before key is incremented
+            # animation_key = index for the sprite list
+            
+            # Draw player 1
+            if self.player1.state != self.player1.previous_state:
+                self.p1_wait_frames = 0
+                self.p1_animation_key = -1 # -1 because it will always get
+                                        # incremented at the start of each check
+            flip = False # value for flipping sprite
+            
+            # Animations that still need to be implemented
+            # if (self.player1.state == DEATH):
+            # if (self.player1.state == ATTACK):
+            # if (self.player1.state == CAST):
+            # if (self.player1.state == SLIDE):
+            # JUMP
+            if self.player1.state == JUMP:
+                if self.player1.facing_direction == LEFT:
+                    flip = True
+                if self.p1_wait_frames <= 0:
+                    self.p1_wait_frames = 5
+                    if self.p1_animation_key <= 0:
+                        self.p1_animation_key += 1
+                self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 30], flip, False), (self.player1.left-17,self.player1.top-22))
+            # FALL
+            elif self.player1.state == FALL:
+                if self.player1.facing_direction == LEFT:
+                    flip = True
+                if self.p1_wait_frames <= 0:
+                    self.p1_wait_frames = 5
+                    if self.p1_animation_key <= 0:
+                        self.p1_animation_key += 1
+                self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 32], flip, False), (self.player1.left-17,self.player1.top-22))
+            # WALK
+            elif self.player1.state == RWALK or self.player1.state == LWALK:
+                if self.player1.facing_direction == LEFT:
+                    flip = True
+                if self.player1.state == RWALK and self.player1.previous_state != RWALK:
+                    self.p1_animation_key = -8 # Transition sprites loaded before walk
+                elif self.player1.state == LWALK and self.player1.previous_state != LWALK:
+                    self.p1_animation_key = -8
+                if self.p1_wait_frames <= 0:
+                    self.p1_wait_frames = 2
+                    self.p1_animation_key += 1
+                    if (self.p1_animation_key > 0):
+                        self.p1_animation_key = self.p1_animation_key%16 # Loops the key
+                self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 14], flip, False), (self.player1.left-17,self.player1.top-22))
+            # STAND (default animation)
+            else:
+                if self.player1.facing_direction == LEFT:
+                    flip = True
+                # Currently only have 1 standing sprite
+                self.screen.blit(pygame.transform.flip(self.p1_sprite[self.p1_animation_key + 1], flip, False), (self.player1.left-17,self.player1.top-22))
+            self.p1_wait_frames += -1
+            # Draw player 2 here
+            
         def _draw_monsters():
             for m in self.active_monsters:
                 pygame.draw.rect(self.surface, ORANGE, m)
@@ -472,6 +566,7 @@ class GameLoop:
         _draw_timer()
         _draw_map()
         _draw_monsters()
+        _draw_players_debug()
         _draw_players()
         _draw_particles()
         _draw_scrolling_text()

@@ -32,6 +32,16 @@ ULTIMATE = 'ULTIMATE'
 CHASING = 'CHASING'
 IDLE = 'IDLE'
 
+# Player States (for animation)
+STAND = 'STAND'
+LWALK = 'LWALK'
+RWALK = 'RWALK'
+JUMP = 'JUMP'
+FALL = 'FALL'
+DEATH = 'DEATH'
+ATTACK = 'ATTACK' # Might neeed attack1, cast1, etc
+CAST = 'CAST'
+
 # Inputs
 LEFT = 'LEFT'
 RIGHT = 'RIGHT'

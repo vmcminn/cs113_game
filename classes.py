@@ -65,7 +65,7 @@ class Player(Rect2):
 
         # speed
         self.dx, self.dy = 10, 4  # initial rates
-        self.dx_max, self.dy_max = 15, 15  # max speed, max fall rate
+        self.dx_max, self.dy_max = 8, 15  # max speed, max fall rate
 
         # acceleration - player input
         self.dx_movement = 2  # +/- applied when player moves
@@ -106,6 +106,10 @@ class Player(Rect2):
         # scrolling text
         self.st_buffer = []
 
+        # Player State
+        self.state = STAND
+        self.previous_state = STAND
+
     def copy(self):
         return Player(self.left, self.top, self.width, self.height)
 
@@ -134,6 +138,7 @@ class Player(Rect2):
         self._handle_movement(arena_map)
         if not self.conditions[STUN] and not self.conditions[SILENCE]:
             self._handle_inputs(input)
+        self._determine_state(input)
 
     def _handle_facing_direction(self, input):
         if self.attack_cooldown_expired and not self.conditions[STUN]:
@@ -158,19 +163,24 @@ class Player(Rect2):
                 if not isinstance(self, Monster):
                     self.dy -= self.dy_jump if self.touching_ground or self.hit_wall_from \
                         else 0
-                    self.dx += self.dx_wall_jump if self.hit_wall_from == LEFT \
-                        else -self.dx_wall_jump if self.hit_wall_from == RIGHT \
-                        else 0
+                    if not self.touching_ground:
+                        self.dx += self.dx_wall_jump if self.hit_wall_from == LEFT \
+                            else -self.dx_wall_jump if self.hit_wall_from == RIGHT \
+                            else 0
                 else:
                     self.dy -= self.dy_jump if self.touching_ground \
                         else 0
 
         def _apply_gravity():
-            self.dy += self.dy_gravity
+            if (-5 < self.dy < 8): # This helps make the jump arc smoother at the top
+                self.dy += self.dy_gravity * 0.5
+            else:
+                self.dy += self.dy_gravity
 
         def _apply_limits():
             self.dx = eval('{:+}'.format(self.dx)[0] + str(min(abs(self.dx), self.dx_max)))
             self.dy = min(self.dy, self.dy_max)
+            self.dy = max(self.dy, -self.dy_jump)
 
         if self.attack_cooldown_expired and not self.conditions[STUN]:
             # These can only be used if not attacking
@@ -199,7 +209,7 @@ class Player(Rect2):
         def _check_for_collisions():
             self.hit_wall_from, self.touching_ground = None, False  # reset every frame
             for terrain in arena.rects:
-                if terrain.left < self.left < terrain.right or terrain.left < self.right < terrain.right:
+                if terrain.left < self.left < terrain.right or terrain.left < self.right < terrain.right and self.dy >= 0:
                     if self.top < terrain.top < self.bottom:
                         self.bottom = terrain.top
                         self.dy, self.touching_ground = 0, True
@@ -207,15 +217,19 @@ class Player(Rect2):
                     if self.left < terrain.right < self.right and self.dx <= 0:
                         self.left = terrain.right
                         self.hit_wall_from = LEFT
-                        self.dx = self.dy = 0
+                        self.dx = 0
+                        if self.dy > 0:
+                            self.dy = 0
                     elif self.left < terrain.left < self.right and self.dx >= 0:
                         self.right = terrain.left
                         self.hit_wall_from = RIGHT
-                        self.dx = self.dy = 0
+                        self.dx = 0
+                        if self.dy > 0:
+                            self.dy = 0
                 if terrain.left < self.left < terrain.right or terrain.left < self.right < terrain.right:
                     if self.top < terrain.bottom < self.bottom and self.dy < 0:
                         self.top = terrain.bottom
-                        self.dy = -3
+                        self.dy = self.dy * 0.4 # Prevents immediate drop when player hits ceiling
 
         _move()  # move then check for collisions
         _check_for_collisions()
@@ -255,6 +269,27 @@ class Player(Rect2):
         elif input.MEDITATE:
             return -1
         return 0
+
+    # Determines the player state to be used for animations
+    def _determine_state(self, input):
+        self.previous_state = self.state
+        if self.hit_points <= 0:
+            self.state = DEATH
+        elif not self.attack_cooldown_expired:
+            self.state = ATTACK # or cast
+        elif self.dy < 0:
+            self.state = JUMP
+        elif not self.touching_ground:
+            # if self.hit_wall_from:
+            #     self.state = SLIDE
+            # Needed if we have slide animation
+            self.state = FALL
+        elif input.RIGHT:
+            self.state = RWALK
+        elif input.LEFT:
+            self.state = LWALK        
+        else:
+            self.state = STAND   
 
 # -------------------------------------------------------------------------
 class Monster(Player):

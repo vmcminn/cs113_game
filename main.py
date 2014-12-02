@@ -107,7 +107,7 @@ class StartMenu:
 
 # -------------------------------------------------------------------------
 class GameLoop:
-    def __init__(self, start_menu=None):
+    def __init__(self, start_menu):
         def _setup_display():
             # set the window size - can add the NOFRAME arg if we don't want a
             # window frame but then we have to figure out how to move the
@@ -125,7 +125,6 @@ class GameLoop:
 
         def _setup_input():
             self.start_menu = start_menu
-            pygame.key.set_repeat(100, 10)  # allow multiple KEYDOWN events
             self.input = Input()
 
         def _setup_Rects():

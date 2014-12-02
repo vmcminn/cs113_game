@@ -156,35 +156,41 @@ def get_music_on():
     return MUSIC_ON
 
 # Arenas
-arena = namedtuple('arena', 'all_terr, max_monsters, possible_monsters')
-terrain = namedtuple('terrain', 'left, top, width, height, color, hits_to_destroy, spawn_point')
+arena_nt = namedtuple('arena_nt', 'all_terr, max_monsters, possible_monsters')
+terrain_nt = namedtuple('terrain_nt', 'left, top, width, height, color, hits_to_destroy, spawn_point')
 
-arena1 = arena(all_terr=[terrain(0, 270, 300, 60, DKGREEN, -1, False),
-                         terrain(850, 270, 300, 60, DKGREEN, -1, False),
-                         terrain(545, 150, 60, 230, DKGREEN, -1, False),
-                         terrain(140, 100, 150, 20, DKGREEN, -1, False),
-                         terrain(860, 100, 150, 20, DKGREEN, -1, False),
-                         terrain(30, 240, 40, 20, WHITE, 5, False),
-                         terrain(1145, 465, -5, 5, RED, -1, True),
-                         terrain(15, 465, -5, 5, RED, -1, True), ],
-               max_monsters=1, possible_monsters=(WEAK, MEDIUM))
+arena1 = arena_nt(
+    all_terr=[
+        terrain_nt(0, 270, 300, 60, DKGREEN, -1, False),
+        terrain_nt(850, 270, 300, 60, DKGREEN, -1, False),
+        terrain_nt(545, 150, 60, 230, DKGREEN, -1, False),
+        terrain_nt(140, 100, 150, 20, DKGREEN, -1, False),
+        terrain_nt(860, 100, 150, 20, DKGREEN, -1, False),
+        terrain_nt(30, 240, 40, 20, WHITE, 5, False),
+        terrain_nt(1145, 465, -5, 5, RED, -1, True),
+        terrain_nt(15, 465, -5, 5, RED, -1, True), ],
+    max_monsters=1,
+    possible_monsters=(WEAK, MEDIUM))
 
-arena2 = arena(all_terr=[terrain(50, 100, 50, 300, DKGREEN, -1, False),
-                         terrain(240, 40, 50, 300, DKGREEN, -1, False),
-                         terrain(500, 135, 100, 25, DKGREEN, -1, False),
-                         terrain(725, 255, 175, 25, DKGREEN, -1, False),
-                         terrain(1050, 375, 100, 25, DKGREEN, -1, False),
-                         terrain(400, 434, 300, 41, DKGREEN, -1, False),
-                         terrain(485, 394, 300, 41, DKGREEN, -1, False),
-                         terrain(970, 65, 80, 10, DKGREEN, -1, False),
-                         terrain(150, 465, -5, 5, RED, -1, True),
-                         terrain(930, 465, -5, 5, RED, -1, True), ],
-               max_monsters=1, possible_monsters=ALL)
+arena2 = arena_nt(
+    all_terr=[
+        terrain_nt(50, 100, 50, 300, DKGREEN, -1, False),
+        terrain_nt(240, 40, 50, 300, DKGREEN, -1, False),
+        terrain_nt(500, 135, 100, 25, DKGREEN, -1, False),
+        terrain_nt(725, 255, 175, 25, DKGREEN, -1, False),
+        terrain_nt(1050, 375, 100, 25, DKGREEN, -1, False),
+        terrain_nt(400, 434, 300, 41, DKGREEN, -1, False),
+        terrain_nt(485, 394, 300, 41, DKGREEN, -1, False),
+        terrain_nt(970, 65, 80, 10, DKGREEN, -1, False),
+        terrain_nt(150, 465, -5, 5, RED, -1, True),
+        terrain_nt(930, 465, -5, 5, RED, -1, True), ],
+    max_monsters=1,
+    possible_monsters=ALL)
 
 # Monsters
-monster_info = namedtuple('monster_info', 'w, h, dx, dy, hp, chase, idle')
+monster_info_nt = namedtuple('monster_info_nt', 'w, h, dx, dy, hp, chase, idle')
 MONSTER_TABLE = {
-    WEAK: monster_info(30, 40, 2, 10, 100, 5000, 5000),
-    MEDIUM: monster_info(50, 60, 3, 12, 250, 7000, 5000),
-    ULTIMATE: monster_info(80, 80, 4, 13, 500, 10000, 5000)}
+    WEAK: monster_info_nt(30, 40, 2, 10, 100, 5000, 5000),
+    MEDIUM: monster_info_nt(50, 60, 3, 12, 250, 7000, 5000),
+    ULTIMATE: monster_info_nt(80, 80, 4, 13, 500, 10000, 5000)}
 

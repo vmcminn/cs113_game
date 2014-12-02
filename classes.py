@@ -383,7 +383,7 @@ class Input:
             self.gamepad_found = True
         except pygame.error:
             self.gamepad_found = False
-        self.debug_text_on = True
+        self.DEBUG_VIEW = True
         self.PAUSED = False
 
     def refresh(self):
@@ -412,7 +412,7 @@ class Input:
     def _handle_keyboard_updown_events(self):
         for event in pygame.event.get(KEYUP):
             if event.key == K_BACKQUOTE:
-                self.debug_text_on = not self.debug_text_on
+                self.DEBUG_VIEW = not self.DEBUG_VIEW
             if event.key == K_PAUSE:
                 self.PAUSED = not self.PAUSED
 
@@ -424,7 +424,6 @@ class Input:
         self.JUMP = self.kb_input[K_SPACE] or self.a_button
         self.ATTACK = self.kb_input[K_a] or self.x_button
         self.RESPAWN = self.kb_input[K_r] or self.y_button
-        self.DEBUG = self.kb_input[K_F12] or (self.start_button and self.back_button)
         self.EXIT = self.kb_input[K_q] or self.kb_input[K_ESCAPE] or self.back_button
         self.SKILL1 = self.kb_input[K_s]
         self.SKILL2 = self.kb_input[K_d]

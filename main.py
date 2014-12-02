@@ -261,12 +261,6 @@ class GameLoop:
                 self.surface.blit(rendered_font, self.pause_font_xy)
                 pygame.display.update()
 
-            # if self.input.DEBUG:
-            #     try:
-            #         exec(input('\nEnter something to exec: '))
-            #     except Exception as err:
-            #         print('>> {}: {} <<'.format(type(err).__name__, err))
-
             if self.input.RESPAWN and not self.input.PAUSED:
                 self.player1.topleft = self.player1.topleft_initial
 
@@ -448,16 +442,6 @@ class GameLoop:
                 if rect.color is not None:
                     pygame.draw.rect(self.surface, rect.color, rect)
 
-        def _draw_players_debug():
-            pygame.draw.rect(self.surface, LBLUE, self.player1)
-            if self.player1.facing_direction == LEFT:
-                self.player1_eyeball.topleft = self.player1.topleft
-                self.player1_eyeball.move_ip((+3, 3))
-            else:
-                self.player1_eyeball.topright = self.player1.topright
-                self.player1_eyeball.move_ip((-3, 3))
-            pygame.draw.rect(self.surface, DKRED, self.player1_eyeball)
-
         def _draw_players():
             # Draw player using wait_frames and animation_key
             # wait_frames = frames waited before key is incremented
@@ -571,8 +555,8 @@ class GameLoop:
         _draw_timer()
         _draw_map()
         _draw_monsters()
-        # _draw_players_debug()
-        _draw_players()
+        if not self.input.DEBUG_VIEW:
+            _draw_players()
         _draw_particles()
         _draw_scrolling_text()
         # _draw_rain()
@@ -581,26 +565,25 @@ class GameLoop:
     def draw_debug(self):
 
         def _draw_debug_text():
-            if self.input.debug_text_on:
-                x = '| x:{:>8.2f}|'.format(self.player1.x)
-                y = '| y:{:>8.2f}|'.format(self.player1.y)
-                dx = '|dx:{:>8.2f}|'.format(self.player1.dx)
-                dy = '|dy:{:>8.2f}|'.format(self.player1.dy)
-                debug_font_1 = self.debug_font.render(x, True, GREEN)
-                debug_font_2 = self.debug_font.render(y, True, GREEN)
-                debug_font_3 = self.debug_font.render(dx, True, GREEN)
-                debug_font_4 = self.debug_font.render(dy, True, GREEN)
-                self.surface.blit(debug_font_1, self.debug_font_xy1)
-                self.surface.blit(debug_font_2, self.debug_font_xy2)
-                self.surface.blit(debug_font_3, self.debug_font_xy3)
-                self.surface.blit(debug_font_4, self.debug_font_xy4)
+            x = '| x:{:>8.2f}|'.format(self.player1.x)
+            y = '| y:{:>8.2f}|'.format(self.player1.y)
+            dx = '|dx:{:>8.2f}|'.format(self.player1.dx)
+            dy = '|dy:{:>8.2f}|'.format(self.player1.dy)
+            debug_font_1 = self.debug_font.render(x, True, GREEN)
+            debug_font_2 = self.debug_font.render(y, True, GREEN)
+            debug_font_3 = self.debug_font.render(dx, True, GREEN)
+            debug_font_4 = self.debug_font.render(dy, True, GREEN)
+            self.surface.blit(debug_font_1, self.debug_font_xy1)
+            self.surface.blit(debug_font_2, self.debug_font_xy2)
+            self.surface.blit(debug_font_3, self.debug_font_xy3)
+            self.surface.blit(debug_font_4, self.debug_font_xy4)
 
-                num_monsters = '|curr num monsters:{:>2}|'.format(len(self.active_monsters))
-                max_monsters = '| max num monsters:{:>2}|'.format(self.arena.max_monsters)
-                debug_font_m1 = self.debug_font.render(num_monsters, True, GREEN)
-                debug_font_m2 = self.debug_font.render(max_monsters, True, GREEN)
-                self.surface.blit(debug_font_m1, self.debug_font_xy5)
-                self.surface.blit(debug_font_m2, self.debug_font_xy6)
+            num_monsters = '|curr num monsters:{:>2}|'.format(len(self.active_monsters))
+            max_monsters = '| max num monsters:{:>2}|'.format(self.arena.max_monsters)
+            debug_font_m1 = self.debug_font.render(num_monsters, True, GREEN)
+            debug_font_m2 = self.debug_font.render(max_monsters, True, GREEN)
+            self.surface.blit(debug_font_m1, self.debug_font_xy5)
+            self.surface.blit(debug_font_m2, self.debug_font_xy6)
 
         def _draw_destructible_terrain_debug_text():
             for rect in filter(lambda x: x.hits_to_destroy > 0, self.arena):
@@ -616,6 +599,16 @@ class GameLoop:
                 pygame.draw.circle(self.surface, BLACK, mouse_pos, 2, 1)
                 rendered_debug_font = self.debug_font_small.render(str(play_area_mouse_pos), True, BLACK)
                 self.surface.blit(rendered_debug_font, mouse_pos)
+
+        def _draw_players_debug():
+            pygame.draw.rect(self.surface, LBLUE, self.player1)
+            if self.player1.facing_direction == LEFT:
+                self.player1_eyeball.topleft = self.player1.topleft
+                self.player1_eyeball.move_ip((+3, 3))
+            else:
+                self.player1_eyeball.topright = self.player1.topright
+                self.player1_eyeball.move_ip((-3, 3))
+            pygame.draw.rect(self.surface, DKRED, self.player1_eyeball)
 
         def _draw_player_collision_points_for_debugging():
             coll_data = get_collision_data(self.player1, self.arena)
@@ -634,10 +627,12 @@ class GameLoop:
                 for l in locs:
                     pygame.draw.circle(self.surface, ORANGE, l, 3, 0)
 
-        _draw_debug_text()
-        _draw_destructible_terrain_debug_text()
-        _draw_player_collision_points_for_debugging()
-        _draw_mouse_text()
+        if self.input.DEBUG_VIEW:
+            _draw_debug_text()
+            _draw_destructible_terrain_debug_text()
+            _draw_players_debug()
+            _draw_player_collision_points_for_debugging()
+            _draw_mouse_text()
 
     # -------------------------------------------------------------------------
     def handle_event_queue(self):

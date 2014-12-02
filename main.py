@@ -43,13 +43,18 @@ class StartMenu:
             self.clock = pygame.time.Clock()
             self.fps = 5
 
+        def _setup_input():
+            self.input = Input()
+
         pygame.init()
         _setup_display()
         _setup_music()
         _setup_time()
+        _setup_input()
 
     def __call__(self):
         while True:
+            self.input.refresh()
             self.draw_UI()
             self.handle_events()
             self.clock.tick(self.fps)

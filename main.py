@@ -464,8 +464,7 @@ class GameLoop:
             flip = False  # value for flipping sprite
 
             # Draw player 2
-            pygame.draw.rect(self.surface, LBLUE, self.player2)
-
+            # pygame.draw.rect(self.surface, BLUE, self.player2)
 
             # Animations that still need to be implemented
             # if (self.player1.state == DEATH):
@@ -615,6 +614,7 @@ class GameLoop:
 
         def _draw_players_debug():
             pygame.draw.rect(self.surface, LBLUE, self.player1)
+            pygame.draw.rect(self.surface, LBLUE, self.player2)
             if self.player1.facing_direction == LEFT:
                 self.player1_eyeball.topleft = self.player1.topleft
                 self.player1_eyeball.move_ip((+3, 3))

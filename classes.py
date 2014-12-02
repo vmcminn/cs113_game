@@ -1,6 +1,7 @@
 import copy
 import math
 import random
+from collections import defaultdict
 from collections import namedtuple
 
 import pygame
@@ -66,7 +67,7 @@ class Player(Rect2):
 
         # speed
         self.dx, self.dy = 10, 4  # initial rates
-        self.dx_max, self.dy_max = 8, 15  # max speed, max fall rate
+        self.dx_max, self.dy_max = 12, 15  # max speed, max fall rate
 
         # acceleration - player input
         self.dx_movement = 2  # +/- applied when player moves
@@ -94,7 +95,7 @@ class Player(Rect2):
 
         # for debugging/testing:
         self.attack_id = 1
-        self.skill1_id = 105
+        self.skill1_id = 103
         self.skill2_id = 108
         self.skill3_id = 110
         self.ult_id = 1000
@@ -118,7 +119,7 @@ class Player(Rect2):
     # Call this after any damage is taken
     def shield_trigger(self):
         if self.hit_points < self.hit_points_max and self.conditions[SHIELD]:
-            s.sort(lambda k: k.remaining)  # Will subtract from lowest remaining time shield first
+            sorted(self.conditions[SHIELD], key=lambda k: k.remaining)  # Will subtract from lowest remaining time shield first
             for s in self.conditions[SHIELD]:
                 s.exchange()
 
@@ -135,10 +136,10 @@ class Player(Rect2):
 
     def __call__(self, input, arena_map):
         self._handle_facing_direction(input)
-        self._handle_acceleration(input)
-        self._handle_movement(arena_map)
         if not self.conditions[STUN] and not self.conditions[SILENCE]:
             self._handle_inputs(input)
+        self._handle_acceleration(input)
+        self._handle_movement(arena_map)
         self._determine_state(input)
 
     def _handle_facing_direction(self, input):
@@ -292,9 +293,9 @@ class Player(Rect2):
         elif input.RIGHT:
             self.state = RWALK
         elif input.LEFT:
-            self.state = LWALK        
+            self.state = LWALK
         else:
-            self.state = STAND   
+            self.state = STAND
 
 # -------------------------------------------------------------------------
 class Monster(Player):
@@ -387,7 +388,7 @@ class Input:
         self.DEBUG_VIEW = True
         self.PAUSED = False
         self.ENTER_LEAVE = False
-
+        self.gp_input = defaultdict(bool)
 
     def refresh(self):
         self._get_gamepad_axis_buttons_pressed()
@@ -398,20 +399,19 @@ class Input:
 
     def _get_gamepad_axis_buttons_pressed(self):
         if self.gamepad_found:
-            self.gp_input = {
-                GP_LEFT: round(self.gamepad.get_axis(0)) == -1,
-                GP_RIGHT: round(self.gamepad.get_axis(0)) == +1,
-                GP_UP: round(self.gamepad.get_axis(1)) == -1,
-                GP_DOWN: round(self.gamepad.get_axis(1)) == +1,
+            self.gp_input[GP_LEFT] = round(self.gamepad.get_axis(0)) == -1
+            self.gp_input[GP_RIGHT] = round(self.gamepad.get_axis(0)) == +1
+            self.gp_input[GP_UP] = round(self.gamepad.get_axis(1)) == -1
+            self.gp_input[GP_DOWN] = round(self.gamepad.get_axis(1)) == +1
                 #     Y
                 #   X   B
                 #     A
-                GP_Y: self.gamepad.get_button(3),
-                GP_X: self.gamepad.get_button(0),
-                GP_B: self.gamepad.get_button(2),
-                GP_A: self.gamepad.get_button(1),
-                GP_START: self.gamepad.get_button(9),
-                GP_BACK: self.gamepad.get_button(8), }
+            self.gp_input[GP_Y] = self.gamepad.get_button(3)
+            self.gp_input[GP_X] = self.gamepad.get_button(0)
+            self.gp_input[GP_B] = self.gamepad.get_button(2)
+            self.gp_input[GP_A] = self.gamepad.get_button(1)
+            self.gp_input[GP_START] = self.gamepad.get_button(9)
+            self.gp_input[GP_BACK] = self.gamepad.get_button(8)
 
     def _get_keyboard_keys_pressed(self):
         self.kb_input = pygame.key.get_pressed()
@@ -453,6 +453,7 @@ class Input:
         self.ULT = self.kb_input[K_g]
         self.DROP_SKILL = self.kb_input[K_q]
         self.MEDITATE = self.kb_input[K_w]
+        self.ENTER = self.kb_input[K_RETURN]
 
     def __getattr__(self, name):
         return None
@@ -560,7 +561,7 @@ class MeleeParticle(Particle):
                 target.dx *= -1
 
             if self.on_hit_f:
-                self.on_hit_f(target)
+                self.on_hit_f(self,target,time)
 
 # -------------------------------------------------------------------------
 class RangeParticle(Particle):
@@ -591,7 +592,10 @@ class RangeParticle(Particle):
                 self.ddy = 0
 
         # initial position
-        self.centerx = player.centerx
+        if player.facing_direction == RIGHT:
+            self.centerx = player.centerx + 40
+        else:
+            self.centerx = player.centerx - 40
         self.centery = player.centery
 
         if self.direction == RIGHT:
@@ -630,7 +634,7 @@ class RangeParticle(Particle):
                 target.dx *= -1
 
             if self.on_hit_f:
-                self.on_hit_f(self, target)
+                self.on_hit_f(self, target, time)
 
 # -------------------------------------------------------------------------
 class GameTime:

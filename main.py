@@ -73,9 +73,9 @@ class StartMenu:
                 HelpPage(self)()
             if 'click' in self.options_button.handleEvent(event):
                 OptionsPage(self)()
-            if event.type == pygame.KEYDOWN:
-                if event.key == K_RETURN:
-                    GameLoop(self)()
+            if self.input.ENTER_LEAVE:
+                self.input.ENTER_LEAVE = False
+                GameLoop(self)()
 
     def draw_UI(self):
         self.image = pygame.image.load('data/temp_start_bkg.png')
@@ -647,7 +647,8 @@ class GameLoop:
             for event in pygame.event.get():
                 if 'click' in self.return_button.handleEvent(event):
                     start_menu()
-            if self.input.ENTER:
+            if self.input.ENTER_LEAVE:
+                self.input.ENTER_LEAVE = False
                 self.start_menu()
 
         def _handle_time_tick_event():
@@ -743,6 +744,7 @@ class GameLoop:
         else:
             _handle_quit_event()
             self.input._handle_keyboard_updown_events()
+            self.input._handle_gamepad_updown_events()
             pygame.event.clear()
 
 # -------------------------------------------------------------------------
